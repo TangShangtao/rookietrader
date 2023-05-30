@@ -5,12 +5,13 @@
 
 #include "../ConstantDefs/Marcos.h"
 
+#include <iostream>
 NS_BEGIN
 class BaseObject
 {
 public:
-    BaseObject() :m_uRefs(1) {}
-    virtual ~BaseObject() {}
+    BaseObject() :m_uRefs(1) {std::cout << "BaseObject ctor, 地址: " << this << std::endl;}
+    virtual ~BaseObject() {std::cout << "BaseObject dtor, 地址: " << this << std::endl;}
 
 public:
     //
@@ -20,6 +21,7 @@ public:
     }
     virtual void release()
     {
+        std::cout << "BaseObject release" << std::endl;
         if (m_uRefs == 0)
         {
             return;
