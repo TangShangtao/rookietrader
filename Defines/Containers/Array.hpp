@@ -1,7 +1,8 @@
 #pragma once
 #include "../ConstantDefs/Marcos.h"
 #include "../BaseDefs/BaseObject.hpp"
-
+#include <algorithm>
+#include <functional>
 #include <vector>
 
 NS_BEGIN
@@ -18,7 +19,7 @@ public:
 	typedef std::vector<BaseObject*>::reverse_iterator ReverseIterator;
 	typedef std::vector<BaseObject*>::const_reverse_iterator ConstReverseIterator;
 
-	// typedef std::function<bool(WTSObject*, WTSObject*)>	SortFunc;
+	typedef std::function<bool(BaseObject*, BaseObject*)>	SortFunc;
 
 protected:
 	Array():_holding(false){}
@@ -26,6 +27,8 @@ protected:
 
 	std::vector<BaseObject*>	_vec;
 	std::atomic<bool>		_holding;
+
+public:
 	static Array* create()
 	{
 		Array* pRet = new Array();
@@ -56,16 +59,16 @@ protected:
 	 *	不增加数据的引用计数
 	 *	grab接口读取数据以后,增加引用计数
 	 */
-	WTSObject* at(uint32_t idx)
+	BaseObject* at(uint32_t idx)
 	{
 		if(idx <0 || idx >= _vec.size())
 			return NULL;
 
-		WTSObject* pRet = _vec.at(idx);
+		BaseObject* pRet = _vec.at(idx);
 		return pRet;
 	}
 
-	uint32_t idxOf(WTSObject* obj)
+	uint32_t idxOf(BaseObject* obj)
 	{
 		if (obj == NULL)
 			return -1;
@@ -87,7 +90,7 @@ protected:
 		if(idx <0 || idx >= _vec.size())
 			return NULL;
 
-		WTSObject* pRet = _vec.at(idx);
+		BaseObject* pRet = _vec.at(idx);
 		return static_cast<T*>(pRet);
 	}
 
@@ -95,12 +98,12 @@ protected:
 	 *	[]操作符重载
 	 *	用法同at函数
 	 */
-	WTSObject* operator [](uint32_t idx)
+	BaseObject* operator [](uint32_t idx)
 	{
 		if(idx <0 || idx >= _vec.size())
 			return NULL;
 
-		WTSObject* pRet = _vec.at(idx);
+		BaseObject* pRet = _vec.at(idx);
 		return pRet;
 	}
 
@@ -108,12 +111,12 @@ protected:
 	 *	读取数组指定位置的数据
 	 *	增加引用计数
 	 */
-	WTSObject*	grab(uint32_t idx)
+	BaseObject*	grab(uint32_t idx)
 	{
 		if(idx <0 || idx >= _vec.size())
 			return NULL;
 
-		WTSObject* pRet = _vec.at(idx);
+		BaseObject* pRet = _vec.at(idx);
 		if (pRet)
 			pRet->retain();
 
@@ -124,7 +127,7 @@ protected:
 	 *	数组末尾追加数据
 	 *	数据自动增加引用计数
 	 */
-	void append(WTSObject* obj, bool bAutoRetain = true)
+	void append(BaseObject* obj, bool bAutoRetain = true)
 	{
 		if (bAutoRetain && obj)
 			obj->retain();
@@ -137,7 +140,7 @@ protected:
 	 *	如果该位置已有数据,则释放掉
 	 *	新数据引用计数增加
 	 */
-	void set(uint32_t idx, WTSObject* obj, bool bAutoRetain = true)
+	void set(uint32_t idx, BaseObject* obj, bool bAutoRetain = true)
 	{
 		if(idx >= _vec.size() || obj == NULL)
 			return;
@@ -145,14 +148,14 @@ protected:
 		if(bAutoRetain)
 			obj->retain();
 
-		WTSObject* oldObj = _vec.at(idx);
+		BaseObject* oldObj = _vec.at(idx);
 		if(oldObj)
 			oldObj->release();
 
 		_vec[idx] = obj;
 	}
 
-	void append(WTSArray* ay)
+	void append(Array* ay)
 	{
 		if(ay == NULL)
 			return;
@@ -168,10 +171,10 @@ protected:
 	void clear()
 	{
 		{
-			std::vector<WTSObject*>::iterator it = _vec.begin();
+			std::vector<BaseObject*>::iterator it = _vec.begin();
 			for (; it != _vec.end(); it++)
 			{
-				WTSObject* obj = (*it);
+				BaseObject* obj = (*it);
 				if (obj)
 					obj->release();
 			}
@@ -185,7 +188,7 @@ protected:
 	 *	不同的是,如果引用计数为1时
 	 *	释放所有数据
 	 */
-	virtual void release()
+	virtual void release() override
 	{
 		if (m_uRefs == 0)
 			return;

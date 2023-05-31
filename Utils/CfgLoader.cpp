@@ -1,7 +1,7 @@
 #include "CfgLoader.h"
 #include "../Defines/Containers/Variant.hpp"
 #include "FileUtils.hpp"
-#include "StrUtils.hpp"
+#include "StrUtil.hpp"
 
 #include <rapidjson/document.h>
 namespace rj = rapidjson;
@@ -24,7 +24,7 @@ Variant* CfgLoader::load_from_file(const char* filename)
     }
     return nullptr;
 }
-
+bool json2variant(const rj::Value& root, Variant* params);
 Variant* CfgLoader::load_from_json(const char* content)
 {
     rj::Document root;
@@ -72,14 +72,14 @@ bool json2variant(const rj::Value& root, Variant* params)
                 }
 			}
 			break;
-			// case rj::kArrayType:
-			// {
-			// 	Variant* subAy = Variant::createArray();
-			// 	if (json2variant(item, subAy))
-            //     {
-            //         params->append(key, subAy, false);
-            //     }
-			// }
+			case rj::kArrayType:
+			{
+				Variant* subAy = Variant::createArray();
+				if (json2variant(item, subAy))
+                {
+                    params->append(key, subAy, false);
+                }
+			}
 			break;
 			case rj::kNumberType:
 				if (item.IsInt())
@@ -103,47 +103,47 @@ bool json2variant(const rj::Value& root, Variant* params)
 			}
 		}
 	}
-	// else
-	// {
-	// 	for (auto& item : root.GetArray())
-	// 	{
-	// 		switch (item.GetType())
-	// 		{
-	// 		case rj::kObjectType:
-	// 		{
-	// 			WTSVariant* subObj = WTSVariant::createObject();
-	// 			if (json_to_variant(item, subObj))
-	// 				params->append(subObj, false);
-	// 		}
-	// 		break;
-	// 		case rj::kArrayType:
-	// 		{
-	// 			WTSVariant* subAy = WTSVariant::createArray();
-	// 			if (json_to_variant(item, subAy))
-	// 				params->append(subAy, false);
-	// 		}
-	// 		break;
-	// 		case rj::kNumberType:
-	// 			if (item.IsInt())
-	// 				params->append(item.GetInt());
-	// 			else if (item.IsUint())
-	// 				params->append(item.GetUint());
-	// 			else if (item.IsInt64())
-	// 				params->append(item.GetInt64());
-	// 			else if (item.IsUint64())
-	// 				params->append(item.GetUint64());
-	// 			else if (item.IsDouble())
-	// 				params->append(item.GetDouble());
-	// 			break;
-	// 		case rj::kStringType:
-	// 			params->append(item.GetString());
-	// 			break;
-	// 		case rj::kTrueType:
-	// 		case rj::kFalseType:
-	// 			params->append(item.GetBool());
-	// 			break;
-	// 		}
-	// 	}
-	// }
-	// return true;
+	else
+	{
+		for (auto& item : root.GetArray())
+		{
+			switch (item.GetType())
+			{
+			case rj::kObjectType:
+			{
+				Variant* subMap = Variant::createMap();
+				if (json2variant(item, subMap))
+					params->append(subMap, false);
+			}
+			break;
+			case rj::kArrayType:
+			{
+				Variant* subAy = Variant::createArray();
+				if (json2variant(item, subAy))
+					params->append(subAy, false);
+			}
+			break;
+			case rj::kNumberType:
+				if (item.IsInt())
+					params->append(item.GetInt());
+				else if (item.IsUint())
+					params->append(item.GetUint());
+				else if (item.IsInt64())
+					params->append(item.GetInt64());
+				else if (item.IsUint64())
+					params->append(item.GetUint64());
+				else if (item.IsDouble())
+					params->append(item.GetDouble());
+				break;
+			case rj::kStringType:
+				params->append(item.GetString());
+				break;
+			case rj::kTrueType:
+			case rj::kFalseType:
+				params->append(item.GetBool());
+				break;
+			}
+		}
+	}
+	return true;
 }

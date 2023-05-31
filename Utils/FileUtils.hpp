@@ -1,4 +1,5 @@
 //文件操作类
+//文件编码方式:windows下默认为gbk, linux下默认为utf-8
 #pragma once
 
 #include <stdint.h>
@@ -13,9 +14,9 @@
 class FileUtils
 {
 public:
-	static uint64_t read_file_content(const std::string& filename, std::string& content)
+	static uint64_t read_file_content(const char* filename, std::string& content)
 	{
-		FILE* fp = fopen(filename.c_str(), "rb");
+		FILE* fp = fopen(filename, "rb");
 		fseek(fp, 0, SEEK_END);
 		uint32_t length = ftell(fp);
 		content.resize(length);
@@ -25,20 +26,20 @@ public:
 		return length;
 	}
 
-	static void write_file_content(const std::string& filename, const std::string& content)
+	static void write_file_content(const char* filename, const std::string& content)
 	{
 	}
 
-	static void write_file_content(const std::string& filename, const void* data, std::size_t length)
+	static void write_file_content(const char* filename, const void* data, std::size_t length)
 	{
 	}
 
-	static bool exists(const std::string& filename)
+	static bool exists(const char* filename)
 	{
 #if _WIN32
 		int ret = _access(filename, 0);
 #else
-		int ret = access(filename.c_str(), 0);
+		int ret = access(filename, 0);
 #endif
 		return ret == 0;
 	}

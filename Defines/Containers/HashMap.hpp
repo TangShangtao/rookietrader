@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-
+#include <iostream>
 
 NS_BEGIN
 
@@ -16,9 +16,11 @@ class HashMap : public BaseObject
 {
 public:
     typedef typename std::unordered_map<T, BaseObject*> MapType;
+    typedef typename MapType::iterator Iterator;
     typedef typename MapType::const_iterator ConstIterator;
 
-private:
+//private:
+public:
     MapType m_map;
 public:
     static HashMap<T>* create()
@@ -39,13 +41,25 @@ public:
             delete this;
         }
     }
+    Iterator begin() 
+    {
+        return m_map.begin();
+    }
     ConstIterator begin() const
     {
         return m_map.begin();
     }
+    Iterator end() 
+    {
+        return m_map.end();
+    }
     ConstIterator end() const
     {
         return m_map.end();
+    }
+    Iterator find(const T& key) 
+    {
+        return m_map.find(key);
     }
     ConstIterator find(const T& key) const
     {
@@ -62,7 +76,7 @@ public:
     }
     BaseObject* get(const T& key, bool bRetain)
     {
-        auto it = m_map.find(key);
+        Iterator it = m_map.find(key);
         if (it == m_map.end())
         {
             return nullptr;
@@ -71,7 +85,8 @@ public:
         {
             it->second->retain();
         }
-        return it->second;
+        BaseObject* pret = it->second;
+        return pret;
     }
     void add(const T& key, BaseObject* obj, bool bRetain)
     {
@@ -80,30 +95,27 @@ public:
             obj->retain();
         }
         BaseObject* old = nullptr;
-        auto it = m_map.find(key);
+        Iterator it = m_map.find(key);
         if (it != m_map.end())
         {
             old = it->second;
         }
+        m_map[key] = obj;
         if (old)
         {
             old->release();
         }
-        m_map[key] = obj;
+        
     }
     void remove(const T& key)
     {
-        auto it = m_map.find(key);
+        Iterator it = m_map.find(key);
         if (it != m_map.end())
         {
             it->second->release();
             m_map.erase(it);
         }
     }
-
-
-
-
 protected:
     HashMap() {}
     

@@ -12,7 +12,8 @@ USING_NS;
 
 class CfgLoader
 {
-private:
+// private:
+public:
     static Variant* load_from_json(const char* content);
     static Variant* load_from_yaml(const char* content);
 public:
