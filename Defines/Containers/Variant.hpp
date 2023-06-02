@@ -47,14 +47,14 @@ public:
     Value m_value;
 
 public:
-    static Variant* createMap()
+    static Variant* create_map()
     {
         Variant* pret = new Variant();
         pret->m_type = TYPE_MAP;
         pret->m_value._map = rookie::HashMap<std::string>::create();
         return pret;
     }
-    static Variant* createArray()
+    static Variant* create_array()
     {
 		Variant* pret = new Variant();
 		pret->m_type = TYPE_ARRAY;
@@ -63,7 +63,7 @@ public:
     }
 	virtual void release() override
 	{
-		if (getRefCount() == 1)
+		if (get_ref_count() == 1)
 		{
 			switch (m_type)
 			{
@@ -93,7 +93,7 @@ public:
 	//添加键值对
     bool append(const char* key, Variant* subv, bool bRetain)
 	{
-		if (!isMap())
+		if (!is_map())
 		{
 			return false;
 		}
@@ -106,7 +106,7 @@ public:
 	}
 	bool append(const char* key, const char* str)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -117,7 +117,7 @@ public:
 	}
 	bool append(const char* key, int32_t i32)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -128,7 +128,7 @@ public:
 	}
 	bool append(const char* key, uint32_t u32)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -139,7 +139,7 @@ public:
 	}
 	bool append(const char* key, int64_t i64)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -150,7 +150,7 @@ public:
 	}
 	bool append(const char* key, uint64_t u64)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -161,7 +161,7 @@ public:
 	}
 	bool append(const char* key, double d)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -172,7 +172,7 @@ public:
 	}
 	bool append(const char* key, bool b)
 	{
-		if (!isMap()) return false;
+		if (!is_map()) return false;
 		if (m_value._map == nullptr)
 		{
 			m_value._map = rookie::HashMap<std::string>::create();
@@ -308,67 +308,67 @@ public:
         return static_cast<Variant*>(m_value._map->get(key, false));
     }
 	//由键获取值, 不增加引用计数, 并直接值输出
-	int32_t getInt32(const char* key) const
+	int32_t get_int32(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asInt32();
+			return p->as_int32();
 
 		return 0;
 	}
-	uint32_t getUInt32(const char* key) const
+	uint32_t get_uint32(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asUInt32();
-
-		return 0;
-	}
-
-	int64_t getInt64(const char* key) const
-	{
-		Variant* p = get(key);
-		if (p)
-			return p->asInt64();
+			return p->as_uint32();
 
 		return 0;
 	}
 
-	uint64_t getUInt64(const char* key) const
+	int64_t get_int64(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asUInt64();
+			return p->as_int64();
 
 		return 0;
 	}
-	double getDouble(const char* key) const
+
+	uint64_t get_uint64(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asDouble();
+			return p->as_uint64();
+
+		return 0;
+	}
+	double get_double(const char* key) const
+	{
+		Variant* p = get(key);
+		if (p)
+			return p->as_double();
 
 		return 0.0;
 	}
-	std::string getString(const char* key) const
+	std::string get_string(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asString();
+			return p->as_string();
 
 		return "";
 	}
-	bool getBool(const char* key) const
+	bool get_bool(const char* key) const
 	{
 		Variant* p = get(key);
 		if (p)
-			return p->asBool();
+			return p->as_bool();
 
 		return false;
 	}
 	//获得全部键
 	typedef std::vector<std::string> Keys;
-	Keys getKeys() const
+	Keys get_keys() const
 	{
 		Keys ret;
 		if (m_type == TYPE_MAP && m_value._map)
@@ -383,7 +383,7 @@ public:
 		return ret;
 	}
 	//根节点数据输出
-    int32_t asInt32() const
+    int32_t as_int32() const
     {
         if (m_type != TYPE_INT32)
         {
@@ -391,7 +391,7 @@ public:
         }
         return m_value._string ? (int32_t)atof(m_value._string->c_str()): 0;
     }
-    int32_t asUInt32() const
+    int32_t as_uint32() const
     {
         if (m_type != TYPE_UINT32)
         {
@@ -399,7 +399,7 @@ public:
         }
         return m_value._string ? (uint32_t)atof(m_value._string->c_str()): 0;
     }
-    int64_t asInt64() const
+    int64_t as_int64() const
     {
         if (m_type != TYPE_INT64)
         {
@@ -407,7 +407,7 @@ public:
         }
         return m_value._string ? strtoll(m_value._string->c_str(), nullptr, 10): 0;
     }    
-    uint64_t asUInt64() const
+    uint64_t as_uint64() const
     {
         if (m_type != TYPE_UINT64)
         {
@@ -415,7 +415,7 @@ public:
         }
         return m_value._string ? strtoll(m_value._string->c_str(), nullptr, 10): 0;
     } 
-    double asDouble() const
+    double as_double() const
     {
         if (m_type != TYPE_DOUBLE)
         {
@@ -423,7 +423,7 @@ public:
         }
         return m_value._string ? strtod(m_value._string->c_str(), nullptr): 0.0;
     }
-    std::string asString() const
+    std::string as_string() const
     {
         if (m_type != TYPE_STRING)
         {
@@ -431,7 +431,7 @@ public:
         }
         return m_value._string ? *m_value._string : "";
     }
-    bool asBool() const
+    bool as_bool() const
     {
         if (m_type != TYPE_BOOL)
         {
@@ -442,8 +442,8 @@ public:
 
 	//值类型对外接口
 	ValueType type() const {return m_type;}
-	bool isArray() const {return m_type == TYPE_ARRAY;}
-	bool isMap() const {return m_type == TYPE_MAP;}	
+	bool is_array() const {return m_type == TYPE_ARRAY;}
+	bool is_map() const {return m_type == TYPE_MAP;}	
 
 public:    
 // private:

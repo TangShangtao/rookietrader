@@ -68,7 +68,7 @@ public:
 		return pRet;
 	}
 
-	uint32_t idxOf(BaseObject* obj)
+	uint32_t idx_of(BaseObject* obj)
 	{
 		if (obj == NULL)
 			return -1;

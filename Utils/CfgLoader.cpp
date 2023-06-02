@@ -33,7 +33,7 @@ Variant* CfgLoader::load_from_json(const char* content)
     {
         return nullptr;
     }
-    Variant* pret = Variant::createMap();
+    Variant* pret = Variant::create_map();
     if (!json2variant(root, pret))
     {
         pret->release();
@@ -49,10 +49,10 @@ Variant* CfgLoader::load_from_yaml(const char* content)
 
 bool json2variant(const rj::Value& root, Variant* params)
 {
-	if (root.IsObject() && !params->isMap())
+	if (root.IsObject() && !params->is_map())
 		return false;
 
-	if (root.IsArray() && !params->isArray())
+	if (root.IsArray() && !params->is_array())
 		return false;
 
 	if (root.IsObject())
@@ -65,7 +65,7 @@ bool json2variant(const rj::Value& root, Variant* params)
 			{
 			case rj::kObjectType:
 			{
-				Variant* subMap = Variant::createMap();
+				Variant* subMap = Variant::create_map();
 				if (json2variant(item, subMap))
                 {
                     params->append(key, subMap, false);
@@ -74,7 +74,7 @@ bool json2variant(const rj::Value& root, Variant* params)
 			break;
 			case rj::kArrayType:
 			{
-				Variant* subAy = Variant::createArray();
+				Variant* subAy = Variant::create_array();
 				if (json2variant(item, subAy))
                 {
                     params->append(key, subAy, false);
@@ -111,14 +111,14 @@ bool json2variant(const rj::Value& root, Variant* params)
 			{
 			case rj::kObjectType:
 			{
-				Variant* subMap = Variant::createMap();
+				Variant* subMap = Variant::create_map();
 				if (json2variant(item, subMap))
 					params->append(subMap, false);
 			}
 			break;
 			case rj::kArrayType:
 			{
-				Variant* subAy = Variant::createArray();
+				Variant* subAy = Variant::create_array();
 				if (json2variant(item, subAy))
 					params->append(subAy, false);
 			}

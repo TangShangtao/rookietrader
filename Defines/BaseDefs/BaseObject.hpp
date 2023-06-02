@@ -31,7 +31,7 @@ public:
         }
         
     }
-    uint32_t getRefCount() { return m_uRefs; }
+    uint32_t get_ref_count() { return m_uRefs; }
 
 protected:
     volatile std::atomic<uint32_t> m_uRefs;
