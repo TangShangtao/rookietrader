@@ -1,4 +1,5 @@
-#include "tools/Logger.h"
+#include "Defines/CommonDefs/CommodityInfo.hpp"
+
 #include <iostream>
 #include <string>
 
@@ -6,12 +7,12 @@
 #define endl << std::endl
 
 
+USING_NS;
+
 
 int main()
 {
-    int i = 0;
-    const char* str = "helloworld";
-    Logger::init();
-    Logger::debug("debug{}", i);
+    CommodityInfo* c = CommodityInfo::create("IF", "CFFEX", "IF", "09:15-11:30,13:00-15:15", "IF");
 
+    int a = 1;
 }
