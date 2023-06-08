@@ -58,6 +58,7 @@ public:
         return m_map.end();
     }
     Iterator find(const T& key) 
+    //不同地址同内容的const char*经过隐式转换后为同地址的const string
     {
         return m_map.find(key);
     }
@@ -106,6 +107,10 @@ public:
             old->release();
         }
         
+    }
+    uint32_t size() const
+    {
+        return (uint32_t)m_map.size();
     }
     void remove(const T& key)
     {

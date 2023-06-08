@@ -4,6 +4,8 @@
 //日志级别:DEBUG、INFO、WARNNING、ERROR、FATAL
 //日志翻滚:设置日志大小
 #pragma once
+#include "../Utils/StrUtils.hpp"
+
 #include <memory>
 #include <spdlog/spdlog.h>
 
@@ -22,16 +24,6 @@ public:
     }LogLevel;
     typedef std::shared_ptr<spdlog::logger> LoggerPtr;
 public:
-
-public:
-    template<typename... Args>
-    static char* format_to(char* buffer, const char* fmt, const Args& ...args)
-    {
-        char* s = fmt::format_to(buffer, fmt, args...);
-        s[0] = '\0';
-        return s;
-    }
-public:
     static bool m_bInited;
     static LoggerPtr m_pLogger;
     // thread_local
@@ -45,9 +37,9 @@ public:
     {
         if (!m_bInited)
         {
-            return;
+            init();
         }
-        format_to(m_msg, fmt, args...);
+        StrUtils::format_to(m_msg, fmt, args...);
         m_pLogger->debug(m_msg);
     }
     template<typename... Args>
@@ -55,10 +47,30 @@ public:
     {
         if (!m_bInited)
         {
-            return;
+            init();
         }
-        format_to(m_msg, fmt, args...);
+        StrUtils::format_to(m_msg, fmt, args...);
         m_pLogger->info(m_msg);
+    }
+    template<typename... Args>
+    static void error(const char* fmt, const Args& ...args)
+    {
+        if (!m_bInited)
+        {
+            init();
+        }
+        StrUtils::format_to(m_msg, fmt, args...);
+        m_pLogger->error(m_msg);
+    }
+    template<typename... Args>
+    static void warn(const char* fmt, const Args& ...args)
+    {
+        if (!m_bInited)
+        {
+            init();
+        }
+        StrUtils::format_to(m_msg, fmt, args...);
+        m_pLogger->warn(m_msg);
     }
 
 

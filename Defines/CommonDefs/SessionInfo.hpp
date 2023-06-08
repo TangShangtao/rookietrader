@@ -23,10 +23,10 @@ public:
 
 public:
     // 此处与wondertrader不同
-    static SessionInfo* create(const char* Sid, const char* name, int32_t offsetMins = 0)
+    static SessionInfo* create(const char* sid, const char* name, int32_t offsetMins = 0)
     {
         SessionInfo* pRet = new SessionInfo;
-        pRet->m_strSid = Sid;
+        pRet->m_strSid = sid;
         pRet->m_strName = name;
         pRet->m_uOffsetMins = offsetMins;
         return pRet;

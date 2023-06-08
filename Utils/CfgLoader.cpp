@@ -1,7 +1,7 @@
 #include "CfgLoader.h"
 #include "../Defines/Containers/Variant.hpp"
 #include "FileUtils.hpp"
-#include "StrUtil.hpp"
+#include "StrUtils.hpp"
 
 #include <rapidjson/document.h>
 namespace rj = rapidjson;
@@ -14,11 +14,11 @@ Variant* CfgLoader::load_from_file(const char* filename)
     FileUtils::read_file_content(filename, content);
     if (content.empty()) return nullptr;
     //自动检测&转换编码的逻辑-待实现
-    if (StrUtil::endsWith(filename, ".json"))
+    if (StrUtils::endsWith(filename, ".json"))
     {
         return load_from_json(content.c_str());
     }
-    else if (StrUtil::endsWith(filename, ".yaml"))
+    else if (StrUtils::endsWith(filename, ".yaml"))
     {
         return load_from_yaml(content.c_str());
     }
@@ -100,6 +100,9 @@ bool json2variant(const rj::Value& root, Variant* params)
 			case rj::kFalseType:
 				params->append(key, item.GetBool());
 				break;
+
+			case rj::kNullType:
+				return false;
 			}
 		}
 	}
@@ -142,6 +145,8 @@ bool json2variant(const rj::Value& root, Variant* params)
 			case rj::kFalseType:
 				params->append(item.GetBool());
 				break;
+			case rj::kNullType:
+				return false;
 			}
 		}
 	}

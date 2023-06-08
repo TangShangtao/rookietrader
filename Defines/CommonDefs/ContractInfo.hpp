@@ -68,6 +68,8 @@ public:
     uint32_t get_min_lmt_qty() const { return m_minLmtQty; }
     void set_comm_info(CommodityInfo* pCommInfo) { m_pCommInfo = pCommInfo; }
     CommodityInfo* get_comm_info() const { return m_pCommInfo; }
+
+
 };
 
 

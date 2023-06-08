@@ -27,8 +27,7 @@ public:
 
 	uint32_t	m_uVolScale;	//合约乘数
 	double		m_dPriceTick;	//最小价格变动单位
-	//uint32_t	m_uPrecision;	//价格精度
-	double		m_dLotTick;		//数量精度
+	double		m_dLotTick;		//数量精度(最小交易数量变动单位?)
 	double		m_dMinLots;		//最小交易数量
 
 	ContractCategory	m_ccCategory;	//品种分类，期货、股票、期权等
@@ -62,6 +61,7 @@ public:
 	void set_cover_mode(CoverMode cm){ m_coverMode = cm; }
 	void set_price_mode(PriceMode pm){ m_priceMode = pm; }
 	void set_trading_mode(TradingMode tm) { m_tradeMode = tm; }
+	void set_session_info(SessionInfo* session){ m_pSession = session; }
 
 	const char* get_name() const { return m_strName.c_str(); }
 	const char* get_exchg() const { return m_strExchg.c_str(); }
@@ -82,7 +82,6 @@ public:
 
 	void add_code(const char* code){ m_setCodes.insert(code); }
 	const CodeSet& get_codes() const { return m_setCodes; }
-	void set_session_info(SessionInfo* session){ m_pSession = session; }
 	SessionInfo* get_session_info() const { return m_pSession; }
 
 	bool is_future() const { return m_ccCategory == CC_Future; }

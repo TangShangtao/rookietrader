@@ -285,6 +285,22 @@ public:
 		m_value._array->append(subv, false);
 		return true;
 	}
+	uint32_t size() const
+	{
+		if (m_type != TYPE_ARRAY && m_type != TYPE_MAP)
+		{
+			return -1;
+		}
+		else if (m_type == TYPE_ARRAY)
+		{
+			return (!m_value._array) ? m_value._array->size() : 0;
+		}
+		else
+		{
+			return (!m_value._map) ? m_value._map->size() : 0;
+		}
+
+	}
 	//判断是否存在键值对
 	bool has(const char* key) const
     {
@@ -299,7 +315,8 @@ public:
         return true;
     }
 	//由键获取值, 不增加引用计数
-    Variant* get(const char* key) const
+	//注:接受键值的参数类型为std::string&，而不是const char*
+    Variant* get(const std::string& key) const
     {
         if (m_type != TYPE_MAP)
         {
@@ -307,6 +324,17 @@ public:
         }
         return static_cast<Variant*>(m_value._map->get(key, false));
     }
+	//注:已经明确知道此处为基类指针转换为派生类指针，所以可以使用static_cast
+	//对于Array
+	Variant* get(uint32_t idx) const
+	{
+		if (m_type != TYPE_ARRAY || m_value._array == nullptr)
+		{
+			return nullptr;
+		}
+		Variant* ret = static_cast<Variant*>(m_value._array->at(idx));
+		return ret;
+	}
 	//由键获取值, 不增加引用计数, 并直接值输出
 	int32_t get_int32(const char* key) const
 	{
@@ -355,6 +383,14 @@ public:
 		Variant* p = get(key);
 		if (p)
 			return p->as_string();
+
+		return "";
+	}
+	const char* get_cstring(const char* key) const
+	{
+		Variant* p = get(key);
+		if (p)
+			return p->as_cstring();
 
 		return "";
 	}
@@ -431,6 +467,14 @@ public:
         }
         return m_value._string ? *m_value._string : "";
     }
+	const char* as_cstring() const
+	{
+		if (m_type != TYPE_STRING)
+		{
+			return "";
+		}
+		return m_value._string ? m_value._string->c_str() : "";
+	}
     bool as_bool() const
     {
         if (m_type != TYPE_BOOL)

@@ -1,18 +1,20 @@
-#include "Defines/CommonDefs/CommodityInfo.hpp"
+#include "HisDataReplayer/CommonMgr.h"
+
 
 #include <iostream>
 #include <string>
-
 #define print std::cout << 
 #define endl << std::endl
 
 
-USING_NS;
-
-
 int main()
 {
-    CommodityInfo* c = CommodityInfo::create("IF", "CFFEX", "IF", "09:15-11:30,13:00-15:15", "IF");
+    CommonMgr cmgr;
+    cmgr.load_sessions("dist/common/sessions.json");
+    cmgr.load_commodities("dist/common/commodities.json");
 
-    int a = 1;
+    cmgr.load_contracts("dist/common/contracts.json");
+    cmgr.load_holidays("dist/common/holidays.json");
+    
+
 }
