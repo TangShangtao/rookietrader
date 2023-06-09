@@ -2,10 +2,12 @@
 #pragma once
 #include <stdint.h>
 #include <atomic>
+#include <boost/pool/pool.hpp>
 
 #include "../ConstantDefs/Marcos.h"
-
+#include "../../tools/SpinMutex.hpp"
 NS_BEGIN
+//基类对象，引用计数
 class BaseObject
 {
 public:
@@ -35,5 +37,78 @@ public:
 
 protected:
     volatile std::atomic<uint32_t> m_uRefs;
+};
+//对象池
+template<typename T>
+class BasePool
+{
+private:
+    boost::pool<> _pool;
+public:
+    BasePool() : _pool(sizeof(T)) {}
+    virtual ~BasePool() {}
+
+    T* construct()
+    {
+        void* mem = _pool.malloc();
+        if (!mem) return nullptr;
+        T* pobj = new(mem) T();
+        return pobj;
+    }
+    void destroy(T* pobj)
+    {
+        pobj->~T();
+        _pool.free(pobj);
+    }
+    void release()
+    {
+        _pool.release_memory();
+    }
+};
+template<typename T>
+class PoolObject : public BaseObject
+{
+public:
+    typedef BasePool<T> MyPool;
+public:
+    MyPool* _pool;
+    SpinMutex* _mutex;
+public:
+    PoolObject() : m_pool(nullptr) {}
+    virtual ~PoolObject() {}
+public:
+    static T* allocate()
+    {
+        thread_local static MyPool pool;
+        thread_local static SpinMutex mtx;
+        mtx.lock();
+        T* ret = pool.construct();
+        mtx.unlock();
+        ret->_pool = &pool;
+        ret->_mutex = &mtx;
+        return ret;
+    }
+public:
+    virtual void release() override
+    {
+		if (m_uRefs == 0)
+			return;
+
+		try
+		{
+			uint32_t cnt = m_uRefs.fetch_sub(1);
+			if (cnt == 1)
+			{
+				_mutex->lock();
+				_pool->destroy((T*)this);
+				_mutex->unlock();
+			}
+		}
+		catch (...)
+		{
+
+		}
+	}   
+
 };
 NS_END;

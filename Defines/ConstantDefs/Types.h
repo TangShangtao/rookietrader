@@ -46,6 +46,15 @@ typedef enum tagTradingMode
     TM_LongT1,	//做多T+1
     TM_None = 9	//不能交易
 } TradingMode;
-
+//K线周期(min/5min/1h/day)
+typedef enum tagBarPeriod
+{
+    BP_Tick,
+    BP_Min,
+    BP_5MIN,
+    BP_DAY
+    //BP_WEEK,
+    //BP_MONTH
+}BarPeriod;
 
 NS_END;
