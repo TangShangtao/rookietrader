@@ -1,3 +1,7 @@
+//存放BaseObject指针的数组
+//配合Variant读取配置信息
+//存放各类Info配置信息
+
 #pragma once
 #include "../ConstantDefs/Marcos.h"
 #include "../BaseDefs/BaseObject.hpp"

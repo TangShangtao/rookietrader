@@ -1,10 +1,8 @@
 #include "CommonMgr.h"
 
-#include "../Defines/CommonDefs/CommodityInfo.hpp"
-#include "../Defines/CommonDefs/ContractInfo.hpp"
-#include "../Defines/CommonDefs/SessionInfo.hpp"
 
-#include "../Utils/CfgLoader.h"
+
+#include "../DataKit/CfgLoader.h"
 #include "../Utils/FileUtils.hpp"
 #include "../Utils/StrUtils.hpp"
 #include "../Utils/TimeUtils.hpp"

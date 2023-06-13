@@ -71,8 +71,8 @@ class PoolObject : public BaseObject
 public:
     typedef BasePool<T> MyPool;
 public:
-    MyPool* _pool;
-    SpinMutex* _mutex;
+    MyPool* m_pool;
+    SpinMutex* m_mutex;
 public:
     PoolObject() : m_pool(nullptr) {}
     virtual ~PoolObject() {}
@@ -84,8 +84,8 @@ public:
         mtx.lock();
         T* ret = pool.construct();
         mtx.unlock();
-        ret->_pool = &pool;
-        ret->_mutex = &mtx;
+        ret->m_pool = &pool;
+        ret->m_mutex = &mtx;
         return ret;
     }
 public:
@@ -99,9 +99,9 @@ public:
 			uint32_t cnt = m_uRefs.fetch_sub(1);
 			if (cnt == 1)
 			{
-				_mutex->lock();
-				_pool->destroy((T*)this);
-				_mutex->unlock();
+				m_mutex->lock();
+				m_pool->destroy((T*)this);
+				m_mutex->unlock();
 			}
 		}
 		catch (...)

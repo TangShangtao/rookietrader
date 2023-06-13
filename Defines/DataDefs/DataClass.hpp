@@ -84,6 +84,7 @@ public:
     {
         TickData* pret = allocate();
         memcpy(&pret->m_tickStruct, &tickStruct, sizeof(TickStruct));
+        return pret;
     }
     void set_contractInfo(ContractInfo* contractInfo) { m_pContract = contractInfo; }
 

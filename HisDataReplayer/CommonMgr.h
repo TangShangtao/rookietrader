@@ -1,21 +1,24 @@
 //通用配置信息管理器
+//1.品种信息
+//2.合约信息、费用信息
+//3.节假日信息
+//4.交易时间段信息
+//5.主力合约切换信息
 #pragma once
 #include "../Defines/ConstantDefs/Marcos.h"
 #include "../Defines/Containers/HashMap.hpp"
 #include "../Defines/Containers/Array.hpp"
 #include "../Defines/Containers/Variant.hpp"
+#include "../Defines/CommonDefs/CommodityInfo.hpp"
+#include "../Defines/CommonDefs/ContractInfo.hpp"
+#include "../Defines/CommonDefs/SessionInfo.hpp"
+
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
 #include <set>
 
-NS_BEGIN
-class CommodityInfo;
-class SessionInfo;
-class ContractInfo;
-class Array;
-class Variant;
-NS_END;
+
 USING_NS;
 
 class CommonMgr

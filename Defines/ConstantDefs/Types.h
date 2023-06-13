@@ -51,7 +51,7 @@ typedef enum tagBarPeriod
 {
     BP_Tick,
     BP_Min,
-    BP_5MIN,
+    BP_5MIN,//5分钟的倍数，用5分钟bar重采样
     BP_DAY
     //BP_WEEK,
     //BP_MONTH
