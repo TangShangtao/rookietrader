@@ -14,6 +14,7 @@
 class FileUtils
 {
 public:
+	//读取整个文件到string中
 	static uint64_t read_file_content(const char* filename, std::string& content)
 	{
 		FILE* fp = fopen(filename, "rb");
@@ -33,7 +34,7 @@ public:
 	static void write_file_content(const char* filename, const void* data, std::size_t length)
 	{
 	}
-
+	//指定文件是否存在
 	static bool exists(const char* filename)
 	{
 #if _WIN32

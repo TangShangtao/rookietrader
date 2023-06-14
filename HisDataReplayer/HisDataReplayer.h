@@ -16,7 +16,7 @@ class TickSlice;
 class BarSlice;
 NS_END;
 USING_NS;
-
+//stdCode : CFFEX.IF.HOT (Exchg.Pid.RuleTag)
 class HisDataReplayer
 {
 public:
@@ -32,10 +32,11 @@ public:
     CommonMgr           m_commonMgr;
     IEventCallbacks*    m_listener;//抽象类必须用指针形式触发多态
     //历史行情数据订阅&缓存
-    StraSubMap          m_tick_sub_map;
+    StraSubMap          m_tick_sub_map;         //{stdCode : }
     StraSubMap          m_bar_sub_map;
     TickCache           m_tick_cache;
     BarCache            m_bar_cache;
+    BarCache            m_unsubbed_bar_cache;
     //回放器设置
     uint64_t            m_uBeginTime;
     uint64_t            m_uEndTime;
@@ -52,11 +53,11 @@ public:
     void            sub_tick(uint32_t ctxId, const char* stdCode);//策略订阅所需数据
     // void            sub_bar(uint32_t ctxId, const char* stdCode); //策略订阅所需数据
     bool            check_ticks(uint32_t uDate);//检查一日数据缓存
-    // bool            check_bars(uint32_t uDate); //检查一日数据缓存
+
     bool            cache_ticks_from_dsb(const char* stdCode, uint32_t uDate);//读取一日tick数据到缓存
     bool            cache_ticks_from_csv(const char* stdCode, uint32_t uDate);//读取一日tick数据到缓存
-    bool            cache_bars_from_dsb(const char* stdCode, BarPeriod period);//读取全部bar数据到缓存
-    bool            cache_bars_from_csv(const char* stdCode, BarPeriod period);//读取全部bar数据到缓存
+    bool            cache_bars_from_dsb(const char* stdCode, BarPeriod period, bool bSubbed);//读取全部bar数据到缓存
+    bool            cache_bars_from_csv(const char* stdCode, BarPeriod period, bool bSubbed);//读取全部bar数据到缓存
 
     //2.回放历史数据，调用事件回调
     void            run_by_bars();

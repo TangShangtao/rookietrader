@@ -109,12 +109,10 @@ bool HisDataReplayer::check_ticks(uint32_t uDate)
     }
     return true;
 }
-// bool HisDataReplayer::check_bars(uint32_t uDate)
-// {
-    
-
-// }
-bool HisDataReplayer::cache_ticks_from_csv(const char* stdCode, uint32_t uDate)
+//1.有dsb数据则直接读取
+//2.没有dsb数据则读取csv数据
+//3.若读取csv数据，转储一份dsb数据
+bool HisDataReplayer::cache_bars_from_csv(const char* stdCode, BarPeriod period, bool bSubbed)
 {
     
 }

@@ -2,6 +2,7 @@
 #pragma once 
 #include <spdlog/fmt/fmt.h>
 #include <string>
+#include <vector>
 
 #define MAX_MSG_LEN 1024
 class StrUtils
@@ -42,5 +43,56 @@ public:
 		{
 			return strncmp(s, pattern, patternLen) == 0;
 		}
+	}
+	//指定字符集，去除原字符首尾的空格、tab、换行
+	static std::string trim(std::string& str, const char* delims = " \t\r", bool left = true, bool right = true)
+	{
+		std::string ret = str;
+		if (right)
+		{
+			ret.erase(ret.find_last_not_of(delims) + 1);
+		}
+		if (left)
+		{
+			ret.erase(0, ret.find_first_not_of(delims));
+		}
+		return std::move(ret);//将局部变量ret直接"转移"到外部的左值，避免值拷贝
+	}
+	typedef std::vector<std::string> StringVector;
+	static StringVector split(const std::string& str, const std::string& delims = "\t\n ", unsigned int maxSplits = 0)
+	{
+		StringVector ret;
+		unsigned int numSplits = 0;
+
+		// Use STL methods
+		size_t start, pos;
+		start = 0;
+		do
+		{
+			pos = str.find_first_of(delims, start);
+			if (pos == start)
+			{
+				ret.emplace_back("");
+				// Do nothing
+				start = pos + 1;
+			}
+			else if (pos == std::string::npos || (maxSplits && numSplits == maxSplits))
+			{
+				// Copy the rest of the std::string
+				ret.emplace_back( str.substr(start) );
+				break;
+			}
+			else
+			{
+				// Copy up to delimiter
+				ret.emplace_back( str.substr(start, pos - start) );
+				start = pos + 1;
+			}
+			// parse up to next real data
+			//start = str.find_first_not_of(delims, start);
+			++numSplits;
+
+		} while (pos != std::string::npos);
+		return std::move(ret);
 	}
 };

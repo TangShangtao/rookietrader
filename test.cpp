@@ -3,16 +3,17 @@
 #include <string>
 #include <stdint.h>
 #include <string.h>
-#include <unordered_map>
+#include <fstream>
 #define print std::cout << 
 #define endl << std::endl
-#include "Defines/DataDefs/DataClass.hpp"
+
 
 
 int main()
 {
-    print sizeof(rookie::TickData) endl;
-    print sizeof(rookie::BarData) endl;
-
+    std::string tests = "1234abcd";
+    int pos = tests.find_last_not_of("cd");
+    tests.erase(pos);
+    print tests endl;
     
 }
