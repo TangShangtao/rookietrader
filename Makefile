@@ -1,16 +1,16 @@
 CXX = g++
 TARGET = test
-SRC = test.cpp HisDataReplayer/CommonMgr.cpp DataKit/CfgLoader.cpp tools/Logger.cpp
-OBJ = build/test.o build/HisDataReplayer/CommonMgr.o build/DataKit/CfgLoader.o build/tools/Logger.o
+SRC = test.cpp tools/CommonMgr.cpp DataKit/CfgLoader.cpp tools/Logger.cpp
+OBJ = build/test.o build/tools/CommonMgr.o build/DataKit/CfgLoader.o build/tools/Logger.o
 
-CXXFLAGS = -c -Wall -g 
+CXXFLAGS =  -c -Wall -g 
 
 $(TARGET): $(OBJ)
-	$(CXX) -pthread -o $@ $^
+	$(CXX) -o $@ $^ -ldl -pthread
 build/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 clean:
 	find build/ -name "*.o" -type f -delete && rm -f $(TARGET)
 dir:
-	mkdir -p build/HisDataReplayer/ build/DataKit/ build/tools/
+	mkdir -p build/BacktestSystem/HisDataReplayer/ build/DataKit/ build/tools/

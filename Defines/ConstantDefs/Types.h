@@ -1,6 +1,7 @@
 #pragma once
 #include "Marcos.h"
 //枚举类型定义
+
 NS_BEGIN
 //合约类型
 typedef enum tagContractCategory
@@ -51,10 +52,49 @@ typedef enum tagBarPeriod
 {
     BP_Tick,
     BP_Min,
-    BP_5MIN,//5分钟的倍数，用5分钟bar重采样
-    BP_DAY
+    BP_5Min,//5分钟的倍数，用5分钟bar重采样
+    BP_Day
     //BP_WEEK,
     //BP_MONTH
 }BarPeriod;
+
+// //交易网关基础事件
+// typedef enum tagGatewayEvent
+// {
+//     GE_Connect,         //与交易平台连接
+//     GE_DisConnect,      //与交易平台断开连接
+//     GE_Login,           //登录交易平台
+//     GE_Logout           //登出交易平台
+// }GatewayEvent;
+
+//合约交易状态类型
+typedef enum tagTradeStatus
+{
+    TS_BeforeTrading    = '0',  //开盘前
+    TS_NotTrading       = '1',	//非交易
+    TS_Continous        = '2',	//连续竞价
+	TS_AuctionOrdering	= '3',	//集合竞价下单
+	TS_AuctionBalance	= '4',	//集合竞价平衡
+	TS_AuctionMatch		= '5',	//集合竞价撮合
+	TS_Closed			= '6'	//收盘
+
+}TradeStatus;
+//交易网关连接状态
+typedef enum tagTradingGatewayConnectState
+{
+    CS_NotInited,                //网关未初始化
+    CS_DisConnected,            //未连接
+    CS_Connecting,              //连接中
+    CS_Connected,               //已连接未认证
+    // CS_Authenticating,          //认证中
+    // CS_Authenticated,           //已认证
+    CS_Logging,                 //登录中
+    CS_Logged,                  //已登录未确认结算单
+    CS_Confirming,              //确认结算单中
+    CS_Confirmed,               //已确认结算单
+    CS_Ready                    //准备就绪
+}TGConnectState;
+//行情网关连接状态
+
 
 NS_END;
