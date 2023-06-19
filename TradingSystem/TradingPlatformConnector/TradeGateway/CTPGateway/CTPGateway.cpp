@@ -95,7 +95,7 @@ void CTPGateway::disconnect()
 }
 bool CTPGateway::is_connected()
 {
-    return false;
+    return (m_gatewayState >= CS_Connected);
 }
 int CTPGateway::login()
 {
@@ -181,6 +181,9 @@ void CTPGateway::OnRspAuthenticate(CThostFtdcRspAuthenticateField* pRspAuthentic
     {
         m_gatewayState = CS_Connected;
         Logger::info("CTP Authentication failed, error msg: {}", pRspInfo->ErrorMsg);
+        // FILE* fp = fopen("error.txt", "w");
+        // fwrite(pRspInfo->ErrorMsg, 1, strlen(pRspInfo->ErrorMsg), fp);
+        // fclose(fp);
     }
 }
 void CTPGateway::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -202,6 +205,9 @@ void CTPGateway::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CTho
     {
         m_gatewayState = CS_Connected;
         Logger::info("login CTP failed: {}", pRspInfo->ErrorMsg);
+        FILE* fp = fopen("error.txt", "w");
+        fwrite(pRspInfo->ErrorMsg, 1, strlen(pRspInfo->ErrorMsg), fp);
+        fclose(fp);
     }
 
 }
@@ -222,6 +228,10 @@ void CTPGateway::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmFi
             if (uConfirmDate >= m_uTradingDay)
             {
                 Logger::info("settlement info already confirmed in {}", uConfirmDate);
+                m_gatewayState = CS_Confirmed;
+                Logger::info("confirm settlement info succeed");
+                m_gatewayState = CS_Ready;
+                Logger::info("CTP gateway is ready to trade");
             }
             else
             {
@@ -362,7 +372,7 @@ uint32_t CTPGateway::generate_requestID()
 
 bool CTPGateway::is_err_rspInfo(CThostFtdcRspInfoField* pRspInfo)
 {
-    if (pRspInfo && pRspInfo->ErrorMsg != 0) return true;
+    if (pRspInfo && pRspInfo->ErrorID != 0) return true;
     return false;
 }
 

@@ -94,7 +94,17 @@ typedef enum tagTradingGatewayConnectState
     CS_Confirmed,               //已确认结算单
     CS_Ready                    //准备就绪
 }TGConnectState;
-//行情网关连接状态
+
+//多空方向
+typedef enum tagDirectionType
+{
+    DT_Long,
+    DT_Short,
+    DT_Net
+
+}DirectionType;
+
+
 
 
 NS_END;

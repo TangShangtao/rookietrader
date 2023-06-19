@@ -16,5 +16,6 @@ int main()
     gateway.connect();
     gateway.login();
     gateway.join();
+    // Logger::info("hello world");
     
 }   
