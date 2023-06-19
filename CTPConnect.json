@@ -1,0 +1,10 @@
+{
+    "front" : "tcp://180.168.146.187:10201",
+    "broker" : "9999",
+    "user" : "tushetou",
+    "pass" : "Tt1234567890!",
+    "appid" : "simnow_client_test",
+    "authcode" : "0000000000000000",
+    "flowdir" : "CTPFlow",
+    "prodinfo" : ""
+}

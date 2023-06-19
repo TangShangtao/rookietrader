@@ -321,7 +321,7 @@ uint32_t CommonMgr::calc_trading_date(const char* ExchgPid, uint32_t uDate, uint
 }
 bool CommonMgr::is_holiday(const char* ExchgPid, uint32_t uDate, bool isTpl /* = false */)
 {
-    uint32_t wd = TimeUtils::getWeekDay(uDate);
+    uint32_t wd = TimeUtils::get_weekday_int(uDate);
     if (wd == 0 || wd == 6)
     {
         return true;
@@ -341,7 +341,7 @@ uint32_t CommonMgr::get_trading_date(const char* ExchgPid, uint32_t uOffDate /* 
     const char* tplid = isTpl ? ExchgPid : get_tplid(ExchgPid);
     
     //如果没有记录交易日模板(节假日)，则返回当前日期
-    uint32_t curDate = TimeUtils::getCurDate();
+    uint32_t curDate = TimeUtils::get_cur_date_int();
     auto it = m_mapTradingDayTpl.find(tplid);
     if (it == m_mapTradingDayTpl.end())
     {

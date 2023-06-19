@@ -21,7 +21,7 @@ public:
 private:
     //CTP交易接口 & 适配器回调接口
     CThostFtdcTraderApi* m_pCTPApi;         //CTP的交易API; 用来向CTP下达各种请求
-    IGatewaySpi*    m_sink;                 //回调类, 即Adapter;
+    // IGatewaySpi*    m_sink;                 //回调类, 即Adapter;
     //子线程执行对CTP的查询请求
     StdThreadPtr    m_thrdWorker;
     bool            m_bStopped;
@@ -43,9 +43,10 @@ private:
     CommonMgr*      m_cmgr;
     //网关运行标识
     TGConnectState    m_gatewayState;         //与CTP连接所处状态
-    uint32_t        m_frontID;              //前置编号
-    uint32_t        m_sessionID;            //会话编号
+    uint32_t        m_uFrontID;              //前置编号
+    uint32_t        m_uSessionID;            //会话编号
     uint32_t        m_uTradingDay;          //当前交易日
+    uint32_t        m_uMaxOrderRef;         //最大报单引用
     std::atomic<uint32_t>   m_uRequestID;   //发送给CTP的请求的ID(自行维护)
 
 
@@ -59,9 +60,10 @@ public:
     ////实现IGatewayApi, 即gateway对外提供的交易接口, 由adapter调用////
     
     //设置接口//
-    virtual bool init(Variant* cfg) override;
-    virtual bool release() override;
-    virtual void register_spi(IGatewaySpi* listener) override;
+    virtual void init(Variant* cfg) override;
+    virtual void release() override;
+    // virtual void register_spi(IGatewaySpi* listener) override;
+    void join();
     
     //执行交易命令前的准备工作: 与柜台连接、登录、确认结算单信息//
     virtual void connect() override;
