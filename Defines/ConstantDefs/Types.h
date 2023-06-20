@@ -104,6 +104,73 @@ typedef enum tagDirectionType
 
 }DirectionType;
 
+//开平方向
+typedef enum tagOffsetType
+{
+    OT_Open,            //开仓
+    OT_Close,           //平仓, 上期为平昨
+    OT_CloseToday,      //平今
+    OT_CloseYesterday,  //平昨
+    OT_ForceClose,      //强平
+}OffsetType;
+
+//价格类型
+typedef enum tagPriceType
+{
+    PT_AnyPrice,                //市价单
+    PT_LimitPrice,              //限价单
+    PT_BestPrice,               //最优价
+    PT_LastPrice,               //最新价
+    //以下对标CTP的价格类型
+    PT_CTP_LastPlusOneTicks,    //最新价浮动上浮1个ticks
+    PT_CTP_LastPlusTwoTicks,    //最新价浮动上浮2个ticks
+    PT_CTP_LastPlusThreeTicks,  //最新价浮动上浮3个ticks
+    PT_CTP_Ask1,                //卖一价
+    PT_CTP_Ask1PlusOneTicks,    //卖一价浮动上浮1个ticks
+    PT_CTP_Ask1PlusTwoTicks,    //卖一价浮动上浮2个ticks
+    PT_CTP_Ask1PlusThreeTicks,  //卖一价浮动上浮3个ticks
+    PT_CTP_Bid1,                //买一价
+    PT_CTP_Bid1PlusOneTicks,    //买一价浮动上浮1个ticks
+    PT_CTP_Bid1PlusTwoTicks,    //买一价浮动上浮2个ticks
+    PT_CTP_Bid1PlusThreeTicks,  //买一价浮动上浮3个ticks
+    PT_CTP_FiveLevelPrice,      //五档价
+    // //以下对标DC的价格类型
+    // PT_DC_PostOnly,             //只做maker
+    // PT_DC_Fok,                  //全部成交或立即取消
+    // PT_DC_Ioc,                  //立即成交并取消剩余
+    // PT_DC_OptLimitIoc           //市价委托立即成交并取消剩余
+}PriceType;
+//订单标志
+typedef enum tagOrderFlag
+{
+    OF_Normal,          //普通订单
+    OF_FOK,             //全部成交或立即取消
+    OF_FAK,             //立即成交并取消剩余
+
+}OrderFlag;
+//业务类型
+typedef enum tagBusinessType
+{
+	BT_CASH		= '0',	//普通买卖,
+	BT_ETF		= '1',	//ETF申赎
+	BT_EXECUTE	= '2',	//期权行权
+	BT_QUOTE	= '3',	//期权报价
+	BT_FORQUOTE = '4',	//期权询价
+	BT_FREEZE	= '5',	//期权对锁
+	BT_CREDIT	= '6',	//融资融券
+	BT_UNKNOWN			//未知业务类型
+}BusinessType;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
