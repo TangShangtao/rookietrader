@@ -1,7 +1,7 @@
 #include "CfgLoader.h"
-#include "../Defines/Containers/Variant.hpp"
-#include "../Utils/FileUtils.hpp"
-#include "../Utils/StrUtils.hpp"
+#include "Defines/Containers/Variant.hpp"
+#include "Utils/FileUtils.hpp"
+#include "Utils/StrUtils.hpp"
 
 #include <rapidjson/document.h>
 namespace rj = rapidjson;

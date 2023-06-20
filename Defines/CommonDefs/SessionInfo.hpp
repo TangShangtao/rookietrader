@@ -1,7 +1,7 @@
 //记录每天交易时间段信息, 来源于配置文件
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../BaseDefs/BaseObject.hpp"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
 
 #include <utility>
 #include <vector>

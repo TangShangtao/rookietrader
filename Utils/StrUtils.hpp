@@ -95,4 +95,13 @@ public:
 		} while (pos != std::string::npos);
 		return std::move(ret);
 	}
+	static size_t my_strncpy(char* dest, const char* src, size_t len = 0)
+	{
+		if (dest == nullptr || src == nullptr)
+			return -1;
+		len = (len == 0) ? strlen(src) : len;
+		memcpy(dest, src, len);
+		dest[len] = '\0';
+		return len;
+	}
 };

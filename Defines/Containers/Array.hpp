@@ -3,8 +3,8 @@
 //存放各类Info配置信息
 
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../BaseDefs/BaseObject.hpp"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
 #include <algorithm>
 #include <functional>
 #include <vector>

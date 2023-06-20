@@ -1,9 +1,9 @@
 // 记录品种信息, 来源于配置文件
 // commodity和product是一个意思，例如IF、RB
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../BaseDefs/BaseObject.hpp"
-#include "../ConstantDefs/Types.h"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
+#include "Defines/ConstantDefs/Types.h"
 
 #include <set>
 #include <string>
@@ -41,7 +41,7 @@ public:
 public:
     static CommodityInfo* create(const char* name, const char* exchg, const char* pid, const char* session, const char*trdtpl, const char* currency = "CNY")
     {
-        CommodityInfo* pret = new CommodityInfo;
+        CommodityInfo* pret = new CommodityInfo; //不调用构造函数
 		pret->m_strName = name;
 		pret->m_strExchg = exchg;
 		pret->m_strPid = pid;

@@ -1,7 +1,7 @@
 #pragma once
 #include "DataStruct.h"
-#include "../BaseDefs/BaseObject.hpp"
-#include "../CommonDefs/ContractInfo.hpp"
+#include "Defines/BaseDefs/BaseObject.hpp"
+#include "Defines/CommonDefs/ContractInfo.hpp"
 #include <vector>
 #include <algorithm>
 NS_BEGIN

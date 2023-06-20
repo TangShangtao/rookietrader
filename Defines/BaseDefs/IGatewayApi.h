@@ -1,7 +1,7 @@
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../ConstantDefs/Types.h"
-#include "stdint.h"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/ConstantDefs/Types.h"
+#include <stdint.h>
 
 NS_BEGIN
 class Variant;

@@ -1,8 +1,8 @@
 //存放配置信息的数据结构
 //实现了增、查功能
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../BaseDefs/BaseObject.hpp"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
 #include "HashMap.hpp"
 #include "Array.hpp"
 #include <unordered_map>

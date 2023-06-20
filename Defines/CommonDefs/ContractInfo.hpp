@@ -1,9 +1,9 @@
 //记录合约信息, 来源于配置文件
 //如IF2310
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../BaseDefs/BaseObject.hpp"
-#include "../ConstantDefs/Types.h"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
+#include "Defines/ConstantDefs/Types.h"
 
 #include <string>
 #include <sstream>

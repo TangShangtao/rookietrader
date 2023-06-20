@@ -1,6 +1,6 @@
 #pragma once
-#include "../ConstantDefs/Marcos.h"
-#include "../ConstantDefs/Types.h"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/ConstantDefs/Types.h"
 
 
 NS_BEGIN

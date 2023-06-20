@@ -20,7 +20,7 @@ void Logger::init()
     // auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/log.txt", true);
     // sinks.emplace_back(file_sink);
     auto logger = std::make_shared<spdlog::logger>("root", begin(sinks), end(sinks));
-    logger->set_level(spdlog::level::info);
+    logger->set_level(spdlog::level::debug);
     spdlog::register_logger(logger);
 
     m_pLogger = spdlog::get("root");

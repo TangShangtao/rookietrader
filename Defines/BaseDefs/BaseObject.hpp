@@ -4,8 +4,8 @@
 #include <atomic>
 #include <boost/pool/pool.hpp>
 
-#include "../ConstantDefs/Marcos.h"
-#include "../../tools/SpinMutex.hpp"
+#include "Defines/ConstantDefs/Marcos.h"
+#include "tools/SpinMutex.hpp"
 NS_BEGIN
 //基类对象，引用计数
 class BaseObject

@@ -82,16 +82,12 @@ typedef enum tagTradeStatus
 //交易网关连接状态
 typedef enum tagTradingGatewayConnectState
 {
-    CS_NotInited,                //网关未初始化
+    CS_NotInited,               //网关未初始化
     CS_DisConnected,            //未连接
-    CS_Connecting,              //连接中
-    CS_Connected,               //已连接未认证
-    // CS_Authenticating,          //认证中
-    // CS_Authenticated,           //已认证
-    CS_Logging,                 //登录中
+    CS_Connected,               //已连接未登录
     CS_Logged,                  //已登录未确认结算单
-    CS_Confirming,              //确认结算单中
     CS_Confirmed,               //已确认结算单
+    
     CS_Ready                    //准备就绪
 }TGConnectState;
 
@@ -160,10 +156,43 @@ typedef enum tagBusinessType
 	BT_CREDIT	= '6',	//融资融券
 	BT_UNKNOWN			//未知业务类型
 }BusinessType;
+//订单操作类型(撤单改单)
+typedef enum tagActionFlag
+{
+    AF_Cancel,          //撤单
+    AF_Modify,          //改单
 
+}ActionFlag;
+//订单状态
+typedef enum tagOrderState
+{
+    OS_AllTraded,               //全部成交
+    OS_PartTradedQueueing,      //部分成交还在队列中
+    OS_PartTradedNotQueueing,   //部分成交不在队列中
+    OS_NotTradeQueueing,        //未成交还在队列中
+    OS_NotTradeNotQueueing,     //未成交不在队列中
+    OS_Canceled,                //已撤单
+    OS_Submitting,              //提交中
+    OS_Cancelling,              //撤单中
+    OS_NotTouched,              //尚未触发
+}OrderState;
+//订单类型
+typedef enum tagOrderType
+{
+    OT_Normal,          //正常订单
+    OT_Exception,       //异常订单
+    OT_System,          //系统订单
+    OT_Hedge,           //对冲订单
 
-
-
+}OrderType;
+typedef enum tagTradeType
+{
+	TT_Common				= '0',	//普通
+	TT_OptionExecution		= '1',	//期权执行
+	TT_OTC					= '2',	//OTC成交
+	TT_EFPDerived			= '3',	//期转现衍生成交
+	TT_CombinationDerived	= '4'	//组合衍生成交
+}TradeType;
 
 
 

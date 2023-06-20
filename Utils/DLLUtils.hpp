@@ -1,6 +1,6 @@
 //动态库读取类
 #pragma once
-#include "../tools/Logger.h"
+#include "tools/Logger.h"
 #include <string>
 
 
