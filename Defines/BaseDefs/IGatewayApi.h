@@ -29,9 +29,9 @@ public:
     //设置接口//
     
     //初始化接口实例
-    virtual void init(Variant* cfg){}
+    virtual int init(Variant* cfg){return -1;}
     //释放接口实例
-    virtual void release(){}
+    virtual int release(){return -1;}
     //注册回调接口
     // virtual void register_spi(IGatewaySpi* listener){}
     
@@ -39,9 +39,9 @@ public:
     //功能接口//
 
     //与柜台连接
-    virtual void connect(){}
+    virtual int connect(){return -1;}
     //与柜台断开连接
-    virtual void disconnect(){}
+    virtual int disconnect(){return -1;}
     //是否连接成功
     virtual bool is_connected(){return false;}
     //
