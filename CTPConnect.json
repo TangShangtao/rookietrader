@@ -1,10 +1,10 @@
 {
-    "front" : "tcp://180.168.146.187:10130",
+    "front" : "tcp://121.37.80.177:20002",
     "broker" : "9999",
-    "user" : "210468",
-    "pass" : "Tangshangtao0721!",
+    "user" : "6547",
+    "pass" : "123456",
     "appid" : "simnow_client_test",
     "authcode" : "0000000000000000",
     "flowdir" : "CTPFlow",
     "prodinfo" : ""
-}
+    }

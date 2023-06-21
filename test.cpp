@@ -12,4 +12,5 @@ int main()
     gateway->login();
     gateway->confirm();
     gateway->join();
+    
 }

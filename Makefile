@@ -17,7 +17,7 @@ build/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(TARGET): $(OBJ)
-	$(CXX) -o $@ $^ -LTradingPlatformAPI/CTP6.3.15/linux -pthread -lthosttraderapi_se -lboost_filesystem
+	$(CXX) -o $@ $^ -LTradingPlatformAPI/OpenCTP6.3.15 -pthread -lthosttraderapi_se -lboost_filesystem
 
 
 mkdir:

@@ -23,7 +23,7 @@ void CTPGateway::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CTho
         
         std::unique_lock<std::mutex> lock(m_mtxConnect);
         m_gatewayState.store(CS_Logged);
-        Logger::info("user {} login successfully", m_strUser);
+        Logger::info("user {} login successfully, tradingday {}, sessionID {}", m_strUser, m_uTradingDay, m_uSessionID);
         m_cvConnect.notify_all();
         
         
