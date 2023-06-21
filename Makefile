@@ -1,25 +1,24 @@
 CXX = g++
 TARGET = test
+
 SRC = \
 test.cpp \
-DataKit/CfgLoader.cpp DataKit/CommonMgr.cpp \
-tools/Logger.cpp \
-TradingSystem/TradeGateway/CTPGateway/CTPGateway.cpp \
+$(wildcard DataKit/*.cpp) \
+$(wildcard tools/*.cpp) \
+$(wildcard TradingSystem/TradeGateway/CTPGateway/CTPGateway_impl/*.cpp) \
+
 
 OBJ = \
-build/test.o \
-build/DataKit/CfgLoader.o build/DataKit/CommonMgr.o \
-build/tools/Logger.o \
-build/TradingSystem/TradeGateway/CTPGateway/CTPGateway.o \
+$(patsubst %.cpp, build/%.o, $(SRC)) \
 
-CXXFLAGS = -c -g -Wall -I./
+CXXFLAGS = -c -g -Wall -std=c++11 -I./
+
+build/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(TARGET): $(OBJ)
 	$(CXX) -o $@ $^ -LTradingPlatformAPI/CTP6.3.15/linux -pthread -lthosttraderapi_se -lboost_filesystem
-build/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
 
-clean:
-	find build/ -name "*.o" -type f -delete && rm -f $(TARGET)
+
 mkdir:
-	mkdir -p build/DataKit/ build/tools/ build/TradingSystem/TradeGateway/CTPGateway/
+	mkdir -p build/DataKit build/tools build/TradingSystem/TradeGateway/CTPGateway/CTPGateway_impl

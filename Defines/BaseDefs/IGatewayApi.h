@@ -50,6 +50,8 @@ public:
     virtual int login(){return -1;}
     //登出
     virtual int logout(){return -1;}
+    //确认结算单
+    virtual int confirm(){return -1;}
     //下达委托
     virtual int order_insert(Entrust* entrust){return -1;}
     //

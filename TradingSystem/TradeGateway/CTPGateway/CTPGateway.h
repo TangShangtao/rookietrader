@@ -49,8 +49,8 @@ private:
     //网关运行标识
     std::mutex      m_mtxConnect;           //连接状态互斥量
     std::condition_variable m_cvConnect;    //连接状态条件变量
-    static ConnectState    m_gatewayState;         //与CTP连接所处状态
-    static RequestID       m_uRequestID;           //发送给CTP的请求的ID(自行维护)
+    ConnectState    m_gatewayState;         //与CTP连接所处状态
+    RequestID       m_uRequestID;           //发送给CTP的请求的ID(自行维护)
     uint32_t        m_uFrontID;             //前置编号
     uint32_t        m_uSessionID;           //会话编号
     uint32_t        m_uTradingDay;          //当前交易日
@@ -79,6 +79,7 @@ public:
     virtual bool is_connected() override;
     virtual int  login() override;
     virtual int  logout() override;
+    virtual int  confirm() override;
     
     //交易命令接口//
     virtual int  order_insert(Entrust* entrust) override;

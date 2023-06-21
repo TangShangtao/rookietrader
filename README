@@ -27,3 +27,8 @@
     用户通过SimNow的账户（上一个交易日之前注册的账户都有效）接入环境，建议通过商业终端进行模拟交易的用户使用第一套环境。
 
 export LD_LIBRARY_PATH=TradingPlatformAPI/CTP6.3.15/linux:$LD_LIBRARY_PATH
+
+问题
+1.SIGUSR1是什么
+2./sys/firmware/dmi/tables/smbios_entry_point: Permission denied
+/dev/mem: Permission denied

@@ -1,0 +1,5 @@
+[2023-06-21 19:24:03.984] [root] [info] CTP gateway initialized
+[2023-06-21 19:24:03.984] [root] [info] registerFront: tcp://180.168.146.187:10130
+[2023-06-21 19:24:04.209] [root] [info] Connected with front tcp://180.168.146.187:10130
+[2023-06-21 19:24:04.317] [root] [info] Authenticated, authcode : 0000000000000000
+[2023-06-21 19:24:04.380] [root] [info] user 210468 login failed with error msg CTP:不合法的登录

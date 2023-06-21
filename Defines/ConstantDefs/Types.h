@@ -79,6 +79,7 @@ typedef enum tagTradeStatus
 	TS_Closed			= '6'	//收盘
 
 }TradeStatus;
+
 //CTP交易网关连接状态
 typedef enum tagTradingGatewayConnectState
 {
