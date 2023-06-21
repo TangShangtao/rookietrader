@@ -8,6 +8,9 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <iomanip>
+CTPGateway::ConnectState CTPGateway::m_gatewayState(CS_DisConnected); 
+
 CTPGateway::CTPGateway()
 {
 }
@@ -77,6 +80,7 @@ int CTPGateway::connect()
     m_pCTPApi->RegisterSpi(this);
     //调用CTPApi的接口下达请求//
     req_connect();
+    std::cout << "connect函数 thread id" << std::hex << std::this_thread::get_id() << std::endl;
     return 0;
 }
 
@@ -93,6 +97,12 @@ bool CTPGateway::is_connected()
 int CTPGateway::login() 
 {
     
+    std::unique_lock<std::mutex> lock(m_mtxConnect);
+    m_cvConnect.wait(lock, [](){return CTPGateway::m_gatewayState.load() == CS_Connected;});
+    req_authenticate();
+    m_cvConnect.wait(lock, [](){return CTPGateway::m_gatewayState.load() == CS_Authenticated;});
+    req_login();
+
     return 0;
 }
 
@@ -200,31 +210,56 @@ void CTPGateway::req_settlement_confirm()
 //执行交易命令前的准备工作: 与柜台连接、登录、确认结算单信息//
 void CTPGateway::OnFrontConnected() 
 {
+    Logger::info("Connected with front {}", m_strFront);
+    std::unique_lock<std::mutex> lock(m_mtxConnect);
     CTPGateway::m_gatewayState.store(CS_Connected);
-    // // if (m_sink)
-    // // {
-    // //     m_sink->on_connect(true);
-    // // }
-    // Logger::info("connected with front");
-
-    std::cout << std::this_thread::get_id() << std::endl;
+    m_cvConnect.notify_all();
     
+    std::cout << "CTP回调函数thread id" << std::hex << std::this_thread::get_id() << std::endl;
 }
 
 void CTPGateway::OnFrontDisconnected(int nReason) 
 {
+    Logger::info("Disconnected with front {} with reason {}", m_strFront, nReason);
+    std::unique_lock<std::mutex> lock(m_mtxConnect);
     m_gatewayState.store(CS_DisConnected);
-    m_gatewayState = CS_DisConnected;
-    // if (m_sink)
-    // {
-    //     m_sink->on_connect(false);
-    // }
-    Logger::info("Disconnected with front with reason {}", nReason);
+    m_cvConnect.notify_all();
+
+    
+    
 }
 
-void CTPGateway::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
+void CTPGateway::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+{
+    Logger::info("Authenticated, authcode : {}", m_strAuthCode);
+    std::unique_lock<std::mutex> lock(m_mtxConnect);
+    m_gatewayState.store(CS_Authenticated);
+    m_cvConnect.notify_all();
+    
+    
+}
 
-void CTPGateway::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
+void CTPGateway::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+{
+    if (is_err_rspInfo(pRspInfo))
+    {
+        Logger::info("user {} login failed with error msg {}", m_strUser, pRspInfo->ErrorMsg);//TODO: 转UTF-8输出
+        std::unique_lock<std::mutex> lock(m_mtxConnect);
+        m_gatewayState.store(CS_Authenticated);
+        m_cvConnect.notify_all();
+        
+        
+    }
+    else
+    {
+        Logger::info("user {} login successfully", m_strUser);
+        std::unique_lock<std::mutex> lock(m_mtxConnect);
+        m_gatewayState.store(CS_Logged);
+        m_cvConnect.notify_all();
+        
+    }
+
+}
 
 void CTPGateway::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {}
 

@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <condition_variable>
 #include <atomic>
 
@@ -46,6 +47,7 @@ private:
     //合约基础信息读取
     CommonMgr*      m_cmgr;
     //网关运行标识
+    std::mutex      m_mtxConnect;           //连接状态互斥量
     std::condition_variable m_cvConnect;    //连接状态条件变量
     static ConnectState    m_gatewayState;         //与CTP连接所处状态
     static RequestID       m_uRequestID;           //发送给CTP的请求的ID(自行维护)

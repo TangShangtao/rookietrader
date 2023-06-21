@@ -79,13 +79,15 @@ typedef enum tagTradeStatus
 	TS_Closed			= '6'	//收盘
 
 }TradeStatus;
-//交易网关连接状态
+//CTP交易网关连接状态
 typedef enum tagTradingGatewayConnectState
 {
     CS_NotInited,               //网关未初始化
     CS_DisConnected,            //未连接
     CS_Connected,               //已连接未登录
+    CS_Authenticated,           //已认证未登录
     CS_Logged,                  //已登录未确认结算单
+    CS_Queried,                 //已查询结算单未确认结算单
     CS_Confirmed,               //已确认结算单
     
     CS_Ready                    //准备就绪
