@@ -1,0 +1,129 @@
+#pragma once
+#include "Defines/ConstantDefs/Marcos.h"
+#include "Defines/ConstantDefs/Types.h"
+#include "Defines/BaseDefs/BaseObject.hpp"
+#include "Utils/StrUtils.hpp"
+#include "Entrust.hpp"
+#include <string.h>
+NS_BEGIN
+
+
+class ContractInfo;
+
+//订单信息: 订单状态更新
+class OrderInfo : public PoolObject<OrderInfo>
+{
+private:
+    //以下与Entrust一致//TODO为什么不选择一个指向Entrust的指针
+
+    //目标合约信息
+    char          m_strExchg[MAX_EXCHANGE_LENGTH];      //交易所
+    char          m_strCode[MAX_INSTRUMENT_LENGTH];     //合约代码
+    ContractInfo* m_pContract;                          //合约信息
+    //下达委托信息
+    DirectionType m_direction;                          //买卖方向
+    OffsetType    m_offsetType;                         //开平类型
+    OrderFlag     m_orderFlag;                          //订单标志
+    PriceType     m_priceType;                          //价格类型
+    double        m_dPrice;                             //委托价格
+    double        m_dVolume;                            //委托数量
+    bool          m_bIsNet;                             //
+    bool          m_bIsBuy;                             //是否买入
+    //委托ID
+    char          m_strEntrustID[64] = { 0 };           //委托ID
+    //其他
+    char          m_strUserTag[64] = { 0 };             //用户自定义标签
+    BusinessType  m_businessType;                       //业务类型
+    
+    //以下为Order新增
+
+    //挂单时间
+    uint32_t      m_uInsertDate;                        //挂单日期
+    uint64_t      m_uInsertTime;                        //挂单时间
+    //挂单信息
+    double        m_dVolTraded;                         //已成交数量
+    double        m_dVolLeft;                           //剩余数量
+    bool          m_bIsError;                           //是否错误订单
+    OrderState    m_orderState;                         //订单状态
+    OrderType     m_orderType;                          //订单类型
+    //订单ID
+    char          m_strOrderID[64] = { 0 };             //订单ID
+    //其他
+    std::string   m_strStateMsg;
+public:
+	OrderInfo()
+		: m_uInsertDate(0)
+        , m_uInsertTime(0)
+		, m_dVolTraded(0)
+		, m_dVolLeft(0)
+		, m_bIsError(false)
+        , m_orderState(OS_Submitting)
+		, m_orderType(OT_Normal)
+        {}
+	virtual ~OrderInfo(){}
+    //根据委托初始化订单
+    static OrderInfo* create(Entrust* pEntrust)
+    {
+        OrderInfo* pret = OrderInfo::allocate();
+        if (pret && pEntrust)
+        {
+            StrUtils::my_strncpy(pret->m_strExchg, pEntrust->get_exchg());
+            StrUtils::my_strncpy(pret->m_strCode, pEntrust->get_code());
+            pret->m_dVolume = pEntrust->get_volume();
+            pret->m_dPrice = pEntrust->get_price();
+            pret->m_direction = pEntrust->get_direction();
+            pret->m_priceType = pEntrust->get_price_type();
+            pret->m_orderFlag = pEntrust->get_order_flag();
+            pret->m_offsetType = pEntrust->get_offset_type();
+            StrUtils::my_strncpy(pret->m_strEntrustID, pEntrust->get_entrustID());
+            StrUtils::my_strncpy(pret->m_strUserTag, pEntrust->get_user_tag());
+            pret->m_businessType = pEntrust->get_business_type();
+            pret->m_pContract = pEntrust->get_contract_info();
+            pret->m_bIsNet = pEntrust->is_net();
+            pret->m_bIsBuy = pEntrust->is_buy();
+            
+            return pret;
+        }
+        return nullptr;
+    }
+public:
+	inline void	set_order_date(uint32_t uDate){m_uInsertDate = uDate;}
+	inline void	set_order_time(uint64_t uTime){m_uInsertTime = uTime;}
+	inline void	set_vol_traded(double vol){ m_dVolTraded = vol; }
+	inline void	set_vol_left(double vol){ m_dVolLeft = vol; }
+	
+	inline void	set_orderID(const char* oid) { StrUtils::my_strncpy(m_strOrderID, oid); }
+	inline void	set_order_state(OrderState os){m_orderState = os;}
+	inline void	set_order_type(OrderType ot){m_orderType = ot;}
+
+	inline uint32_t get_order_date() const{return m_uInsertDate;}
+	inline uint64_t get_order_time() const{return m_uInsertTime;}
+	inline double get_vol_traded() const{ return m_dVolTraded; }
+	inline double get_vol_left() const{ return m_dVolLeft; }
+    
+	inline OrderState		get_order_state() const { return m_orderState; }
+	inline OrderType			get_order_type() const { return m_orderType; }
+	inline const char*			get_orderID() const { return m_strOrderID; }
+	inline char*			get_orderID() { return m_strOrderID; }
+
+	inline void	set_state_msg(const char* msg){m_strStateMsg = msg;}
+	inline const char* get_state_msg() const{return m_strStateMsg.c_str();}
+
+	inline bool	is_alive() const
+	{
+		switch(m_orderState)
+		{
+		case OS_AllTraded:
+		case OS_Canceled:
+			return false;
+		default:
+			return true;
+		}
+	}
+	inline void	set_error(bool bError = true){ m_bIsError = bError; }
+	inline bool	is_error() const{ return m_bIsError; }
+
+
+};
+
+NS_END;

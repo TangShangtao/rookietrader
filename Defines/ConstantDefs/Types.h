@@ -94,7 +94,7 @@ typedef enum tagTradingGatewayConnectState
     CS_Ready                    //准备就绪
 }TGConnectState;
 
-//多空方向
+//仓位多空方向(不是买卖方向)
 typedef enum tagDirectionType
 {
     DT_Long,
@@ -142,7 +142,7 @@ typedef enum tagPriceType
 //订单标志
 typedef enum tagOrderFlag
 {
-    OF_Normal,          //普通订单
+    OF_NOR,          //普通订单
     OF_FOK,             //全部成交或立即取消
     OF_FAK,             //立即成交并取消剩余
 

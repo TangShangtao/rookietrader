@@ -44,8 +44,6 @@ public:
     virtual int disconnect(){return -1;}
     //是否连接成功
     virtual bool is_connected(){return false;}
-    //
-    virtual bool make_entrustID(char* buffer, int length){return false;}
     //登录
     virtual int login(){return -1;}
     //登出

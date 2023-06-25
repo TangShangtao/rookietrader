@@ -23,6 +23,7 @@ public:
     typedef std::shared_ptr<std::thread> StdThreadPtr;
     typedef std::atomic<TGConnectState> ConnectState;
     typedef std::atomic<uint32_t> RequestID;
+    typedef std::atomic<uint32_t> OrderRef;
 private:
     //CTP交易接口 & 适配器回调接口
     CThostFtdcTraderApi* m_pCTPApi;         //CTP的交易API; 用来向CTP下达各种请求
@@ -46,11 +47,14 @@ private:
     Array*          m_ayPosDetail;
     //合约基础信息读取
     CommonMgr*      m_cmgr;
-    //网关运行标识
+    //网关连接状态标识
     std::mutex      m_mtxConnect;           //连接状态互斥量
     std::condition_variable m_cvConnect;    //连接状态条件变量
     ConnectState    m_gatewayState;         //与CTP连接所处状态
+
     RequestID       m_uRequestID;           //发送给CTP的请求的ID(自行维护)
+    OrderRef        m_uOrderRef;            //报单引用(自行维护)
+
     uint32_t        m_uFrontID;             //前置编号
     uint32_t        m_uSessionID;           //会话编号
     uint32_t        m_uTradingDay;          //当前交易日
@@ -84,7 +88,7 @@ public:
     //交易命令接口//
     virtual int  order_insert(Entrust* entrust) override;
     virtual int  order_action(EntrustAction* action) override;
-    virtual bool make_entrustID(char* buffer, int length) override;
+    
     
     //查询信息接口//
     virtual int  query_account() override;
@@ -102,6 +106,7 @@ private:
     void req_login();                       //请求登录
     void req_query_settlement_confirm();    //请求查询结算单确认情况
     void req_settlement_confirm();          //请求确认结算单
+    void req_order_insert(Entrust* entrust);//请求报单
 
 private:
     ////CTP以回调函数的参数的形式传递报文, 通过实现CTP回调函数来接收报文和执行下一步操作////
@@ -141,8 +146,13 @@ private:
     
     //产生请求编号//
     uint32_t generate_requestID();
+    bool     generate_entrustID(char* buffer, int length);
     //检验CTP的回应是否为错误//
-    bool is_err_rspInfo(CThostFtdcRspInfoField *pRspInfo);    
-
+    bool     is_err_rspInfo(CThostFtdcRspInfoField *pRspInfo);    
+    //Entrust委托中信息转换为CTP格式
+    int      price_type_to_CTP(PriceType ptype, bool isCFFEX = false);
+    int      direction_type_to_CTP(DirectionType dtype, OffsetType otype);
+    int      offset_type_to_CTP(OffsetType otype);
+    
 
 };
