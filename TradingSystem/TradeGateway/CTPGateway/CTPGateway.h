@@ -75,6 +75,7 @@ public:
     virtual int init(Variant* cfg) override;
     virtual int release() override;
     // virtual void register_spi(IGatewaySpi* listener) override;
+    void add_cmgr(CommonMgr* cmgr) { m_cmgr = cmgr;}
     void join();
     
     //执行交易命令前的准备工作: 与柜台连接、登录、确认结算单信息//
@@ -107,7 +108,7 @@ private:
     void req_query_settlement_confirm();    //请求查询结算单确认情况
     void req_settlement_confirm();          //请求确认结算单
     void req_order_insert(Entrust* entrust);//请求报单
-
+    void req_order_action(EntrustAction* action);//请求撤单
 private:
     ////CTP以回调函数的参数的形式传递报文, 通过实现CTP回调函数来接收报文和执行下一步操作////
 
@@ -147,12 +148,23 @@ private:
     //产生请求编号//
     uint32_t generate_requestID();
     bool     generate_entrustID(char* buffer, int length);
+    bool     generate_entrustID(char* buffer, uint32_t uFrontID, uint32_t uSessionID, uint32_t uOrderRef);
+    //提取编号中的信息//
+    bool     extract_entrustID(const char* pEntrustID, uint32_t& uFrontID, uint32_t& uSessionID, uint32_t& uOrderRef);
     //检验CTP的回应是否为错误//
     bool     is_err_rspInfo(CThostFtdcRspInfoField *pRspInfo);    
-    //Entrust委托中信息转换为CTP格式
+    //系统内部格式转换为CTP格式//
     int      price_type_to_CTP(PriceType ptype, bool isCFFEX = false);
     int      direction_type_to_CTP(DirectionType dtype, OffsetType otype);
     int      offset_type_to_CTP(OffsetType otype);
-    
-
+    int      action_flag_to_CTP(ActionFlag flag);
+    //CTP格式转换为系统内部格式//
+    PriceType     price_type_to_my(TThostFtdcOrderPriceTypeType priceType);
+    DirectionType direction_type_to_my(TThostFtdcDirectionType dirType, TThostFtdcOffsetFlagType offsetType);
+    OffsetType    offset_type_to_my(TThostFtdcOffsetFlagType offsetType);
+    OrderState    order_state_to_my(TThostFtdcOrderStatusType orderStatus);
+    //CTP格式数据结构转换为系统内部格式//
+    OrderInfo* orderInfo_to_my(CThostFtdcOrderField* orderField);
+    Entrust*   entrust_to_my(CThostFtdcInputOrderField* inputOrder);
+    TradeInfo* tradeInfo_to_my(CThostFtdcTradeField* tradeField);
 };

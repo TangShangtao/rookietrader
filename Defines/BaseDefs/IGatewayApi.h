@@ -66,6 +66,7 @@ public:
     virtual int query_settlement(uint32_t uDate){return -1;}
 };
 
+
 // class IGatewaySpi
 // {
 // public:

@@ -120,24 +120,7 @@ typedef enum tagPriceType
     PT_LimitPrice,              //限价单
     PT_BestPrice,               //最优价
     PT_LastPrice,               //最新价
-    //以下对标CTP的价格类型
-    PT_CTP_LastPlusOneTicks,    //最新价浮动上浮1个ticks
-    PT_CTP_LastPlusTwoTicks,    //最新价浮动上浮2个ticks
-    PT_CTP_LastPlusThreeTicks,  //最新价浮动上浮3个ticks
-    PT_CTP_Ask1,                //卖一价
-    PT_CTP_Ask1PlusOneTicks,    //卖一价浮动上浮1个ticks
-    PT_CTP_Ask1PlusTwoTicks,    //卖一价浮动上浮2个ticks
-    PT_CTP_Ask1PlusThreeTicks,  //卖一价浮动上浮3个ticks
-    PT_CTP_Bid1,                //买一价
-    PT_CTP_Bid1PlusOneTicks,    //买一价浮动上浮1个ticks
-    PT_CTP_Bid1PlusTwoTicks,    //买一价浮动上浮2个ticks
-    PT_CTP_Bid1PlusThreeTicks,  //买一价浮动上浮3个ticks
-    PT_CTP_FiveLevelPrice,      //五档价
-    // //以下对标DC的价格类型
-    // PT_DC_PostOnly,             //只做maker
-    // PT_DC_Fok,                  //全部成交或立即取消
-    // PT_DC_Ioc,                  //立即成交并取消剩余
-    // PT_DC_OptLimitIoc           //市价委托立即成交并取消剩余
+
 }PriceType;
 //订单标志
 typedef enum tagOrderFlag
@@ -169,17 +152,17 @@ typedef enum tagActionFlag
 //订单状态
 typedef enum tagOrderState
 {
-    OS_AllTraded,               //全部成交
+    OS_AllTraded = '0',         //全部成交
     OS_PartTradedQueueing,      //部分成交还在队列中
     OS_PartTradedNotQueueing,   //部分成交不在队列中
     OS_NotTradeQueueing,        //未成交还在队列中
     OS_NotTradeNotQueueing,     //未成交不在队列中
     OS_Canceled,                //已撤单
-    OS_Submitting,              //提交中
-    OS_Cancelling,              //撤单中
+    OS_Submitting = 'a',        //提交中
     OS_NotTouched,              //尚未触发
+    OS_Touched,                 //已触发
 }OrderState;
-//订单类型
+//订单类型 ??
 typedef enum tagOrderType
 {
     OT_Normal,          //正常订单

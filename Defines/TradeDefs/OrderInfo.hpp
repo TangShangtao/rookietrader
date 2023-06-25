@@ -20,7 +20,7 @@ private:
     char          m_strExchg[MAX_EXCHANGE_LENGTH];      //交易所
     char          m_strCode[MAX_INSTRUMENT_LENGTH];     //合约代码
     ContractInfo* m_pContract;                          //合约信息
-    //下达委托信息
+    //下为委托信息
     DirectionType m_direction;                          //买卖方向
     OffsetType    m_offsetType;                         //开平类型
     OrderFlag     m_orderFlag;                          //订单标志
@@ -43,11 +43,11 @@ private:
     //挂单信息
     double        m_dVolTraded;                         //已成交数量
     double        m_dVolLeft;                           //剩余数量
-    bool          m_bIsError;                           //是否错误订单
+    bool          m_bIsRejected;                        //是否被拒绝
     OrderState    m_orderState;                         //订单状态
     OrderType     m_orderType;                          //订单类型
     //订单ID
-    char          m_strOrderID[64] = { 0 };             //订单ID
+    char          m_strOrderID[64] = { 0 };             //订单ID, 由CTP生成
     //其他
     std::string   m_strStateMsg;
 public:
@@ -56,16 +56,17 @@ public:
         , m_uInsertTime(0)
 		, m_dVolTraded(0)
 		, m_dVolLeft(0)
-		, m_bIsError(false)
+		, m_bIsRejected(false)
         , m_orderState(OS_Submitting)
 		, m_orderType(OT_Normal)
         {}
 	virtual ~OrderInfo(){}
     //根据委托初始化订单
-    static OrderInfo* create(Entrust* pEntrust)
+    static OrderInfo* create(Entrust* pEntrust = nullptr)
     {
         OrderInfo* pret = OrderInfo::allocate();
-        if (pret && pEntrust)
+		if (pret == nullptr) return nullptr;
+        if (pEntrust != nullptr)
         {
             StrUtils::my_strncpy(pret->m_strExchg, pEntrust->get_exchg());
             StrUtils::my_strncpy(pret->m_strCode, pEntrust->get_code());
@@ -84,8 +85,57 @@ public:
             
             return pret;
         }
-        return nullptr;
+		// else if (pret != nullptr) return pret;
+		// else return nullptr;
+		else return pret;
     }
+//Entrust一致
+	inline void set_exchg(const char* exchg, std::size_t len = 0)
+	{
+		StrUtils::my_strncpy(m_strExchg, exchg, len);
+    }
+	inline void set_code(const char* code, std::size_t len = 0)
+	{
+		StrUtils::my_strncpy(m_strCode, code, len);
+    }
+
+	inline void set_direction(DirectionType dType){m_direction = dType;}
+	inline void set_price_type(PriceType pType){m_priceType = pType;}
+	inline void set_order_flag(OrderFlag oFlag){m_orderFlag = oFlag;}
+	inline void set_offset_type(OffsetType oType){m_offsetType = oType;}
+
+	inline DirectionType	get_direction() const{return m_direction;}
+	inline PriceType		get_price_type() const{return m_priceType;}
+	inline OrderFlag		get_order_flag() const{return m_orderFlag;}
+	inline OffsetType	get_offset_type() const{return m_offsetType;}
+
+	inline void set_business_type(BusinessType bType) { m_businessType = bType; }
+	inline BusinessType	get_business_type() const { return m_businessType; }
+
+	inline void set_volume(double volume){ m_dVolume = volume; }
+	inline void set_price(double price){ m_dPrice = price; }
+
+	inline double get_volume() const{ return m_dVolume; }
+	inline double get_price() const{ return m_dPrice; }
+
+	inline const char* get_code() const { return m_strCode; }
+	inline const char* get_exchg() const { return m_strExchg; }
+
+	inline void set_entrustID(const char* eid) { StrUtils::my_strncpy(m_strEntrustID, eid); }
+	inline const char* get_entrustID() const { return m_strEntrustID; }
+	inline char* get_entrustID() { return m_strEntrustID; }
+
+	inline void set_user_tag(const char* tag) { StrUtils::my_strncpy(m_strUserTag, tag); }
+	inline const char* get_user_tag() const { return m_strUserTag; }
+	inline char* get_user_tag() { return m_strUserTag; }
+
+	inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
+	inline bool is_net() const { return m_bIsNet; }
+	inline bool is_buy() const { return m_bIsBuy; }
+
+	inline void set_contract_info(ContractInfo* cInfo) { m_pContract = cInfo; }
+	inline ContractInfo* get_contract_info() const { return m_pContract; }    
+//Order新增
 public:
 	inline void	set_order_date(uint32_t uDate){m_uInsertDate = uDate;}
 	inline void	set_order_time(uint64_t uTime){m_uInsertTime = uTime;}
@@ -120,8 +170,8 @@ public:
 			return true;
 		}
 	}
-	inline void	set_error(bool bError = true){ m_bIsError = bError; }
-	inline bool	is_error() const{ return m_bIsError; }
+	inline void	set_rejected(bool bRejected = true){m_bIsRejected = bRejected;}
+	inline bool	is_rejected() const{return m_bIsRejected;}
 
 
 };

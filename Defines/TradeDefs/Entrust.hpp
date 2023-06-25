@@ -44,7 +44,7 @@ public:
     virtual ~Entrust() {}
 
 public:
-    static Entrust* create(const char* code, int vol, double price, const char* exchg = "", BusinessType bType = BT_CASH)
+    static Entrust* create(const char* code, int vol, double price, const char* exchg, BusinessType bType = BT_CASH)
     {
         Entrust* pret = Entrust::allocate();
         //TODO初始化
@@ -60,7 +60,7 @@ public:
         return nullptr;
 
     }
-	inline void set_exchange(const char* exchg, std::size_t len = 0)
+	inline void set_exchg(const char* exchg, std::size_t len = 0)
 	{
 		StrUtils::my_strncpy(m_strExchg, exchg, len);
     }

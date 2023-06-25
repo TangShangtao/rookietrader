@@ -104,4 +104,34 @@ public:
 		dest[len] = '\0';
 		return len;
 	}
+	static size_t find_first(const char* str, const char* ch)
+	{
+		if (str == nullptr || ch == nullptr)
+			return -1;
+		size_t len = strlen(str);
+		for (size_t i = 0; i < len; ++i)
+		{
+			if (str[i] == ch[0])
+				return i;
+		}
+		return std::string::npos;
+	}
+	static inline void replace(std::string& str, const char* src, const char* des)
+	{
+		std::string ret = "";
+		std::size_t srcLen = strlen(src);
+		std::size_t lastPos = 0;
+		std::size_t pos = str.find(src);
+		while(pos != std::string::npos)
+		{
+			ret += str.substr(lastPos, pos-lastPos);
+			ret += des;
+
+			lastPos = pos + srcLen;
+			pos = str.find(src, lastPos);
+		}
+		ret += str.substr(lastPos, pos);
+
+		str = ret;
+	}
 };

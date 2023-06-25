@@ -15,13 +15,13 @@ private:
     char          m_strCode[MAX_INSTRUMENT_LENGTH];     //合约代码
     ContractInfo* m_pContract;                          //合约信息
     //成交时间
-    uint32_t      m_uTradeDate;                         //成交日期
+    uint32_t      m_uTradeDate;                         //成交日期(交易日)
     uint64_t      m_uTradeTime;                         //成交时间
     //成交信息
     double        m_dVolume;                            //成交数量
     double        m_dPrice;                             //成交价格
     TradeType     m_tradeType;                          //成交类型
-    double        m_uAmount;                            //TODO
+    double        m_uAmount;                            //成交金额
     //原订单信息
     bool          m_bIsNet;                             //TODO
     bool          m_bIsBuy;                             //是否买入
@@ -31,8 +31,8 @@ private:
     //其他
     BusinessType  m_businessType;                       //业务类型
     //成交ID、订单ID
-    char          m_strTradeID[64] = { 0 };             //成交ID
-    char          m_strRefOrder[64] = { 0 };            //本地委托序列号//TODO ?
+    char          m_strTradeID[64] = { 0 };             //成交ID, 来自CTP
+    char          m_strRefOrderID[64] = { 0 };            //订单ID, 来自CTP
     //其他
     char          m_strUserTag[64] = { 0 };             //用户自定义标签
 
@@ -59,7 +59,7 @@ public:
 	}
 
 	inline void set_tradeID(const char* tradeid) {StrUtils::my_strncpy(m_strTradeID, tradeid); }
-	inline void set_ref_order(const char* oid) {StrUtils::my_strncpy(m_strRefOrder, oid); }
+	inline void set_ref_orderID(const char* oid) {StrUtils::my_strncpy(m_strRefOrderID, oid); }
 	
 	inline void set_direction(DirectionType dType){m_direction = dType;}
 	inline void set_offset_type(OffsetType oType){m_offsetType = oType;}
@@ -73,7 +73,7 @@ public:
 	inline void set_amount(double amount){ m_uAmount = amount; }
 
 	inline DirectionType	get_direction() const{return m_direction;}
-	inline OffsetType	get_offset_type() const{return m_offsetType;}
+	inline OffsetType		get_offset_type() const{return m_offsetType;}
 	inline OrderType		get_order_type() const{return m_orderType;}
 	inline TradeType		get_trade_type() const{return m_tradeType;}
 
@@ -83,10 +83,10 @@ public:
 	inline const char*	get_code() const { return m_strCode; }
 	inline const char*	get_exchg() const { return m_strExchg; }
 	inline const char*	get_tradeID() const { return m_strTradeID; }
-	inline const char*	get_ref_order() const { return m_strRefOrder; }
+	inline const char*	get_ref_orderID() const { return m_strRefOrderID; }
 
 	inline char*	get_tradeID() { return m_strTradeID; }
-	inline char*	get_ref_order() { return m_strRefOrder; }
+	inline char*	get_ref_orderID() { return m_strRefOrderID; }
 
 	inline uint32_t get_trade_date() const{return m_uTradeDate;}
 	inline uint64_t get_trade_time() const{return m_uTradeTime;}
