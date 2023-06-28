@@ -116,10 +116,10 @@ typedef enum tagOffsetType
 //价格类型
 typedef enum tagPriceType
 {
-    PT_AnyPrice,                //市价单
+    // PT_AnyPrice,                //市价单
     PT_LimitPrice,              //限价单
-    PT_BestPrice,               //最优价
-    PT_LastPrice,               //最新价
+    // PT_BestPrice,               //最优价
+    // PT_LastPrice,               //最新价
 
 }PriceType;
 //订单标志
@@ -127,7 +127,7 @@ typedef enum tagOrderFlag
 {
     OF_NOR,          //普通订单
     OF_FOK,             //全部成交或立即取消
-    OF_FAK,             //立即成交并取消剩余
+    OF_FAK,             //立即成交剩余自动撤销
 
 }OrderFlag;
 //业务类型

@@ -22,14 +22,10 @@ int main()
     gateway->login();
     gateway->confirm();
 
-    Entrust* entrust = Entrust::create("rb2310", 1, 100000, "SHFE");
-    entrust->set_price_type(PT_AnyPrice);
+    Entrust* entrust = Entrust::create("rb2310", 10, 3500, "SHFE");
     entrust->set_offset_type(OT_Open);
     entrust->set_direction(DT_Long);
     gateway->order_insert(entrust);
 
     gateway->join();
-
-
-
 }

@@ -2,8 +2,8 @@
 #include "Defines/ConstantDefs/Marcos.h"
 #include "Defines/ConstantDefs/Types.h"
 #include "TradingPlatformAPI/CTP6.3.15/ThostFtdcTraderApi.h"
-#include "Defines/BaseDefs/IGatewayApi.h"
-#include "DataKit/CommonMgr.h"
+#include "Defines/BaseDefs/ITradeGatewayApi.h"
+#include "Defines/BaseDefs/ITradeGatewaySink.h"
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@
 USING_NS;
 
 //CTP交易网关, 一方面实现CTP需要的回调函数, 另一方面提供标准化的交易接口
-class CTPGateway : public IGatewayApi, public CThostFtdcTraderSpi
+class CTPGateway : public ITradeGatewayApi, public CThostFtdcTraderSpi
 {
 public:
     typedef HashMap<std::string> PositionMap;
@@ -24,10 +24,10 @@ public:
     typedef std::atomic<TGConnectState> ConnectState;
     typedef std::atomic<uint32_t> RequestID;
     typedef std::atomic<uint32_t> OrderRef;
-private:
+public:
     //CTP交易接口 & 适配器回调接口
     CThostFtdcTraderApi* m_pCTPApi;         //CTP的交易API; 用来向CTP下达各种请求
-    // IGatewaySpi*    m_sink;                 //回调类, 即Adapter;
+    // ITradeGatewaySink*    m_sink;                 //回调类, 即Adapter;
     //子线程执行对CTP的查询请求
     StdThreadPtr    m_thrdWorker;
     bool            m_bStopped;
@@ -67,16 +67,13 @@ public:
 public:
     ////实现IGatewayApi, 即gateway对外提供的交易接口, 由adapter调用////
     
-    //接口的逻辑如下
-    //1.判断该接口是否可以被调用 2.做一些gateway层面的工作 3.调用CTPApi的接口下达请求(req_xxx)
-
-
     //设置接口//
     virtual int init(Variant* cfg) override;
     virtual int release() override;
     // virtual void register_spi(IGatewaySpi* listener) override;
-    void add_cmgr(CommonMgr* cmgr) { m_cmgr = cmgr;}
-    void join();
+    //TODO以下两个函数改变位置
+    void add_cmgr(CommonMgr* cmgr) {m_cmgr = cmgr;}
+    void join() {m_pCTPApi->Join();};
     
     //执行交易命令前的准备工作: 与柜台连接、登录、确认结算单信息//
     virtual int  connect() override;
@@ -87,6 +84,7 @@ public:
     virtual int  confirm() override;
     
     //交易命令接口//
+    bool         generate_entrustID(char* buffer, int length) override;//新产生一个委托
     virtual int  order_insert(Entrust* entrust) override;
     virtual int  order_action(EntrustAction* action) override;
     
@@ -112,8 +110,6 @@ private:
 private:
     ////CTP以回调函数的参数的形式传递报文, 通过实现CTP回调函数来接收报文和执行下一步操作////
 
-    //回调函数实现逻辑如下
-    // 1.判断是否为错误回报 2.改变共享资源gatewayState的状态, notify_all通知主线程 3.日志输出回调结果
 
 	//执行交易命令前的准备工作: 与柜台连接、登录、确认结算单信息//
     virtual void OnFrontConnected() override;
@@ -125,10 +121,10 @@ private:
 	virtual void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
 	//CTP接受交易命令后的回报
     virtual void OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
-	virtual void OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+	virtual void OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo) override;
+    virtual void OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
 	virtual void OnRtnOrder(CThostFtdcOrderField *pOrder) override;
 	virtual void OnRtnTrade(CThostFtdcTradeField *pTrade) override;
-	virtual void OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo) override;
     //CTP接受查询命令后的回报
     virtual void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
 	virtual void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;	
@@ -147,8 +143,8 @@ private:
     
     //产生请求编号//
     uint32_t generate_requestID();
-    bool     generate_entrustID(char* buffer, int length);
-    bool     generate_entrustID(char* buffer, uint32_t uFrontID, uint32_t uSessionID, uint32_t uOrderRef);
+    
+    bool     parse_entrustID(char* buffer, uint32_t uFrontID, uint32_t uSessionID, uint32_t uOrderRef);//由CTP回报解析出委托
     //提取编号中的信息//
     bool     extract_entrustID(const char* pEntrustID, uint32_t& uFrontID, uint32_t& uSessionID, uint32_t& uOrderRef);
     //检验CTP的回应是否为错误//

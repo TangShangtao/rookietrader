@@ -11,6 +11,6 @@ int CTPGateway::init(Variant* cfg)
     m_strFlowDir = cfg->get_cstring("flowdir");
     m_strProdInfo = cfg->get_cstring("prodinfo");
     m_gatewayState.store(CS_DisConnected);
-    Logger::info("CTP gateway initialized");
+    Logger::info("init: CTP gateway initialized");
     return 0;
 }

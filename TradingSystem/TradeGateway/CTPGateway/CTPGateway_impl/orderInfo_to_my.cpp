@@ -45,7 +45,7 @@ OrderInfo* CTPGateway::orderInfo_to_my(CThostFtdcOrderField* orderField)
     if (orderField->OrderSubmitStatus >= THOST_FTDC_OSS_InsertRejected)
         pret->set_rejected(true);
     pret->set_order_state(order_state_to_my(orderField->OrderStatus));
-    generate_entrustID(pret->get_entrustID(), (uint32_t)orderField->FrontID, (uint32_t)orderField->SessionID, strtoul(orderField->OrderRef, nullptr, 10));
+    parse_entrustID(pret->get_entrustID(), (uint32_t)orderField->FrontID, (uint32_t)orderField->SessionID, strtoul(orderField->OrderRef, nullptr, 10));
     //OrderType ? 
     pret->set_orderID(orderField->OrderSysID);
     pret->set_state_msg(orderField->StatusMsg);

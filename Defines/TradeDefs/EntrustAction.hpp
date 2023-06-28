@@ -33,7 +33,7 @@ public:
     virtual ~EntrustAction() {}
 
 public:
-    static EntrustAction* create(const char* code, const char* exchg = "", double vol = 0, double price = 0, BusinessType bType = BT_CASH)
+    static EntrustAction* create(const char* code, const char* exchg = "", double vol = 0, double price = 0)
     {
         EntrustAction* pret = EntrustAction::allocate();
         if (pret)
@@ -42,7 +42,6 @@ public:
             StrUtils::my_strncpy(pret->m_strCode, code);
             pret->m_dVolume = vol;
             pret->m_dPrice = price;
-            pret->m_businessType = bType;
             return pret;
         }
         return nullptr;

@@ -15,3 +15,4 @@ void CTPGateway::OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CTh
         Logger::error("OnErrRtnOrderInsert: {}", pRspInfo->ErrorMsg);
     }
 }
+

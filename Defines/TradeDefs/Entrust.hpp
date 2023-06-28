@@ -24,13 +24,11 @@ private:
     PriceType     m_priceType;                          //价格类型
     double        m_dPrice;                             //委托价格
     int           m_dVolume;                            //委托数量
-    bool          m_bIsNet;                             //
-    bool          m_bIsBuy;                             //是否买入
+    
     //委托ID
-    char          m_strEntrustID[64] = { 0 };           //委托ID
-    //其他
-    char          m_strUserTag[64] = { 0 };             //用户自定义标签
-    BusinessType  m_businessType;                       //业务类型
+    char          m_strEntrustID[64] = { 0 };           //委托ID, 格式: 前置ID#CTP会话ID#报单引用, 来源: CTPGateway
+
+
     
 public:
     Entrust()
@@ -38,13 +36,13 @@ public:
     , m_direction(DT_Long)
     , m_offsetType(OT_Open)
     , m_orderFlag(OF_NOR)
-    , m_priceType(PT_AnyPrice)
-    , m_bIsNet(false)
-    , m_bIsBuy(true){}
+    , m_priceType(PT_LimitPrice)
+
+    {}
     virtual ~Entrust() {}
 
 public:
-    static Entrust* create(const char* code, int vol, double price, const char* exchg, BusinessType bType = BT_CASH)
+    static Entrust* create(const char* code, int vol, double price, const char* exchg)
     {
         Entrust* pret = Entrust::allocate();
         //TODO初始化
@@ -54,7 +52,6 @@ public:
             StrUtils::my_strncpy(pret->m_strCode, code);
             pret->m_dVolume = vol;
             pret->m_dPrice = price;
-            pret->m_businessType = bType;
             return pret;
         }
         return nullptr;
@@ -79,9 +76,6 @@ public:
 	inline OrderFlag		get_order_flag() const{return m_orderFlag;}
 	inline OffsetType	get_offset_type() const{return m_offsetType;}
 
-	inline void set_business_type(BusinessType bType) { m_businessType = bType; }
-	inline BusinessType	get_business_type() const { return m_businessType; }
-
 	inline void set_volume(double volume){ m_dVolume = volume; }
 	inline void set_price(double price){ m_dPrice = price; }
 
@@ -95,13 +89,13 @@ public:
 	inline const char* get_entrustID() const { return m_strEntrustID; }
 	inline char* get_entrustID() { return m_strEntrustID; }
 
-	inline void set_user_tag(const char* tag) { StrUtils::my_strncpy(m_strUserTag, tag); }
-	inline const char* get_user_tag() const { return m_strUserTag; }
-	inline char* get_user_tag() { return m_strUserTag; }
+	// inline void set_user_tag(const char* tag) { StrUtils::my_strncpy(m_strUserTag, tag); }
+	// inline const char* get_user_tag() const { return m_strUserTag; }
+	// inline char* get_user_tag() { return m_strUserTag; }
 
-	inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
-	inline bool is_net() const { return m_bIsNet; }
-	inline bool is_buy() const { return m_bIsBuy; }
+	// inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
+	// inline bool is_net() const { return m_bIsNet; }
+	// inline bool is_buy() const { return m_bIsBuy; }
 
 	inline void set_contract_info(ContractInfo* cInfo) { m_pContract = cInfo; }
 	inline ContractInfo* get_contract_info() const { return m_pContract; }

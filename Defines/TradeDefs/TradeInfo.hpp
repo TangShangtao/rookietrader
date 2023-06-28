@@ -23,8 +23,8 @@ private:
     TradeType     m_tradeType;                          //成交类型
     double        m_uAmount;                            //成交金额
     //原订单信息
-    bool          m_bIsNet;                             //TODO
-    bool          m_bIsBuy;                             //是否买入
+    // bool          m_bIsNet;                             //TODO
+    // bool          m_bIsBuy;                             //是否买入
     DirectionType m_direction;                          //买卖方向
     OffsetType    m_offsetType;                         //开平类型
     OrderType     m_orderType;                          //订单类型
@@ -99,9 +99,9 @@ public:
 	inline void set_businessType(BusinessType bType) {m_businessType = bType; }
 	inline BusinessType	get_business_type() const { return m_businessType; }
 
-	inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
-	inline bool is_net() const { return m_bIsNet; }
-	inline bool is_buy() const { return m_bIsBuy; }
+	// inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
+	// inline bool is_net() const { return m_bIsNet; }
+	// inline bool is_buy() const { return m_bIsBuy; }
 
 	inline void set_contract_info(ContractInfo* cInfo) { m_pContract = cInfo; }
 	inline ContractInfo* get_contract_info() const { return m_pContract; }

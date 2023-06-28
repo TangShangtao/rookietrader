@@ -4,12 +4,12 @@ int CTPGateway::order_action(EntrustAction* action)
 {
     if (action == nullptr)
     {
-        Logger::error("CTPGateway::order_insert: entrust is nullptr");
+        Logger::error("order_action: action is nullptr");
         return -1;
     }
     if (m_gatewayState.load() != CS_Ready)
     {
-        Logger::error("CTPGateway::order_insert: gateway is not ready");
+        Logger::error("order_action: gateway is not ready");
         return -1;
     }
     req_order_action(action);

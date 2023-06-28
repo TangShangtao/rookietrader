@@ -27,13 +27,12 @@ private:
     PriceType     m_priceType;                          //价格类型
     double        m_dPrice;                             //委托价格
     double        m_dVolume;                            //委托数量
-    bool          m_bIsNet;                             //
-    bool          m_bIsBuy;                             //是否买入
+    // bool          m_bIsNet;                             //
+    // bool          m_bIsBuy;                             //是否买入
     //委托ID
     char          m_strEntrustID[64] = { 0 };           //委托ID
     //其他
     char          m_strUserTag[64] = { 0 };             //用户自定义标签
-    BusinessType  m_businessType;                       //业务类型
     
     //以下为Order新增
 
@@ -77,11 +76,10 @@ public:
             pret->m_orderFlag = pEntrust->get_order_flag();
             pret->m_offsetType = pEntrust->get_offset_type();
             StrUtils::my_strncpy(pret->m_strEntrustID, pEntrust->get_entrustID());
-            StrUtils::my_strncpy(pret->m_strUserTag, pEntrust->get_user_tag());
-            pret->m_businessType = pEntrust->get_business_type();
+            // StrUtils::my_strncpy(pret->m_strUserTag, pEntrust->get_user_tag());
             pret->m_pContract = pEntrust->get_contract_info();
-            pret->m_bIsNet = pEntrust->is_net();
-            pret->m_bIsBuy = pEntrust->is_buy();
+            // pret->m_bIsNet = pEntrust->is_net();
+            // pret->m_bIsBuy = pEntrust->is_buy();
             
             return pret;
         }
@@ -109,8 +107,6 @@ public:
 	inline OrderFlag		get_order_flag() const{return m_orderFlag;}
 	inline OffsetType	get_offset_type() const{return m_offsetType;}
 
-	inline void set_business_type(BusinessType bType) { m_businessType = bType; }
-	inline BusinessType	get_business_type() const { return m_businessType; }
 
 	inline void set_volume(double volume){ m_dVolume = volume; }
 	inline void set_price(double price){ m_dPrice = price; }
@@ -129,9 +125,9 @@ public:
 	inline const char* get_user_tag() const { return m_strUserTag; }
 	inline char* get_user_tag() { return m_strUserTag; }
 
-	inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
-	inline bool is_net() const { return m_bIsNet; }
-	inline bool is_buy() const { return m_bIsBuy; }
+	// inline void set_net_direction(bool isBuy) { m_bIsNet = true; m_bIsBuy = isBuy; }
+	// inline bool is_net() const { return m_bIsNet; }
+	// inline bool is_buy() const { return m_bIsBuy; }
 
 	inline void set_contract_info(ContractInfo* cInfo) { m_pContract = cInfo; }
 	inline ContractInfo* get_contract_info() const { return m_pContract; }    

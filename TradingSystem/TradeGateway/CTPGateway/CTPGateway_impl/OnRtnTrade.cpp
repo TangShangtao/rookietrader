@@ -3,7 +3,7 @@
 #include "tools/Logger.h"
 void CTPGateway::OnRtnTrade(CThostFtdcTradeField *pTrade) 
 {
-    Logger::info("OnRtnTrade !!");
+    Logger::info("OnRtnTrade: new trade updated.\norder info: {}, \nprice: {}, \nvolume: {}", pTrade->OrderRef, pTrade->Price, pTrade->Volume);
     TradeInfo* tradeInfo = tradeInfo_to_my(pTrade);
     // if (tradeInfo)
     // {
