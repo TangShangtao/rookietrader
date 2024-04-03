@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": 
+    [
+        {
+            "name": "launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo/build/pubsub_forwarder/pubsub_forwarder",
+            "cwd": "${workspaceFolder}/demo/build/pubsub_forwarder",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": ""
+        }
+    ]
+}
