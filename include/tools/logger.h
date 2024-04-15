@@ -7,12 +7,14 @@
 
 namespace rookietrader
 {
+// log file output as csv
+// log pattern: ClassName::FunctionName,log sentence1; log sentence2
 class Logger
 {
 public:
     Logger(std::string loggerName, std::string logMode)
     {
-        std::string logPath = "logs/" + loggerName + ".log";
+        std::string logPath = "logs/log_" + loggerName + ".csv";
         fileLogger = spdlog::daily_logger_mt(loggerName + "File", logPath, 2, 30);
         consoleLogger = spdlog::stdout_color_mt(loggerName + "Console");
         std::string logPattern = "%H:%M:%S.%e,%n,%l,%t,%v,";

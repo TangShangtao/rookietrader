@@ -1,0 +1,15 @@
+{
+    "MDService" : 
+    {
+        "url" : "tcp://localhost:5000",
+        "mdName" : "MDCTP",
+        "accountID" : "00583085",
+        "password" : "35022262",
+        "frontAddr" : "tcp://210.14.72.21:4402",
+        "logger" :
+        {
+            "name" : "MDCTP",
+            "logMode" : "debug"
+        }
+    }
+}

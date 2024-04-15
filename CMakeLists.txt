@@ -9,8 +9,8 @@ set(EXECUTABLE_OUTPUT_PATH ${root}/bin)
 include_directories(${root}/include)
 link_directories(${root}/lib)
 # libs developed by thirdparty
-include_directories(${root}/include/thirdparty)
-link_directories(${root}/lib/thirdparty)
+include_directories(${root}/thirdparty/include)
+link_directories(${root}/thirdparty/lib)
 
 
 
