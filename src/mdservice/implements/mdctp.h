@@ -13,7 +13,7 @@ public:
     MDCTP(nlohmann::json config);
     ~MDCTP() override;
     bool Prepare() noexcept override;
-    bool SubscribeMarketData(SubscribeMarketDataReq instrumentIDs) noexcept override;
+    bool SubscribeMarketData(SubTickReq subReq) noexcept override;
 
     void OnFrontConnected() noexcept override;
     void OnFrontDisconnected(int nReason) noexcept override;
