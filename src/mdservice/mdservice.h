@@ -32,7 +32,7 @@ protected:
     // generate MDReady event, publish to subscribers
     void PublishMDReady();
     // generate Tick event, publish to subscribers
-    void PublicTick(const Tick& tick);
+    void PublishTick(const Tick& tick);
 
 private:
     void HandleReq();

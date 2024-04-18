@@ -22,7 +22,7 @@ MDCTP::~MDCTP()
 bool MDCTP::OnPrepareMDReq(const PrepareMDReq* req) 
 {   
     ctpMdApi->Init();
-    logger.info("MDCTP::OnPrepareMDReq,called");
+    logger.info("MDCTP::OnPrepareMDReq,ctpMdApi->Init() called");
     return true;
 
 }   
@@ -33,9 +33,13 @@ bool MDCTP::OnSubTickReq(const SubTickReq* subTickReq)
 
 void MDCTP::OnFrontConnected() 
 {
+    CThostFtdcReqUserLoginField login;
+    std::memset(&login, 0, sizeof(login));
+    std::strncpy(login.UserID, accountID.c_str(), sizeof(login.UserID)-1);
+    std::strncpy(login.Password, password.c_str(), sizeof(login.Password)-1);
+    std::strncpy(login.BrokerID, "9999", sizeof(login.BrokerID)-1);
+    ctpMdApi->ReqUserLogin(&login, prepareMDRpcID);
     logger.info("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", prepareMDRpcID);
-    ctpMdApi->ReqUserLogin(nullptr, prepareMDRpcID);
-    logger.info("MDCTP::OnFrontConnected,called");
 }
 
 void MDCTP::OnFrontDisconnected(int nReason) 
@@ -45,7 +49,16 @@ void MDCTP::OnFrontDisconnected(int nReason)
 
 void MDCTP::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
-
+    if (CheckError(pRspUserLogin, pRspInfo, "OnRspUserLogin") == false)
+    {
+        SendPrepareMDRsp(false, "OnRspUserLogin failed");
+        logger.error("MDCTP::OnRspUserLogin, MDCTP failed to prepare");
+        exit(-1);
+        return;
+    }
+    SendPrepareMDRsp(true, "");
+    PublishMDReady();
+    logger.info("MDCTP::OnRspUserLogin, MDCTP prepared!");
 }
 
 void MDCTP::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
@@ -62,5 +75,27 @@ void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 {
 
 }
+
+bool MDCTP::CheckError(void* pRsp, CThostFtdcRspInfoField* pInfo, const std::string& callbackName)
+{
+    if (pInfo == nullptr)
+    {
+        logger.error("MDCTP::CheckError,{} pInfo is nullptr", callbackName);
+        return false;
+    }
+    else if (pInfo->ErrorID != 0)
+    {
+        logger.error("MDCTP::CheckError,{} ErrorID {}, ErrorMsg {}", callbackName, pInfo->ErrorID, StringUtils::GBKToUTF8(pInfo->ErrorMsg));
+        return false;
+    }
+    else if (pRsp == nullptr)
+    {
+        logger.error("MDCTP::CheckError,{} pInfo ErrorID {}, ErrorMsg {}, pRsp is nullptr", callbackName, pInfo->ErrorID, StringUtils::GBKToUTF8(pInfo->ErrorMsg));
+        return false;
+    }
+    else return true;
+
+}
+
 
 };

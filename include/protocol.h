@@ -78,7 +78,7 @@ struct EventHeader
     // 20200101
     char tradingDay[9];
     // 10:10:10.100
-    char generateTime[13];
+    char generateTime[15];
 
     EventHeader(uint32_t rpcID, EventType eType)
         :   rpcID(rpcID), event(eType)
@@ -194,11 +194,13 @@ struct RPCReqHeader
     // 20200101
     char tradingDay[9];
     // 10:10:10.100
-    char generateTime[13];
+    char generateTime[15];
 
     RPCReqHeader(uint32_t rpcID, RPCType rpcType)
         :   rpcID(rpcID), rpc(rpcType)
     {
+        std::memset(tradingDay, 0, sizeof(tradingDay));
+        std::memset(generateTime, 0, sizeof(generateTime));
         std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
         std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
     }
@@ -220,12 +222,12 @@ struct RPCRspHeader
     // 20200101
     char tradingDay[9];
     // 10:10:10.100
-    char generateTime[13];
-    bool isError;
+    char generateTime[15];
+    bool isSucc;
     char errorMsg[32];
 
-    RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isError, const std::string& msg)
-        :   rpcID(rpcID), rpc(rpcType), isError(isError)
+    RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isSucc, const std::string& msg)
+        :   rpcID(rpcID), rpc(rpcType), isSucc(isSucc)
     {
         std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
         std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
@@ -249,7 +251,7 @@ struct PrepareMDReq : public RPCReqHeader
     {
         return fmt::format
         (
-            "{};",
+            "{}",
             RPCReqHeader::DebugInfo()
         );
     }
@@ -257,13 +259,13 @@ struct PrepareMDReq : public RPCReqHeader
 
 struct PrepareMDRsp : public RPCRspHeader
 {
-    PrepareMDRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareMD, isError, msg) {}
+    PrepareMDRsp(uint32_t rpcID, bool isSucc, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareMD, isSucc, msg) {}
     std::string DebugInfo() const
     {
         return fmt::format
         (
-            "{};",
-            RPCRspHeader::DebugInfo()
+            "{};{};{}",
+            RPCRspHeader::DebugInfo(),isSucc,errorMsg
         );
     }
 };

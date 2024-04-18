@@ -19,5 +19,11 @@ public:
     static std::string GetTimeNow();
 };
 
+class StringUtils
+{
+public:
+    static std::string GBKToUTF8(const std::string& inBuf);
+};
+
 
 };

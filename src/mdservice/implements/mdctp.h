@@ -22,6 +22,9 @@ public:
 	void OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
 	void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) override;
 private:
+    bool CheckError(void* pRsp, CThostFtdcRspInfoField* pInfo, const std::string& callbackName);
+
+private:
     CThostFtdcMdApi* ctpMdApi;
 };
 

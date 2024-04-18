@@ -23,15 +23,20 @@ public:
 class MDApi
 {
 public:
+    // establish connection with service
     explicit MDApi(const nlohmann::json& config);
     ~MDApi();
+    // call Init to start receiving rsp and event
+    void Init();
+    // register callbacks
     void RegisterSpi(MDSpi* spi);
+    // send prepareMD req(sync)
     int SendPrepareMDReq();
+    // send subTick req(sync)
     int SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments);
     
 
 private:
-    void HandleRsp();
     void HandleEvent();
 private:
     // communication url
@@ -41,9 +46,6 @@ private:
     const Logger logger;
     // rpcID return by MDApi
     int rpcID = 0;
-    // rpc req id
-    uint32_t prepareMDRpcID = 0;
-    uint32_t subTickRpcID = 0;
     // MDSpi registered by user
     MDSpi* spi;
 
