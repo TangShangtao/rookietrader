@@ -1,14 +1,25 @@
 {
     "MDService" : 
     {
-        "url" : "tcp://localhost:5000",
+        "eventUrl" : "tcp://localhost:5000",
+        "rpcUrl" : "tcp://localhost:5001",
         "mdName" : "MDCTP",
         "accountID" : "00583085",
         "password" : "35022262",
         "frontAddr" : "tcp://210.14.72.21:4402",
         "logger" :
         {
-            "name" : "MDCTP",
+            "name" : "MDCTPLogger",
+            "logMode" : "debug"
+        }
+    },
+    "MDApi" : 
+    {
+        "eventUrl" : "tcp://localhost:5000",
+        "rpcUrl" : "tcp://localhost:5001",
+        "logger" :
+        {
+            "name" : "MDApiLogger",
             "logMode" : "debug"
         }
     }

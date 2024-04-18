@@ -17,16 +17,23 @@ class MDService
 {
 public:
     // set communicate url, read basic config from config.json
-    MDService(const nlohmann::json& config);
+    explicit MDService(const nlohmann::json& config);
     virtual ~MDService();
+private:
     // connect and login to broker's marketdata front
-    virtual bool Prepare() noexcept = 0;
-    // generate MDReady event, publish to subscribers
-    void OnMDReady();
+    virtual bool OnPrepareMDReq(const PrepareMDReq* req) = 0;
    // subscribe market data of many instruments calling api only once
-    virtual bool SubscribeMarketData(SubTickReq instrumentIDs) noexcept = 0;
+    virtual bool OnSubTickReq(const SubTickReq* subTickReq) = 0;
+
+protected:
+    void WaitReq();
+    // rsp PrepareMD
+    void SendPrepareMDRsp(bool isError, const std::string& msg);
+    // generate MDReady event, publish to subscribers
+    void PublishMDReady();
     // generate Tick event, publish to subscribers
-    void OnTick(const Tick& tick);
+    void PublicTick(const Tick& tick);
+
 private:
     void HandleReq();
 
@@ -44,15 +51,15 @@ protected:
     const std::string frontAddr;
     // log api
     const Logger logger;
-    // reqID used by md api
-    int reqID = 0;
+    // rpc req id
+    uint32_t prepareMDRpcID = 0;
+    uint32_t subTickRpcID = 0;
+
 private:
     nng_socket eventSock;
     nng_socket rpcSock;
     int nngRes;
     std::shared_ptr<std::thread> handleReqThread;
-    uint32_t prepareRpcID = -1;
-    uint32_t subRpcID = -1;
 
     
 };

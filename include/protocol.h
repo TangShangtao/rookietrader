@@ -2,8 +2,10 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <vector>
 #include "tools/utils.h"
-
+#include "spdlog/fmt/fmt.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace rookietrader
 {
@@ -21,10 +23,10 @@ enum class EventType
     // trader report order
     Order,
     // trader report trade
-    Trade,
+    Trade
 };
+
 // remote procedure call in trading, managed by req-rsp pattern
-// rsp called only on error cases
 enum class RPCType
 {
     PrepareMD,
@@ -75,38 +77,43 @@ struct EventHeader
     EventType event;
     // 20200101
     char tradingDay[9];
-    // 10:10:10
-    char generateTime[9];
-    // 100
-    uint32_t generateMillisec;
+    // 10:10:10.100
+    char generateTime[13];
 
     EventHeader(uint32_t rpcID, EventType eType)
         :   rpcID(rpcID), event(eType)
     {
+        std::memset(tradingDay, 0, sizeof(tradingDay));
+        std::memset(generateTime, 0, sizeof(generateTime));
         std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
         std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
-        generateMillisec = TimeUtils::GetCurrMillisec();
     }
 
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};{};{};{}",
+            rpcID, magic_enum::enum_name(event),tradingDay,generateTime
+        );
     }
 };
 // Event Data
 struct MDReady : public EventHeader
 {
-    char url[16];
     MDReady(uint32_t rpcID):EventHeader(rpcID, EventType::MDReady) {}
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};",
+            EventHeader::DebugInfo()
+        );
     }
 };
 
 struct Tick : public EventHeader
 {
-    char url[16];
     char instrumentID[16];
     ExchangeID exchangeID;
     double lastPrice;
@@ -117,7 +124,11 @@ struct Tick : public EventHeader
     Tick(uint32_t rpcID):EventHeader(rpcID, EventType::Tick) {}
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};{};{}",
+            EventHeader::DebugInfo(),instrumentID,magic_enum::enum_name(exchangeID),lastPrice
+        );
     }
 };
 
@@ -176,179 +187,274 @@ struct Order : public EventHeader
     }
 };
 
-struct RPCHeader
+struct RPCReqHeader
 {
     uint32_t rpcID;
     RPCType rpc;
     // 20200101
     char tradingDay[9];
-    // 10:10:10
-    char generateTime[9];
-    // 100
-    uint32_t generateMillisec;
+    // 10:10:10.100
+    char generateTime[13];
 
-    RPCHeader(uint32_t rpcID, RPCType rpcType)
+    RPCReqHeader(uint32_t rpcID, RPCType rpcType)
         :   rpcID(rpcID), rpc(rpcType)
     {
         std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
         std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
-        generateMillisec = TimeUtils::GetCurrMillisec();
     }
 
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};{};{};{}",
+            rpcID, magic_enum::enum_name(rpc), tradingDay, generateTime
+        );
     }
 };
 
-struct PrepareMDReq : public RPCHeader
+struct RPCRspHeader
 {
-    PrepareMDReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::PrepareMD) {}
+    uint32_t rpcID;
+    RPCType rpc;
+    // 20200101
+    char tradingDay[9];
+    // 10:10:10.100
+    char generateTime[13];
+    bool isError;
+    char errorMsg[32];
+
+    RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isError, const std::string& msg)
+        :   rpcID(rpcID), rpc(rpcType), isError(isError)
+    {
+        std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
+        std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
+        std::strncpy(errorMsg, msg.c_str(), sizeof(errorMsg)-1);
+    }
+
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};{};{};{}",
+            rpcID, magic_enum::enum_name(rpc), tradingDay, generateTime
+        );
+    }
 };
 
-struct PrepareMDRsp : public RPCHeader
+struct PrepareMDReq : public RPCReqHeader
 {
-    PrepareMDRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::PrepareMD) {}
+    PrepareMDReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::PrepareMD) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCReqHeader::DebugInfo()
+        );
+    }
 };
 
-struct PrepareTDReq : public RPCHeader
+struct PrepareMDRsp : public RPCRspHeader
 {
-    PrepareTDReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::PrepareTD) {}
+    PrepareMDRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareMD, isError, msg) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
+    }
 };
 
-struct PrepareTDRsp : public RPCHeader
+struct PrepareTDReq : public RPCReqHeader
 {
-    PrepareTDRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::PrepareTD) {}
+    PrepareTDReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::PrepareTD) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCReqHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryInstrumentsReq : public RPCHeader
+struct PrepareTDRsp : public RPCRspHeader
 {
-    QryInstrumentsReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryInstruments) {}
+    PrepareTDRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareTD, isError, msg) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryInstrumentsRsp : public RPCHeader
+struct QryInstrumentsReq : public RPCReqHeader
 {
-    QryInstrumentsRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryInstruments) {}
+    QryInstrumentsReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::QryInstruments) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCReqHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryPositionReq : public RPCHeader
+struct QryInstrumentsRsp : public RPCRspHeader
 {
-    QryPositionReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryPosition) {}
+    QryInstrumentsRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::QryInstruments, isError, msg) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryPositionRsp : public RPCHeader
+struct QryPositionReq : public RPCReqHeader
 {
-    QryPositionRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryPosition) {}
+    QryPositionReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::QryPosition) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCReqHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryAccountReq : public RPCHeader
+struct QryPositionRsp : public RPCRspHeader
 {
-    QryAccountReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryAccount) {}
+    QryPositionRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::QryPosition, isError, msg) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
+    }
 };
 
-struct QryAccountRsp : public RPCHeader
+struct QryAccountReq : public RPCReqHeader
 {
-    QryAccountRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::QryAccount) {}
+    QryAccountReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::QryAccount) {}
     std::string DebugInfo() const
     {
-        return "";
-    } 
+        return fmt::format
+        (
+            "{};",
+            RPCReqHeader::DebugInfo()
+        );
+    }
 };
 
-struct SubTickReq : public RPCHeader
+struct QryAccountRsp : public RPCRspHeader
 {
-    char** instrumentIDs;
+    QryAccountRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::QryAccount, isError, msg) {}
+    std::string DebugInfo() const
+    {
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
+    }
+};
+
+struct SubTickReq : public RPCReqHeader
+{
+    static const uint16_t instrumentIDLen = 16;
     ExchangeID exchange;
     uint64_t counts;
-    const uint16_t instrumentIDLen = 16;
-    SubTickReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::SubTick) {}
+    uint64_t byteSize;
+    char** instrumentIDs;
+    SubTickReq(uint32_t rpcID, ExchangeID exchange)
+        :   RPCReqHeader(rpcID, RPCType::SubTick),
+            exchange(exchange), counts(0), instrumentIDs(nullptr)
+    {
+
+    }
+    void* CreateReqBuf(const std::vector<std::string>& instrumentIDsToSub)
+    {
+        SubTickReq* ptr = nullptr;
+        counts = instrumentIDsToSub.size();
+        byteSize = sizeof(exchange) + sizeof(counts) + sizeof(byteSize) + instrumentIDLen * counts;
+        ptr = (SubTickReq*)std::malloc(byteSize);
+        ptr->exchange = exchange;
+        ptr->counts = counts;
+        ptr->byteSize = byteSize;
+        for (int i = 0; i < counts; ++i)
+        {
+            std::memcpy((ptr->instrumentIDs)[i*instrumentIDLen], instrumentIDsToSub[i].c_str(), instrumentIDLen);
+        }
+        return ptr;
+    }
+    void ReleaseReqBuf(void* ptr)
+    {
+        std::free(ptr);
+    }
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};{};{};",
+            RPCReqHeader::DebugInfo(), magic_enum::enum_name(exchange), counts
+        );
     }
 };
 
-struct SubTickRsp : public RPCHeader
+struct SubTickRsp : public RPCRspHeader
 {
-    SubTickRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::SubTick) {}
+    int errorID;
+    char errorMsg[32];
+    SubTickRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::SubTick, isError, msg) {}
+
     std::string DebugInfo() const
     {
-        return "";
+        return fmt::format
+        (
+            "{};",
+            RPCRspHeader::DebugInfo()
+        );
     }
 };
 
-struct SubBarReq : public RPCHeader
+struct SubBarReq : public RPCReqHeader
 {
     char** instrumentIDs;
     uint64_t counts;
     const uint16_t instrumentIDLen = 16;
-    SubBarReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::SubBar) {}
+    SubBarReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::SubBar) {}
     std::string DebugInfo() const
     {
         return "";
     }
 };
 
-struct SubBarRsp : public RPCHeader
+struct SubBarRsp : public RPCRspHeader
 {
-    SubBarRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::SubBar) {}
+    SubBarRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::SubBar, isError, msg) {}
     std::string DebugInfo() const
     {
         return "";
     }
 };
 
-struct OrderInsertReq : public RPCHeader
-{
-    uint64_t orderReqID;
-    OrderInsertReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::OrderInsert) {}
-    std::string DebugInfo() const
-    {
-        return "";
-    }
-
-};
-
-struct OrderInsertRsp : public RPCHeader
+struct OrderInsertReq : public RPCReqHeader
 {
     uint64_t orderReqID;
-    OrderInsertRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::OrderInsert) {}
+    OrderInsertReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::OrderInsert) {}
     std::string DebugInfo() const
     {
         return "";
@@ -356,22 +462,33 @@ struct OrderInsertRsp : public RPCHeader
 
 };
 
-struct CancelReq : public RPCHeader
+struct OrderInsertRsp : public RPCRspHeader
+{
+    uint64_t orderReqID;
+    OrderInsertRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::OrderInsert, isError, msg) {}
+    std::string DebugInfo() const
+    {
+        return "";
+    }
+
+};
+
+struct CancelReq : public RPCReqHeader
 {
     uint64_t cancelReqID;
     uint64_t orderReqID;
-    CancelReq(uint32_t rpcID):RPCHeader(rpcID, RPCType::Cancel) {}
+    CancelReq(uint32_t rpcID):RPCReqHeader(rpcID, RPCType::Cancel) {}
     std::string DebugInfo() const
     {
         return "";
     }
 };
 
-struct CancelRsp : public RPCHeader
+struct CancelRsp : public RPCRspHeader
 {
     uint64_t cancelReqID;
     uint64_t orderReqID;
-    CancelRsp(uint32_t rpcID):RPCHeader(rpcID, RPCType::Cancel) {}
+    CancelRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::Cancel, isError, msg) {}
     std::string DebugInfo() const
     {
         return "";

@@ -1,62 +1,64 @@
 #include "mdctp.h"
 namespace rookietrader
 {
-MDCTP::MDCTP(nlohmann::json config)
+MDCTP::MDCTP(const nlohmann::json& config)
     :   MDService(config),
-        mdApi(CThostFtdcMdApi::CreateFtdcMdApi())
+        ctpMdApi(CThostFtdcMdApi::CreateFtdcMdApi())
 {
-    logger.debug("MDCTP::MDCTP,called");
     std::string frontAddrCopy = frontAddr;
-    mdApi->RegisterFront(frontAddrCopy.data());
-    mdApi->RegisterSpi(this);
+    ctpMdApi->RegisterFront(frontAddrCopy.data());
+    ctpMdApi->RegisterSpi(this);
+    logger.debug("MDCTP::MDCTP,called");
 }
 
 MDCTP::~MDCTP()
 {
-    mdApi->Join();
-    mdApi->Release();
+    WaitReq();
+    ctpMdApi->Join();
+    ctpMdApi->Release();
     logger.debug("MDCTP::~MDCTP,called");
 }
 
-bool MDCTP::Prepare() noexcept
+bool MDCTP::OnPrepareMDReq(const PrepareMDReq* req) 
 {   
-    mdApi->Init();
-    logger.info("MDCTP::Prepare,called");
+    ctpMdApi->Init();
+    logger.info("MDCTP::OnPrepareMDReq,called");
     return true;
 
 }   
-bool MDCTP::SubscribeMarketData(SubTickReq instrumentIDs) noexcept
+bool MDCTP::OnSubTickReq(const SubTickReq* subTickReq) 
 {
     return true;
 }
 
-void MDCTP::OnFrontConnected() noexcept
+void MDCTP::OnFrontConnected() 
 {
-    logger.info("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", ++reqID);
-    mdApi->ReqUserLogin(nullptr, reqID);
+    logger.info("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", prepareMDRpcID);
+    ctpMdApi->ReqUserLogin(nullptr, prepareMDRpcID);
     logger.info("MDCTP::OnFrontConnected,called");
 }
 
-void MDCTP::OnFrontDisconnected(int nReason) noexcept 
+void MDCTP::OnFrontDisconnected(int nReason) 
 {
     logger.error("MDCTP::OnFrontDisconnected,called; nReason {}", nReason);
 }
-void MDCTP::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) noexcept 
+
+void MDCTP::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
 
 }
 
-void MDCTP::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) noexcept 
+void MDCTP::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
 
 }
 
-void MDCTP::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) noexcept
+void MDCTP::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
 
 }
 
-void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) noexcept
+void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) 
 {
 
 }
