@@ -23,7 +23,7 @@ public:
 	void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) override;
 private:
     bool CheckError(void* pRsp, CThostFtdcRspInfoField* pInfo, const std::string& callbackName);
-
+    
 private:
     CThostFtdcMdApi* ctpMdApi;
 };

@@ -13,6 +13,7 @@ namespace rookietrader
 // Events in trading, managed by pub-sub pattern
 enum class EventType
 {
+    None,
     // MDService ready to communicate
     MDReady,
     // TDService ready to communicate
@@ -30,6 +31,7 @@ enum class EventType
 // remote procedure call in trading, managed by req-rsp pattern
 enum class RPCType
 {
+    None,
     PrepareMD,
     PrepareTD,
     QryInstruments,
@@ -44,17 +46,24 @@ enum class RPCType
 
 enum class ExchangeID
 {
-    SHFE
+    None,
+    SHFE,
+    DCE,
+    CZCE,
+    CFFEX,
+    
 };
 
 enum class OrderDirection
 {
+    None,
     Long, 
     Short
 };
 
 enum class Offset
 {
+    None,
     Open,
     CloseTd,
     CloseYd,
@@ -62,6 +71,7 @@ enum class Offset
 
 enum class OrderStatus
 {
+    None,
     RiskControlled,
     Rejected,
     NoTradedQueueing,
@@ -112,9 +122,23 @@ struct MDReady : public EventHeader
         );
     }
 };
+struct TDReady : public EventHeader
+{
+    TDReady(uint32_t rpcID):EventHeader(rpcID, EventType::TDReady) {}
+    std::string DebugInfo() const
+    {
+        return fmt::format
+        (
+            "{};",
+            EventHeader::DebugInfo()
+        );
+    }
+};
 
 struct Tick : public EventHeader
 {
+    // format: 10:10:10.100
+    char updateTime[15];
     char instrumentID[16];
     ExchangeID exchangeID;
     double lastPrice;
@@ -375,6 +399,7 @@ struct QryAccountRsp : public RPCRspHeader
     }
 };
 
+// consist byte of instruments followed by SubTickReq
 struct SubTickReq : public RPCReqHeader
 {
     static const uint16_t instrumentIDLen = 16;

@@ -12,6 +12,7 @@ MDApi::MDApi(const nlohmann::json& config)
 {
     eventSock = NNG_SOCKET_INITIALIZER;
     rpcSock = NNG_SOCKET_INITIALIZER;
+    int nngRes;
     nngRes = nng_sub0_open(&eventSock);
     if (nngRes != 0)
     {
@@ -71,6 +72,7 @@ void MDApi::Init()
 int MDApi::SendPrepareMDReq()
 {
     PrepareMDReq req(++rpcID);
+    int nngRes;
     nngRes = nng_send(rpcSock, reinterpret_cast<void*>(&req), sizeof(PrepareMDReq), 0);
     if (nngRes != 0)
     {
@@ -115,7 +117,8 @@ int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instrum
         std::memcpy(mover, instruments[i].c_str(), SubTickReq::instrumentIDLen-1);
         mover += SubTickReq::instrumentIDLen;
     }    
-    nngRes = nng_send(rpcSock, reqBuf, sizeof(req.byteSize), NNG_FLAG_ALLOC);
+    int nngRes;
+    nngRes = nng_send(rpcSock, reqBuf, req.byteSize, NNG_FLAG_ALLOC);
     if (nngRes != 0)
     {
         logger.error(fmt::format("MDApi::SendSubTickReq,nng_send {}; res {}; msg {}", rpcUrl, nngRes, nng_strerror(nngRes)));
@@ -150,6 +153,63 @@ int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instrum
 
 void MDApi::HandleEvent()
 {
-
+    while (true)
+    {
+        EventHeader* buf = nullptr;
+        size_t sz;
+        int nngRes;
+        nngRes = nng_recv(eventSock, &buf, &sz, NNG_FLAG_ALLOC);
+        if (nngRes != 0)
+        {
+            logger.error("MDApi::HandleEvent,nng_recv {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes));
+            exit(-1);
+        }
+        logger.debug("MDApi::HandleEvent,receive event {}", buf->DebugInfo());
+        switch (buf->event)
+        {
+            case EventType::MDReady:
+            {
+                const MDReady* event = reinterpret_cast<MDReady*>(buf);
+                spi->OnMDReady(event);
+                logger.debug("MDApi::HandleEvent,OnMDReady called");
+                break;
+            }
+            case EventType::TDReady:
+            {
+                const TDReady* event = reinterpret_cast<TDReady*>(buf);
+                break;
+            }
+            case EventType::Tick:
+            {
+                const Tick* event = reinterpret_cast<Tick*>(buf);
+                spi->OnTick(event);
+                logger.debug("MDApi::HandleEvent,OnTick called");
+                break;
+            }
+            case EventType::Bar:
+            {
+                const Bar* event = reinterpret_cast<Bar*>(buf);
+                break;
+            }
+            case EventType::Order:
+            {
+                const Order* event = reinterpret_cast<Order*>(buf);
+                break;
+            }
+            case EventType::Trade:
+            {
+                const Trade* event = reinterpret_cast<Trade*>(buf);
+                break;
+            }    
+            default:
+            {
+                logger.error("MDApi::HandleEvent,unsupported event,{}", buf->DebugInfo());
+                exit(-1);
+            }
+            
+        }
+        nng_free(buf, sz);
+    }
 }
+
 };

@@ -51,7 +51,6 @@ private:
 
     nng_socket eventSock;
     nng_socket rpcSock;
-    int nngRes;
     std::shared_ptr<std::thread> handleRspThread;
     std::shared_ptr<std::thread> handleEventThread;
 

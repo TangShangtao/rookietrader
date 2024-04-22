@@ -38,11 +38,12 @@ public:
         std::cout << "OnPrepareMDRsp: " << rsp->DebugInfo() << std::endl;
         std::vector<std::string> subInstruments;
         subInstruments.push_back("IH2406");
+        subInstruments.push_back("IH2405");
         api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnSubTickRsp(const SubTickRsp* rsp) override
     {
-        std::cout << rsp->DebugInfo() << std::endl;
+        std::cout << "OnSubTickRsp" << rsp->DebugInfo() << std::endl;
     }    
 private:
     MDApi api;

@@ -71,6 +71,7 @@ void MDService::HandleReq()
             exit(-1);
         }
     }
+    nng_free(buf, sz);
     logger.info("MDService::HandleReq,waiting SubTickReq;");
     while (subTickRpcID == 0)
     {
@@ -91,7 +92,6 @@ void MDService::HandleReq()
             SendSubTickRsp(false, "MDService OnSubTickReq return false");
             exit(-1);
         }
-        SendSubTickRsp(true, "");
     }
     nng_free(buf, sz);
     logger.info("MDService::HandleReq,HandleReq exit");
@@ -132,11 +132,11 @@ void MDService::SendSubTickRsp(bool isSucc, const std::string& msg)
 void MDService::PublishMDReady()
 {
     MDReady mdReady(prepareMDRpcID);
-    logger.debug("MDService::OnMDReady,{}", mdReady.DebugInfo());
+    logger.debug("MDService::PublishMDReady,{}", mdReady.DebugInfo());
     nngRes = nng_send(eventSock, reinterpret_cast<void*>(&mdReady), sizeof(MDReady), 0);
     if (nngRes != 0)
     {
-        logger.error(fmt::format("MDService::OnMDReady,nng_send {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
+        logger.error(fmt::format("MDService::PublishMDReady,nng_send {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
         exit(-1);
     }
     logger.debug("MDService::PublishMDReady,called");
