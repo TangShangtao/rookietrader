@@ -105,15 +105,24 @@ int MDApi::SendPrepareMDReq()
 
 int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments)
 {
-    SubTickReq req(++rpcID, exchange);
-    void* reqBuf = req.CreateReqBuf(instruments);
-    nngRes = nng_send(rpcSock, reqBuf, sizeof(req.byteSize), 0);
+    SubTickReq req(++rpcID, exchange, instruments.size());
+    char* reqBuf = (char*)nng_alloc(req.byteSize);
+    char* mover = reqBuf;
+    std::memcpy(mover, &req, sizeof(req));
+    mover += sizeof(req);
+    for (int i = 0; i < req.counts; ++i)
+    {
+        std::memcpy(mover, instruments[i].c_str(), SubTickReq::instrumentIDLen-1);
+        mover += SubTickReq::instrumentIDLen;
+    }    
+    nngRes = nng_send(rpcSock, reqBuf, sizeof(req.byteSize), NNG_FLAG_ALLOC);
     if (nngRes != 0)
     {
         logger.error(fmt::format("MDApi::SendSubTickReq,nng_send {}; res {}; msg {}", rpcUrl, nngRes, nng_strerror(nngRes)));
         exit(-1);
     }  
-    req.ReleaseReqBuf(reqBuf);
+    // nng_send with NNG_FLAG_ALLOC, nng_free not needed
+    // nng_free(reqBuf, req.byteSize);
     logger.debug("MDApi::SendSubTickReq,{}", req.DebugInfo());
     
     RPCRspHeader* buf = nullptr;

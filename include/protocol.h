@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -379,33 +380,15 @@ struct SubTickReq : public RPCReqHeader
     static const uint16_t instrumentIDLen = 16;
     ExchangeID exchange;
     uint64_t counts;
+    // total byte len of this struct
     uint64_t byteSize;
-    char** instrumentIDs;
-    SubTickReq(uint32_t rpcID, ExchangeID exchange)
+    SubTickReq(uint32_t rpcID, ExchangeID exchange, uint64_t counts)
         :   RPCReqHeader(rpcID, RPCType::SubTick),
-            exchange(exchange), counts(0), instrumentIDs(nullptr)
+            exchange(exchange), counts(counts)
     {
+        byteSize = sizeof(SubTickReq) + instrumentIDLen * counts;
+    }
 
-    }
-    void* CreateReqBuf(const std::vector<std::string>& instrumentIDsToSub)
-    {
-        SubTickReq* ptr = nullptr;
-        counts = instrumentIDsToSub.size();
-        byteSize = sizeof(exchange) + sizeof(counts) + sizeof(byteSize) + instrumentIDLen * counts;
-        ptr = (SubTickReq*)std::malloc(byteSize);
-        ptr->exchange = exchange;
-        ptr->counts = counts;
-        ptr->byteSize = byteSize;
-        for (int i = 0; i < counts; ++i)
-        {
-            std::memcpy((ptr->instrumentIDs)[i*instrumentIDLen], instrumentIDsToSub[i].c_str(), instrumentIDLen);
-        }
-        return ptr;
-    }
-    void ReleaseReqBuf(void* ptr)
-    {
-        std::free(ptr);
-    }
     std::string DebugInfo() const
     {
         return fmt::format

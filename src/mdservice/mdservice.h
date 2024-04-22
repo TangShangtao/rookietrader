@@ -29,6 +29,8 @@ protected:
     void WaitReq();
     // rsp PrepareMD
     void SendPrepareMDRsp(bool isError, const std::string& msg);
+    // rsp SubTick
+    void SendSubTickRsp(bool isSucc, const std::string& msg);
     // generate MDReady event, publish to subscribers
     void PublishMDReady();
     // generate Tick event, publish to subscribers

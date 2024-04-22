@@ -23,10 +23,10 @@ public:
     }
     void OnMDReady(const MDReady* event) override
     {
-        std::cout << event->DebugInfo() << std::endl;
-        std::vector<std::string> subInstruments;
-        subInstruments.push_back("IH2406");
-        api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
+        std::cout << "OnMDReady: " << event->DebugInfo() << std::endl;
+        // std::vector<std::string> subInstruments;
+        // subInstruments.push_back("IH2406");
+        // api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnTick(const Tick* event) override
     {
@@ -35,7 +35,10 @@ public:
     // Rpc Callback
     void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
     {
-        std::cout << rsp->DebugInfo() << std::endl;
+        std::cout << "OnPrepareMDRsp: " << rsp->DebugInfo() << std::endl;
+        std::vector<std::string> subInstruments;
+        subInstruments.push_back("IH2406");
+        api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnSubTickRsp(const SubTickRsp* rsp) override
     {
@@ -53,6 +56,6 @@ int main()
     // Logger logger(loggerConfig.at("name").get<std::string>(), loggerConfig.at("logMode").get<std::string>());
     // MDReady ready(1);
     // logger.info("{}", ready.DebugInfo());
-    MDReceiver recver(j.at("MDApi"));
+    MDReceiver recever(j.at("MDApi"));
 
 }

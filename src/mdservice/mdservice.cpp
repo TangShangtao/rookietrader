@@ -63,12 +63,13 @@ void MDService::HandleReq()
         prepareMDRpcID = req->rpcID;
         logger.info("MDService::HandleReq,PrepareMDReq received; {}", req->DebugInfo());
         bool res = OnPrepareMDReq(req);
+        logger.info("MDService::HandleReq,OnPrepareMDReq called;");
         if (res == false)
         {
             logger.error("MDService::HandleReq,OnPrepareMDReq return false;");
+            SendPrepareMDRsp(false, "MDService OnPrepareMDReq return false");
             exit(-1);
         }
-        logger.info("MDService::HandleReq,OnPrepareMDReq called;");
     }
     logger.info("MDService::HandleReq,waiting SubTickReq;");
     while (subTickRpcID == 0)
@@ -83,14 +84,14 @@ void MDService::HandleReq()
         subTickRpcID = req->rpcID;
         logger.info("MDService::HandleReq,SubTickReq received; {}", req->DebugInfo());
         bool res = OnSubTickReq(req);
+        logger.info("MDService::HandleReq,OnSubTickReq called;");
         if (res == false)
         {
-            logger.error("MDService::HandleReq,Prepare return false;");
-            SendPrepareMDRsp(false, "MDService OnSubTickReq return false");
+            logger.error("MDService::HandleReq,OnSubTickReq return false;");
+            SendSubTickRsp(false, "MDService OnSubTickReq return false");
             exit(-1);
         }
-        SendPrepareMDRsp(true, "");
-        logger.info("MDService::HandleReq,OnSubTickReq called;");
+        SendSubTickRsp(true, "");
     }
     nng_free(buf, sz);
     logger.info("MDService::HandleReq,HandleReq exit");
@@ -112,7 +113,19 @@ void MDService::SendPrepareMDRsp(bool isSucc, const std::string& msg)
         exit(-1);
     }
     logger.debug("MDService::SendPrepareMDRsp,called");
+}
 
+void MDService::SendSubTickRsp(bool isSucc, const std::string& msg)
+{
+    SubTickRsp rsp(subTickRpcID, isSucc, msg);
+    logger.debug("MDService::SendSubTickRsp,{}", rsp.DebugInfo());
+    nngRes = nng_send(rpcSock, reinterpret_cast<void*>(&rsp), sizeof(PrepareMDRsp), 0);
+    if (nngRes != 0)
+    {
+        logger.error(fmt::format("MDService::SendSubTickRsp,nng_send {}; res {}; msg {}", rpcUrl, nngRes, nng_strerror(nngRes)));
+        exit(-1);
+    }
+    logger.debug("MDService::SendSubTickRsp,called");
 }
 
 // generate MDReady event, publish to subscribers

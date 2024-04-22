@@ -28,6 +28,7 @@ bool MDCTP::OnPrepareMDReq(const PrepareMDReq* req)
 }   
 bool MDCTP::OnSubTickReq(const SubTickReq* subTickReq) 
 {
+    ExchangeID exchange = subTickReq->exchange;
     return true;
 }
 
