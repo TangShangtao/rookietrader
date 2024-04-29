@@ -1,7 +1,10 @@
-from pyrookietrader import *
+from pyrookietrader import EventHeader, Tick, EventType
 
-class TestMDSpi(MDSpi):
-    def OnTick(self, event):
-        return f"event tick: {event.lastPrice}"
-t = TestMDSpi()
-test(t)
+e = EventHeader(1, EventType.EventTick)
+print(e.rpcID) 
+
+# class TestMDSpi(MDSpi):
+#     def OnTick(self, event):
+#         return f"event tick: {event.lastPrice}"
+# t = TestMDSpi()
+# test(t)

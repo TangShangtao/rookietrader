@@ -167,36 +167,36 @@ void MDApi::HandleEvent()
         logger.debug("MDApi::HandleEvent,receive event {}", buf->DebugInfo());
         switch (buf->event)
         {
-            case EventType::MDReady:
+            case EventType::EventMDReady:
             {
                 const MDReady* event = reinterpret_cast<MDReady*>(buf);
                 spi->OnMDReady(event);
                 logger.debug("MDApi::HandleEvent,OnMDReady called");
                 break;
             }
-            case EventType::TDReady:
+            case EventType::EventTDReady:
             {
                 const TDReady* event = reinterpret_cast<TDReady*>(buf);
                 break;
             }
-            case EventType::Tick:
+            case EventType::EventTick:
             {
                 const Tick* event = reinterpret_cast<Tick*>(buf);
                 spi->OnTick(event);
                 logger.debug("MDApi::HandleEvent,OnTick called");
                 break;
             }
-            case EventType::Bar:
+            case EventType::EventBar:
             {
                 const Bar* event = reinterpret_cast<Bar*>(buf);
                 break;
             }
-            case EventType::Order:
+            case EventType::EventOrder:
             {
                 const Order* event = reinterpret_cast<Order*>(buf);
                 break;
             }
-            case EventType::Trade:
+            case EventType::EventTrade:
             {
                 const Trade* event = reinterpret_cast<Trade*>(buf);
                 break;

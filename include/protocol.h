@@ -14,19 +14,19 @@ namespace rookietrader
 // Events in trading, managed by pub-sub pattern
 enum class EventType
 {
-    None,
+    EventNone,
     // MDService ready to communicate
-    MDReady,
+    EventMDReady,
     // TDService ready to communicate
-    TDReady,
+    EventTDReady,
     // marketdata report tick
-    Tick,
+    EventTick,
     // marketdata report bar
-    Bar,
+    EventBar,
     // trader report order
-    Order,
+    EventOrder,
     // trader report trade
-    Trade
+    EventTrade
 };
 
 // remote procedure call in trading, managed by req-rsp pattern
@@ -113,7 +113,7 @@ struct EventHeader
 // Event Data
 struct MDReady : public EventHeader
 {
-    MDReady(uint32_t rpcID):EventHeader(rpcID, EventType::MDReady) {}
+    MDReady(uint32_t rpcID):EventHeader(rpcID, EventType::EventMDReady) {}
     std::string DebugInfo() const
     {
         return fmt::format
@@ -125,7 +125,7 @@ struct MDReady : public EventHeader
 };
 struct TDReady : public EventHeader
 {
-    TDReady(uint32_t rpcID):EventHeader(rpcID, EventType::TDReady) {}
+    TDReady(uint32_t rpcID):EventHeader(rpcID, EventType::EventTDReady) {}
     std::string DebugInfo() const
     {
         return fmt::format
@@ -147,7 +147,7 @@ struct Tick : public EventHeader
     double bidVolumes[5];
     double askPrices[5];
     double askVolumes[5];
-    Tick(uint32_t rpcID):EventHeader(rpcID, EventType::Tick) {}
+    Tick(uint32_t rpcID):EventHeader(rpcID, EventType::EventTick) {}
     std::string DebugInfo() const
     {
         return fmt::format
@@ -160,7 +160,7 @@ struct Tick : public EventHeader
 
 struct Bar : public EventHeader
 {
-    Bar(uint32_t rpcID):EventHeader(rpcID, EventType::Bar) {}
+    Bar(uint32_t rpcID):EventHeader(rpcID, EventType::EventBar) {}
     std::string DebugInfo() const
     {
         return "";
@@ -183,7 +183,7 @@ struct Trade : public EventHeader
     // origin total volume
     int orderVolume;
     double commission;
-    Trade(uint32_t rpcID):EventHeader(rpcID, EventType::Trade) {}
+    Trade(uint32_t rpcID):EventHeader(rpcID, EventType::EventTrade) {}
     std::string DebugInfo() const
     {
         return "";
@@ -206,7 +206,7 @@ struct Order : public EventHeader
 
     uint32_t tradedVolume;
     OrderStatus orderStatus;
-    Order(uint32_t rpcID):EventHeader(rpcID, EventType::Order) {}
+    Order(uint32_t rpcID):EventHeader(rpcID, EventType::EventOrder) {}
     std::string DebugInfo() const
     {
         return "";
