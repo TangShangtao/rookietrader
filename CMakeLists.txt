@@ -15,3 +15,4 @@ link_directories(${root}/thirdparty/lib)
 
 
 add_subdirectory(src)
+

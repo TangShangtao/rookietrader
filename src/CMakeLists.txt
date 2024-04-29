@@ -6,3 +6,4 @@ target_link_libraries(rookietrader nng)
 
 add_subdirectory(tools)
 add_subdirectory(api)
+add_subdirectory(binding)

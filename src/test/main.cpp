@@ -24,13 +24,10 @@ public:
     void OnMDReady(const MDReady* event) override
     {
         std::cout << "OnMDReady: " << event->DebugInfo() << std::endl;
-        // std::vector<std::string> subInstruments;
-        // subInstruments.push_back("IH2406");
-        // api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnTick(const Tick* event) override
     {
-
+        std::cout << "OnTick: " << event->instrumentID << "lastprice: " << event->lastPrice << std::endl;
     }
     // Rpc Callback
     void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
@@ -53,10 +50,6 @@ int main()
 {
     std::ifstream f("config.json");
     nlohmann::json j = nlohmann::json::parse(f);
-    // auto loggerConfig = j.at("MDService").at("logger");
-    // Logger logger(loggerConfig.at("name").get<std::string>(), loggerConfig.at("logMode").get<std::string>());
-    // MDReady ready(1);
-    // logger.info("{}", ready.DebugInfo());
     MDReceiver recever(j.at("MDApi"));
 
 }

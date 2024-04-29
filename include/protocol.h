@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <array>
 #include <vector>
 #include "tools/utils.h"
 #include "spdlog/fmt/fmt.h"
