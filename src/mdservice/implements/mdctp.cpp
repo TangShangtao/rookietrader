@@ -51,9 +51,9 @@ void MDCTP::OnFrontConnected()
 {
     CThostFtdcReqUserLoginField login;
     std::memset(&login, 0, sizeof(login));
-    std::strncpy(login.UserID, accountID.c_str(), sizeof(login.UserID)-1);
-    std::strncpy(login.Password, password.c_str(), sizeof(login.Password)-1);
-    std::strncpy(login.BrokerID, "9999", sizeof(login.BrokerID)-1);
+    std::memcpy(login.UserID, accountID.c_str(), sizeof(login.UserID)-1);
+    std::memcpy(login.Password, password.c_str(), sizeof(login.Password)-1);
+    std::memcpy(login.BrokerID, "9999", sizeof(login.BrokerID)-1);
     ctpMdApi->ReqUserLogin(&login, prepareMDRpcID);
     logger.info("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", prepareMDRpcID);
 }
@@ -109,8 +109,8 @@ void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     std::string updateTime = pDepthMarketData->UpdateTime;
     updateTime += ".";
     updateTime += std::to_string(pDepthMarketData->UpdateMillisec);
-    std::strncpy(tick.updateTime, updateTime.c_str(), sizeof(tick.updateTime)-1);
-    std::strncpy(tick.instrumentID, pDepthMarketData->InstrumentID, sizeof(tick.instrumentID)-1);
+    std::memcpy(tick.updateTime.data(), updateTime.c_str(), sizeof(tick.updateTime));
+    std::memcpy(tick.instrumentID.data(), pDepthMarketData->InstrumentID, sizeof(tick.instrumentID));
     if (std::strcmp(pDepthMarketData->ExchangeID, magic_enum::enum_name(ExchangeID::SHFE).data()) == 0)
     {
         tick.exchangeID = ExchangeID::SHFE;

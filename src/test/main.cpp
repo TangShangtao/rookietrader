@@ -27,7 +27,7 @@ public:
     }
     void OnTick(const Tick* event) override
     {
-        std::cout << "OnTick: " << event->instrumentID << "lastprice: " << event->lastPrice << std::endl;
+        std::cout << "OnTick: " << event->instrumentID.data() << "lastprice: " << event->lastPrice << std::endl;
     }
     // Rpc Callback
     void OnPrepareMDRsp(const PrepareMDRsp* rsp) override

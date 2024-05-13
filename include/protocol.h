@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include <vector>
+
 #include "tools/utils.h"
 #include "spdlog/fmt/fmt.h"
 #include "magic_enum/magic_enum.hpp"
@@ -73,14 +74,13 @@ enum class Offset
 enum class OrderStatus
 {
     None,
-    RiskControlled,
+    // RiskControlled,
     Rejected,
     NoTradedQueueing,
     NoTradedCancelled,
     PartlyTradedQueueing,
     PartlyTradedCancelled,
     AllTraded
-
 };
 struct EventHeader
 {
@@ -88,17 +88,18 @@ struct EventHeader
     // Tick
     EventType event;
     // 20200101
-    char tradingDay[9];
+    std::array<char, 9> tradingDay;
     // 10:10:10.100
-    char generateTime[15];
-
+    std::array<char, 15> generateTime;
+    const std::string GetTradingDay() const {return tradingDay.data();}
+    const std::string GetGenerateTime() const {return generateTime.data();}
     EventHeader(uint32_t rpcID, EventType eType)
         :   rpcID(rpcID), event(eType)
     {
-        std::memset(tradingDay, 0, sizeof(tradingDay));
-        std::memset(generateTime, 0, sizeof(generateTime));
-        std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
-        std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
+        std::memset(tradingDay.data(), 0, sizeof(tradingDay));
+        std::memset(generateTime.data(), 0, sizeof(generateTime));
+        std::memcpy(tradingDay.data(), TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
+        std::memcpy(generateTime.data(), TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
     }
 
     std::string DebugInfo() const
@@ -106,7 +107,7 @@ struct EventHeader
         return fmt::format
         (
             "{};{};{};{}",
-            rpcID, magic_enum::enum_name(event),tradingDay,generateTime
+            rpcID, magic_enum::enum_name(event),tradingDay.data(),generateTime.data()
         );
     }
 };
@@ -139,21 +140,23 @@ struct TDReady : public EventHeader
 struct Tick : public EventHeader
 {
     // format: 10:10:10.100
-    char updateTime[15];
-    char instrumentID[16];
+    std::array<char, 15> updateTime;
+    std::array<char, 16> instrumentID;
     ExchangeID exchangeID;
     double lastPrice;
-    double bidPrices[5];
-    double bidVolumes[5];
-    double askPrices[5];
-    double askVolumes[5];
+    std::array<double, 5> bidPrices;
+    std::array<double, 5> bidVolumes;
+    std::array<double, 5> askPrices;
+    std::array<double, 5> askVolumes;
+    const std::string GetUpdateTime() const {return updateTime.data();}
+    const std::string GetInstrumentID() const {return updateTime.data();}
     Tick(uint32_t rpcID):EventHeader(rpcID, EventType::EventTick) {}
     std::string DebugInfo() const
     {
         return fmt::format
         (
             "{};{};{}",
-            EventHeader::DebugInfo(),instrumentID,magic_enum::enum_name(exchangeID),lastPrice
+            EventHeader::DebugInfo(),instrumentID.data(),magic_enum::enum_name(exchangeID),lastPrice
         );
     }
 };
@@ -169,12 +172,12 @@ struct Bar : public EventHeader
 
 struct Trade : public EventHeader
 {
-    char tradeID[32];
+    std::array<char, 32> tradeID;
     uint64_t orderReqID;
-    char orderSysID[32];
-    char accountID[32];   
+    std::array<char, 32> orderSysID;
+    std::array<char, 32> accountID;   
 
-    char instrumentID[16];
+    std::array<char, 16> instrumentID;
     ExchangeID exchangeID;
     double tradePrice;
     double orderPrice;
@@ -194,10 +197,10 @@ struct Trade : public EventHeader
 struct Order : public EventHeader
 {
     uint64_t orderReqID;
-    char orderSysID[32];
-    char accountID[32];   
+    std::array<char, 32> orderSysID;
+    std::array<char, 32> accountID;   
 
-    char instrumentID[16];
+    std::array<char, 16> instrumentID;
     ExchangeID exchangeID;
     OrderDirection orderDirection;
     Offset offset;
@@ -218,17 +221,17 @@ struct RPCReqHeader
     uint32_t rpcID;
     RPCType rpc;
     // 20200101
-    char tradingDay[9];
+    std::array<char, 9> tradingDay;
     // 10:10:10.100
-    char generateTime[15];
+    std::array<char, 15> generateTime;
 
     RPCReqHeader(uint32_t rpcID, RPCType rpcType)
         :   rpcID(rpcID), rpc(rpcType)
     {
-        std::memset(tradingDay, 0, sizeof(tradingDay));
-        std::memset(generateTime, 0, sizeof(generateTime));
-        std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
-        std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
+        std::memset(tradingDay.data(), 0, sizeof(tradingDay));
+        std::memset(generateTime.data(), 0, sizeof(generateTime));
+        std::memcpy(tradingDay.data(), TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
+        std::memcpy(generateTime.data(), TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
     }
 
     std::string DebugInfo() const
@@ -236,7 +239,7 @@ struct RPCReqHeader
         return fmt::format
         (
             "{};{};{};{}",
-            rpcID, magic_enum::enum_name(rpc), tradingDay, generateTime
+            rpcID, magic_enum::enum_name(rpc), tradingDay.data(), generateTime.data()
         );
     }
 };
@@ -246,18 +249,18 @@ struct RPCRspHeader
     uint32_t rpcID;
     RPCType rpc;
     // 20200101
-    char tradingDay[9];
+    std::array<char, 9> tradingDay;
     // 10:10:10.100
-    char generateTime[15];
+    std::array<char, 15> generateTime;
     bool isSucc;
-    char errorMsg[32];
+    std::array<char, 32> errorMsg;
 
     RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isSucc, const std::string& msg)
         :   rpcID(rpcID), rpc(rpcType), isSucc(isSucc)
     {
-        std::strncpy(tradingDay, TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
-        std::strncpy(generateTime, TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
-        std::strncpy(errorMsg, msg.c_str(), sizeof(errorMsg)-1);
+        std::memcpy(tradingDay.data(), TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
+        std::memcpy(generateTime.data(), TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
+        std::memcpy(errorMsg.data(), msg.c_str(), sizeof(errorMsg)-1);
     }
 
     std::string DebugInfo() const
@@ -265,7 +268,7 @@ struct RPCRspHeader
         return fmt::format
         (
             "{};{};{};{}",
-            rpcID, magic_enum::enum_name(rpc), tradingDay, generateTime
+            rpcID, magic_enum::enum_name(rpc), tradingDay.data(), generateTime.data()
         );
     }
 };
@@ -291,7 +294,7 @@ struct PrepareMDRsp : public RPCRspHeader
         return fmt::format
         (
             "{};{};{}",
-            RPCRspHeader::DebugInfo(),isSucc,errorMsg
+            RPCRspHeader::DebugInfo(),isSucc,errorMsg.data()
         );
     }
 };
@@ -428,7 +431,7 @@ struct SubTickReq : public RPCReqHeader
 struct SubTickRsp : public RPCRspHeader
 {
     int errorID;
-    char errorMsg[32];
+    std::array<char, 32> errorMsg;
     SubTickRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::SubTick, isError, msg) {}
 
     std::string DebugInfo() const
