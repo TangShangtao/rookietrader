@@ -12,6 +12,7 @@ namespace rookietrader
 class Logger
 {
 public:
+    Logger() = default;
     Logger(std::string loggerName, std::string logMode)
     {
         std::string logPath = "logs/log_" + loggerName + ".csv";

@@ -1,18 +1,21 @@
 #include "mdservice.h"
-
+#include <fstream>
 namespace rookietrader
 {
 // set communicate url, read basic config from config.json
-MDService::MDService(const nlohmann::json& config)
-    :   eventUrl(config.at("eventUrl").get<std::string>()), 
-        rpcUrl(config.at("rpcUrl").get<std::string>()), 
-        mdName(config.at("mdName").get<std::string>()),
-        accountID(config.at("accountID").get<std::string>()),
-        password(config.at("password").get<std::string>()),
-        frontAddr(config.at("frontAddr").get<std::string>()),
-        logger(config.at("logger").at("name").get<std::string>(), 
-        config.at("logger").at("logMode").get<std::string>())
+MDService::MDService(const std::string& configPath)
 {
+    std::ifstream f(configPath);
+    nlohmann::json config = nlohmann::json::parse(f);
+    eventUrl = config.at("MDService").at("eventUrl").get<std::string>();
+    rpcUrl = config.at("MDService").at("rpcUrl").get<std::string>();
+    mdName = config.at("MDService").at("mdName").get<std::string>();
+    accountID = config.at("MDService").at("accountID").get<std::string>();
+    password = config.at("MDService").at("password").get<std::string>();
+    frontAddr = config.at("MDService").at("frontAddr").get<std::string>();
+    logger = Logger(config.at("MDService").at("logger").at("name").get<std::string>(), 
+        config.at("MDService").at("logger").at("logMode").get<std::string>());
+
     eventSock = NNG_SOCKET_INITIALIZER;
     rpcSock = NNG_SOCKET_INITIALIZER;
     nngRes = nng_pub0_open(&eventSock);
@@ -67,11 +70,10 @@ void MDService::HandleReq()
         if (res == false)
         {
             logger.error("MDService::HandleReq,OnPrepareMDReq return false;");
-            SendPrepareMDRsp(false, "MDService OnPrepareMDReq return false");
             exit(-1);
         }
     }
-    nng_free(buf, sz);
+
     logger.info("MDService::HandleReq,waiting SubTickReq;");
     while (subTickRpcID == 0)
     {
@@ -89,7 +91,6 @@ void MDService::HandleReq()
         if (res == false)
         {
             logger.error("MDService::HandleReq,OnSubTickReq return false;");
-            SendSubTickRsp(false, "MDService OnSubTickReq return false");
             exit(-1);
         }
     }

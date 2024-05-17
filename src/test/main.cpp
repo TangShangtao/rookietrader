@@ -14,8 +14,8 @@ class MDReceiver : public MDSpi
 {
 public:
     // Event Callback
-    MDReceiver(const nlohmann::json& config)
-        :   api(config)
+    MDReceiver(const std::string& configPath)
+        :   api(configPath)
     {
         api.RegisterSpi(this);
         api.Init();
@@ -23,24 +23,23 @@ public:
     }
     void OnMDReady(const MDReady* event) override
     {
-        std::cout << "OnMDReady: " << event->DebugInfo() << std::endl;
+        std::cout << "MDReceiver OnMDReady: " << std::endl;
     }
     void OnTick(const Tick* event) override
     {
-        std::cout << "OnTick: " << event->instrumentID.data() << "lastprice: " << event->lastPrice << std::endl;
+        std::cout << "MDReceiver OnTick: " << event->instrumentID.data() << "lastprice: " << event->lastPrice << std::endl;
     }
     // Rpc Callback
     void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
     {
-        std::cout << "OnPrepareMDRsp: " << rsp->DebugInfo() << std::endl;
-        std::vector<std::string> subInstruments;
+        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        std::vector<std::string> subInstruments;
         subInstruments.push_back("IH2406");
         subInstruments.push_back("IH2405");
         api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnSubTickRsp(const SubTickRsp* rsp) override
     {
-        std::cout << "OnSubTickRsp" << rsp->DebugInfo() << std::endl;
+        std::cout << "MDReceiver OnSubTickRsp" << std::endl;
     }    
 private:
     MDApi api;
@@ -48,8 +47,6 @@ private:
 
 int main()
 {
-    std::ifstream f("config.json");
-    nlohmann::json j = nlohmann::json::parse(f);
-    MDReceiver recever(j.at("MDApi"));
+    MDReceiver recever("config.json");
 
 }

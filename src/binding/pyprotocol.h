@@ -14,6 +14,4 @@ void BindEnum(const py::module& m);
 
 void BindStruct(const py::module& m);
 
-
-
 };

@@ -10,7 +10,7 @@ namespace rookietrader
 class MDCTP : public CThostFtdcMdSpi, public MDService
 {
 public:
-    MDCTP(const nlohmann::json& config);
+    MDCTP(const std::string& configPath);
     ~MDCTP() override;
     bool OnPrepareMDReq(const PrepareMDReq* req) override;
     bool OnSubTickReq(const SubTickReq* subTickReq) override;

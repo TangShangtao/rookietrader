@@ -224,6 +224,8 @@ struct RPCReqHeader
     std::array<char, 9> tradingDay;
     // 10:10:10.100
     std::array<char, 15> generateTime;
+    const std::string GetTradingDay() const {return tradingDay.data();}
+    const std::string GetGenerateTime() const {return generateTime.data();}
 
     RPCReqHeader(uint32_t rpcID, RPCType rpcType)
         :   rpcID(rpcID), rpc(rpcType)
@@ -254,10 +256,16 @@ struct RPCRspHeader
     std::array<char, 15> generateTime;
     bool isSucc;
     std::array<char, 32> errorMsg;
+    const std::string GetTradingDay() const {return tradingDay.data();}
+    const std::string GetGenerateTime() const {return generateTime.data();}
+    const std::string GetErrorMsg() const {return errorMsg.data();}
 
     RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isSucc, const std::string& msg)
         :   rpcID(rpcID), rpc(rpcType), isSucc(isSucc)
     {
+        std::memset(tradingDay.data(), 0, sizeof(tradingDay));
+        std::memset(generateTime.data(), 0, sizeof(generateTime));
+        std::memset(errorMsg.data(), 0, sizeof(errorMsg));
         std::memcpy(tradingDay.data(), TimeUtils::GetCurrTradingDay().c_str(), sizeof(tradingDay)-1);
         std::memcpy(generateTime.data(), TimeUtils::GetTimeNow().c_str(), sizeof(generateTime)-1);
         std::memcpy(errorMsg.data(), msg.c_str(), sizeof(errorMsg)-1);
@@ -267,8 +275,8 @@ struct RPCRspHeader
     {
         return fmt::format
         (
-            "{};{};{};{}",
-            rpcID, magic_enum::enum_name(rpc), tradingDay.data(), generateTime.data()
+            "{};{};{};{};{};{}",
+            rpcID, magic_enum::enum_name(rpc), tradingDay.data(), generateTime.data(), isSucc, errorMsg.data()
         );
     }
 };
@@ -293,8 +301,8 @@ struct PrepareMDRsp : public RPCRspHeader
     {
         return fmt::format
         (
-            "{};{};{}",
-            RPCRspHeader::DebugInfo(),isSucc,errorMsg.data()
+            "{};",
+            RPCRspHeader::DebugInfo()
         );
     }
 };
@@ -430,8 +438,6 @@ struct SubTickReq : public RPCReqHeader
 
 struct SubTickRsp : public RPCRspHeader
 {
-    int errorID;
-    std::array<char, 32> errorMsg;
     SubTickRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::SubTick, isError, msg) {}
 
     std::string DebugInfo() const

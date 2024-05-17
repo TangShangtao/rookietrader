@@ -24,7 +24,7 @@ class MDApi
 {
 public:
     // establish connection with service
-    explicit MDApi(const nlohmann::json& config);
+    explicit MDApi(const std::string& configPath);
     ~MDApi();
     // call Init to start receiving rsp and event
     void Init();
@@ -40,10 +40,10 @@ private:
     void HandleEvent();
 private:
     // communication url
-    const std::string eventUrl;
-    const std::string rpcUrl;
+    std::string eventUrl;
+    std::string rpcUrl;
     // log api
-    const Logger logger;
+    Logger logger;
     // rpcID return by MDApi
     int rpcID = 0;
     // MDSpi registered by user

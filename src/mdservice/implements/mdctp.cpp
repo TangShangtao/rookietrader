@@ -1,8 +1,8 @@
 #include "mdctp.h"
 namespace rookietrader
 {
-MDCTP::MDCTP(const nlohmann::json& config)
-    :   MDService(config),
+MDCTP::MDCTP(const std::string& configPath)
+    :   MDService(configPath),
         ctpMdApi(CThostFtdcMdApi::CreateFtdcMdApi())
 {
     std::string frontAddrCopy = frontAddr;

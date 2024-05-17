@@ -17,7 +17,7 @@ class MDService
 {
 public:
     // set communicate url, read basic config from config.json
-    explicit MDService(const nlohmann::json& config);
+    explicit MDService(const std::string& configPath);
     virtual ~MDService();
 private:
     // connect and login to broker's marketdata front
@@ -26,6 +26,8 @@ private:
     virtual bool OnSubTickReq(const SubTickReq* subTickReq) = 0;
 
 protected:
+    // void WaitPrepareMDReq();
+    // void WaitSubTickReq();
     void WaitReq();
     // rsp PrepareMD
     void SendPrepareMDRsp(bool isError, const std::string& msg);
@@ -41,18 +43,18 @@ private:
 
 protected:
     // communication url
-    const std::string eventUrl;
-    const std::string rpcUrl;
+    std::string eventUrl;
+    std::string rpcUrl;
     // unique name of this marketdata gateway
-    const std::string mdName;
+    std::string mdName;
     // accountID given by broker
-    const std::string accountID;
+    std::string accountID;
     // password given by broker
-    const std::string password;
+    std::string password;
     // ip addr of broker's marketdata front
-    const std::string frontAddr;
+    std::string frontAddr;
     // log api
-    const Logger logger;
+    Logger logger;
     // rpc req id
     uint32_t prepareMDRpcID = 0;
     uint32_t subTickRpcID = 0;

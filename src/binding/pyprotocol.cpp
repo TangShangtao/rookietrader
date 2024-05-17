@@ -66,7 +66,13 @@ void BindStruct(const py::module& m)
         .def_readonly("event", &EventHeader::event)
         .def_property_readonly("tradingDay", &EventHeader::GetTradingDay)
         .def_property_readonly("generateTime", &EventHeader::GetGenerateTime);
-    
+
+    py::class_<MDReady, EventHeader>(m, "MDReady")
+        .def(py::init<uint32_t>());     
+
+    py::class_<TDReady, EventHeader>(m, "TDReady")
+        .def(py::init<uint32_t>());       
+
     py::class_<Tick, EventHeader>(m, "Tick")
         .def(py::init<uint32_t>())
         .def_property_readonly("updateTime", &Tick::GetUpdateTime)
@@ -77,5 +83,35 @@ void BindStruct(const py::module& m)
         .def_readonly("bidVolumes", &Tick::bidVolumes)
         .def_readonly("askPrices", &Tick::askPrices)
         .def_readonly("askVolumes", &Tick::askVolumes);    
+
+    py::class_<RPCReqHeader>(m, "RPCReqHeader")
+        .def(py::init<uint32_t, RPCType>())
+        .def_readonly("rpcID", &RPCReqHeader::rpcID)
+        .def_readonly("rpc", &RPCReqHeader::rpc)
+        .def_property_readonly("tradingDay", &RPCReqHeader::GetTradingDay)
+        .def_property_readonly("generateTime", &RPCReqHeader::GetGenerateTime);   
+
+    py::class_<RPCRspHeader>(m, "RPCRspHeader")
+        .def(py::init<uint32_t, RPCType, bool, const std::string&>())
+        .def_readonly("rpcID", &RPCRspHeader::rpcID)
+        .def_readonly("rpc", &RPCRspHeader::rpc)
+        .def_property_readonly("tradingDay", &RPCRspHeader::GetTradingDay)
+        .def_property_readonly("generateTime", &RPCRspHeader::GetGenerateTime) 
+        .def_property_readonly("errorMsg", &RPCRspHeader::GetErrorMsg);   
+
+    py::class_<PrepareMDReq, RPCReqHeader>(m, "PrepareMDReq")
+        .def(py::init<uint32_t>());   
+
+    py::class_<PrepareMDRsp, RPCRspHeader>(m, "PrepareMDRsp")
+        .def(py::init<uint32_t, bool, const std::string&>());   
+
+    py::class_<SubTickReq, RPCReqHeader>(m, "SubTickReq")
+        .def(py::init<uint32_t, ExchangeID, uint64_t>())
+        .def_readonly("exchange", &SubTickReq::exchange)
+        .def_readonly("counts", &SubTickReq::counts)
+        .def_readonly("byteSize", &SubTickReq::byteSize);   
+
+    py::class_<SubTickRsp, RPCRspHeader>(m, "SubTickRsp")
+        .def(py::init<uint32_t, bool, const std::string&>());   
 }
 };

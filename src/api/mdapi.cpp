@@ -2,14 +2,16 @@
 #include "nng/protocol/reqrep0/req.h"
 #include "nng/protocol/pubsub0/sub.h"
 #include <functional>
+#include <fstream>
 namespace rookietrader
 {
-MDApi::MDApi(const nlohmann::json& config)
-    :   eventUrl(config.at("eventUrl").get<std::string>()),
-        rpcUrl(config.at("rpcUrl").get<std::string>()),
-        logger(config.at("logger").at("name").get<std::string>(), 
-        config.at("logger").at("logMode").get<std::string>())
+MDApi::MDApi(const std::string& configPath)
 {
+    std::ifstream f(configPath);
+    nlohmann::json config = nlohmann::json::parse(f);
+    eventUrl = config.at("MDApi").at("eventUrl").get<std::string>();
+    rpcUrl = config.at("MDApi").at("rpcUrl").get<std::string>();
+    logger = Logger(config.at("MDApi").at("logger").at("name").get<std::string>(), config.at("MDApi").at("logger").at("logMode").get<std::string>());        
     eventSock = NNG_SOCKET_INITIALIZER;
     rpcSock = NNG_SOCKET_INITIALIZER;
     int nngRes;
@@ -96,12 +98,13 @@ int MDApi::SendPrepareMDReq()
     }
     PrepareMDRsp* rsp = reinterpret_cast<PrepareMDRsp*>(buf);
     logger.info("MDApi::SendPrepareMDReq,PrepareMDRsp {}", rsp->DebugInfo());
-    
+    nng_free(buf, sz);
+
     spi->OnPrepareMDRsp(rsp);
     
     logger.info("MDApi::SendPrepareMDReq,OnPrepareMDRsp called;");
 
-    nng_free(buf, sz);   
+       
     return rpcID;
 }
 
@@ -142,12 +145,13 @@ int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instrum
     }
     SubTickRsp* rsp = reinterpret_cast<SubTickRsp*>(buf);
     logger.info("MDApi::SendSubTickReq,SubTickRsp received; {}", rsp->DebugInfo());
+    nng_free(buf, sz);   
     
     spi->OnSubTickRsp(rsp);
 
     logger.info("MDApi::SendSubTickReq,OnSubTickRsp called;");
 
-    nng_free(buf, sz);    
+     
     return rpcID;
 }
 
