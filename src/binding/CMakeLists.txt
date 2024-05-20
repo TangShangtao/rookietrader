@@ -10,3 +10,4 @@ set(src
 
 pybind11_add_module(pyrookietrader ${src})
 target_link_libraries(pyrookietrader PRIVATE rookietrader)
+set_target_properties(pyrookietrader PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${root}/bin)

@@ -50,25 +50,22 @@ MDApi::MDApi(const std::string& configPath)
 
 MDApi::~MDApi()
 {
-    handleEventThread->join();
     logger.debug("MDApi::~MDApi,called");
 
-}
-
-void MDApi::RegisterSpi(MDSpi* spi)
-{
-    if (spi == nullptr)
-    {
-        logger.error("MDApi::RegisterSpi,spi is nullptr");
-        exit(-1);
-    }
-    this->spi = spi;
-    logger.debug("MDApi::RegisterSpi,called");
 }
 
 void MDApi::Init()
 {
     handleEventThread = std::make_shared<std::thread>(std::bind(&MDApi::HandleEvent, this));
+}
+
+void MDApi::Join()
+{
+    logger.debug("MDApi::Join,Joining handleEventThread");
+    if (handleEventThread != nullptr)
+    {
+        handleEventThread->join();
+    }    
 }
 
 int MDApi::SendPrepareMDReq()
@@ -100,7 +97,7 @@ int MDApi::SendPrepareMDReq()
     logger.info("MDApi::SendPrepareMDReq,PrepareMDRsp {}", rsp->DebugInfo());
     nng_free(buf, sz);
 
-    spi->OnPrepareMDRsp(rsp);
+    OnPrepareMDRsp(rsp);
     
     logger.info("MDApi::SendPrepareMDReq,OnPrepareMDRsp called;");
 
@@ -147,7 +144,7 @@ int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instrum
     logger.info("MDApi::SendSubTickReq,SubTickRsp received; {}", rsp->DebugInfo());
     nng_free(buf, sz);   
     
-    spi->OnSubTickRsp(rsp);
+    OnSubTickRsp(rsp);
 
     logger.info("MDApi::SendSubTickReq,OnSubTickRsp called;");
 
@@ -174,7 +171,7 @@ void MDApi::HandleEvent()
             case EventType::EventMDReady:
             {
                 const MDReady* event = reinterpret_cast<MDReady*>(buf);
-                spi->OnMDReady(event);
+                OnMDReady(event);
                 logger.debug("MDApi::HandleEvent,OnMDReady called");
                 break;
             }
@@ -186,7 +183,7 @@ void MDApi::HandleEvent()
             case EventType::EventTick:
             {
                 const Tick* event = reinterpret_cast<Tick*>(buf);
-                spi->OnTick(event);
+                OnTick(event);
                 logger.debug("MDApi::HandleEvent,OnTick called");
                 break;
             }
@@ -210,7 +207,6 @@ void MDApi::HandleEvent()
                 logger.error("MDApi::HandleEvent,unsupported event,{}", buf->DebugInfo());
                 exit(-1);
             }
-            
         }
         nng_free(buf, sz);
     }

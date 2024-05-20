@@ -10,33 +10,30 @@
 
 namespace rookietrader
 {
-class MDSpi
-{
-public:
-    // Event Callback
-    virtual void OnMDReady(const MDReady* event) = 0;
-    virtual void OnTick(const Tick* event) = 0;
-    // Rpc Callback
-    virtual void OnPrepareMDRsp(const PrepareMDRsp* rsp) = 0;
-    virtual void OnSubTickRsp(const SubTickRsp* rsp) = 0;
-};
 class MDApi
 {
 public:
     // establish connection with service
     explicit MDApi(const std::string& configPath);
-    ~MDApi();
-    // call Init to start receiving rsp and event
+    virtual ~MDApi();
+    // call Init to start receiving events, call it at end of main thread
     void Init();
-    // register callbacks
-    void RegisterSpi(MDSpi* spi);
+    // cannot bind Join and use Join in Python, use time.sleep! why?
+    void Join();
     // send prepareMD req(sync)
     int SendPrepareMDReq();
     // send subTick req(sync)
     int SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments);
     
+    // Event Callback
+    virtual void OnMDReady(const MDReady* event) = 0;
+    virtual void OnTick(const Tick* event) = 0;
+    // Rpc Callback
+    virtual void OnPrepareMDRsp(const PrepareMDRsp* rsp) = 0;
+    virtual void OnSubTickRsp(const SubTickRsp* rsp) = 0;    
 
 private:
+    
     void HandleEvent();
 private:
     // communication url
@@ -46,8 +43,6 @@ private:
     Logger logger;
     // rpcID return by MDApi
     int rpcID = 0;
-    // MDSpi registered by user
-    MDSpi* spi;
 
     nng_socket eventSock;
     nng_socket rpcSock;

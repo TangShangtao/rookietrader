@@ -6,7 +6,7 @@
         "mdName" : "MDCTP",
         "accountID" : "00583085",
         "password" : "35022262",
-        "frontAddr" : "tcp://210.14.72.21:4402",
+        "frontAddr" : "tcp://180.168.146.187:10131",
         "logger" :
         {
             "name" : "MDCTPLogger",

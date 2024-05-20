@@ -10,16 +10,20 @@
 
 using namespace rookietrader;
 
-class MDReceiver : public MDSpi
+class MDReceiver : public MDApi
 {
 public:
     // Event Callback
     MDReceiver(const std::string& configPath)
-        :   api(configPath)
+        :   MDApi(configPath)
     {
-        api.RegisterSpi(this);
-        api.Init();
-        api.SendPrepareMDReq();
+        Init();
+        SendPrepareMDReq();
+    }
+    ~MDReceiver() override
+    {
+        std::cout << "MDReceiver ~MDReceiver" << std::endl;
+        Join();
     }
     void OnMDReady(const MDReady* event) override
     {
@@ -32,17 +36,16 @@ public:
     // Rpc Callback
     void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
     {
-        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        std::vector<std::string> subInstruments;
+        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        
+        std::vector<std::string> subInstruments;
         subInstruments.push_back("IH2406");
         subInstruments.push_back("IH2405");
-        api.SendSubTickReq(ExchangeID::SHFE, subInstruments);
+        SendSubTickReq(ExchangeID::SHFE, subInstruments);
     }
     void OnSubTickRsp(const SubTickRsp* rsp) override
     {
         std::cout << "MDReceiver OnSubTickRsp" << std::endl;
     }    
-private:
-    MDApi api;
 };
 
 int main()

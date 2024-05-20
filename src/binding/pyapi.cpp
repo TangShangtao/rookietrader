@@ -5,25 +5,25 @@
 namespace rookietrader
 {
 
-class PyMDSpi : public MDSpi 
+class PyMDApi : public MDApi 
 {
 public:
-    using MDSpi::MDSpi;
+    using MDApi::MDApi;
     void OnMDReady(const MDReady* event) override
     {
-        PYBIND11_OVERLOAD_PURE(void, MDSpi, OnMDReady, event);
+        PYBIND11_OVERLOAD_PURE(void, MDApi, OnMDReady, event);
     }
     void OnTick(const Tick* event) override
     {
-        PYBIND11_OVERLOAD_PURE(void, MDSpi, OnTick, event);
+        PYBIND11_OVERLOAD_PURE(void, MDApi, OnTick, event);
     }
-    void OnPrepareMDRsp(const PrepareMDRsp* event) override
+    void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
     {
-        PYBIND11_OVERLOAD_PURE(void, MDSpi, OnPrepareMDRsp, event);
+        PYBIND11_OVERLOAD_PURE(void, MDApi, OnPrepareMDRsp, rsp);
     }
-    void OnSubTickRsp(const SubTickRsp* event) override
+    void OnSubTickRsp(const SubTickRsp* rsp) override
     {
-        PYBIND11_OVERLOAD_PURE(void, MDSpi, OnSubTickRsp, event);
+        PYBIND11_OVERLOAD_PURE(void, MDApi, OnSubTickRsp, rsp);
     }
 };
 
@@ -34,20 +34,17 @@ void BindApi(const py::module& m)
 }
 void BindMDApi(const py::module& m)
 {
-    py::class_<MDSpi, PyMDSpi> mdspi(m, "MDSpi");
-    mdspi.def(py::init<>())
-        .def("OnMDReady", &MDSpi::OnMDReady)
-        .def("OnTick", &MDSpi::OnTick)
-        .def("OnPrepareMDRsp", &MDSpi::OnPrepareMDRsp)
-        .def("OnSubTickRsp", &MDSpi::OnSubTickRsp);
+    py::class_<MDApi, PyMDApi> mdapi(m, "MDApi");
+    mdapi.def(py::init<const std::string&>())
+        .def("OnMDReady", &MDApi::OnMDReady)
+        .def("OnTick", &MDApi::OnTick)
 
-    py::class_<MDApi>(m, "MDApi")
-        .def(py::init<const std::string&>())
+        .def("OnPrepareMDRsp", &MDApi::OnPrepareMDRsp)
+        .def("OnSubTickRsp", &MDApi::OnSubTickRsp)
+
         .def("Init", &MDApi::Init)
-        .def("RegisterSpi", &MDApi::RegisterSpi)
         .def("SendPrepareMDReq", &MDApi::SendPrepareMDReq)
         .def("SendSubTickReq", &MDApi::SendSubTickReq);
-
 
 }
 void BindTDApi(const py::module& m)
