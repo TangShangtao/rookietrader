@@ -1,9 +1,17 @@
 #include "mdctp.h"
 namespace rookietrader
 {
-MDCTP::MDCTP(const std::string& configPath)
-    :   MDService(configPath),
-        ctpMdApi(CThostFtdcMdApi::CreateFtdcMdApi())
+MDCTP::MDCTP(
+    const std::string& eventUrl, 
+    const std::string& rpcUrl, 
+    const std::string& accountID, 
+    const std::string& password,
+    const std::string& frontAddr,
+    const std::string& loggerName,
+    const std::string& logMode
+)   :   
+    MDService(eventUrl,rpcUrl,accountID,password,frontAddr,loggerName,logMode),
+    ctpMdApi(CThostFtdcMdApi::CreateFtdcMdApi())
 {
     std::string frontAddrCopy = frontAddr;
     ctpMdApi->RegisterFront(frontAddrCopy.data());
@@ -85,7 +93,7 @@ void MDCTP::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstr
 {
     if (CheckError(pSpecificInstrument, pRspInfo, "OnRspSubMarketData") == false)
     {
-        SendSubTickRsp(false, "ctpMdApi->SubscribeMarketData() return res != 0");
+        SendSubTickRsp(false, "CTP OnRspSubMarketData CheckError");
         logger.error("MDCTP::OnRspSubMarketData, MDCTP failed to subscribe");
         exit(-1);
     }

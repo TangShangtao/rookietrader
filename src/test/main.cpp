@@ -14,8 +14,13 @@ class MDReceiver : public MDApi
 {
 public:
     // Event Callback
-    MDReceiver(const std::string& configPath)
-        :   MDApi(configPath)
+    MDReceiver(
+        const std::string& eventUrl,
+        const std::string& rpcUrl,
+        const std::string& loggerName,
+        const std::string& logMode
+    )
+        :   MDApi(eventUrl, rpcUrl, loggerName, logMode)
     {
         Init();
         SendPrepareMDReq();
@@ -50,6 +55,19 @@ public:
 
 int main()
 {
-    MDReceiver recever("config.json");
-
+    std::ifstream ifs("config.json");
+    if (ifs)
+    {
+        auto config = nlohmann::json::parse(ifs).at("MDApi");
+        MDReceiver recever(
+            config.at("eventUrl").get<const std::string>(),
+            config.at("rpcUrl").get<const std::string>(),
+            config.at("loggerName").get<const std::string>(),
+            config.at("logMode").get<const std::string>()
+        );
+    }
+    else
+    {
+        std::cout << "config.json not found in current working directory" << std::endl;
+    }
 }

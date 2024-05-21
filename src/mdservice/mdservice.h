@@ -17,7 +17,16 @@ class MDService
 {
 public:
     // set communicate url, read basic config from config.json
-    explicit MDService(const std::string& configPath);
+    // explicit MDService(const std::string& configPath);
+    MDService(
+        const std::string& eventUrl, 
+        const std::string& rpcUrl, 
+        const std::string& accountID, 
+        const std::string& password,
+        const std::string& frontAddr,
+        const std::string& loggerName,
+        const std::string& logMode
+    );
     virtual ~MDService();
 private:
     // connect and login to broker's marketdata front
@@ -43,18 +52,16 @@ private:
 
 protected:
     // communication url
-    std::string eventUrl;
-    std::string rpcUrl;
-    // unique name of this marketdata gateway
-    std::string mdName;
+    const std::string eventUrl;
+    const std::string rpcUrl;
     // accountID given by broker
-    std::string accountID;
+    const std::string accountID;
     // password given by broker
-    std::string password;
+    const std::string password;
     // ip addr of broker's marketdata front
-    std::string frontAddr;
+    const std::string frontAddr;
     // log api
-    Logger logger;
+    const Logger logger;
     // rpc req id
     uint32_t prepareMDRpcID = 0;
     uint32_t subTickRpcID = 0;

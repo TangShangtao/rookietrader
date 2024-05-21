@@ -35,7 +35,10 @@ void BindApi(const py::module& m)
 void BindMDApi(const py::module& m)
 {
     py::class_<MDApi, PyMDApi> mdapi(m, "MDApi");
-    mdapi.def(py::init<const std::string&>())
+    mdapi.def(py::init<const std::string&,
+                       const std::string&,
+                       const std::string&,
+                       const std::string&>())
         .def("OnMDReady", &MDApi::OnMDReady)
         .def("OnTick", &MDApi::OnTick)
 

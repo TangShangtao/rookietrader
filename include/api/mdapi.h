@@ -14,6 +14,12 @@ class MDApi
 {
 public:
     // establish connection with service
+    MDApi(
+        const std::string& eventUrl,
+        const std::string& rpcUrl,
+        const std::string& loggerName,
+        const std::string& logMode
+    );
     explicit MDApi(const std::string& configPath);
     virtual ~MDApi();
     // call Init to start receiving events, call it at end of main thread
@@ -37,10 +43,10 @@ private:
     void HandleEvent();
 private:
     // communication url
-    std::string eventUrl;
-    std::string rpcUrl;
+    const std::string eventUrl;
+    const std::string rpcUrl;
     // log api
-    Logger logger;
+    const Logger logger;
     // rpcID return by MDApi
     int rpcID = 0;
 

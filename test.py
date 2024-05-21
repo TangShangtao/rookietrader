@@ -1,9 +1,10 @@
 from pyrookietrader import TradeApi, Protocol
 import time
+import json
 
 class MDReceiver(TradeApi.MDApi):
-    def __init__(self):
-        super().__init__("./config.json")
+    def __init__(self, eventUrl, rpcUrl, loggerName, logMode):
+        super().__init__(eventUrl, rpcUrl, loggerName, logMode)
         self.Init()
         self.SendPrepareMDReq()
 
@@ -24,8 +25,13 @@ class MDReceiver(TradeApi.MDApi):
 
 if __name__ == "__main__":
     
-    receiver = MDReceiver()
-    # receiver.Join()
+    with open("config.json") as j:
+        config = json.load(j)['MDApi']
+        
+    receiver = MDReceiver(config["eventUrl"],
+                          config["rpcUrl"],
+                          config["loggerName"],
+                          config["logMode"])
     while True:
         time.sleep(10)
 

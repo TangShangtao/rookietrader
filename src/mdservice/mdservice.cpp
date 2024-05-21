@@ -3,19 +3,22 @@
 namespace rookietrader
 {
 // set communicate url, read basic config from config.json
-MDService::MDService(const std::string& configPath)
+MDService::MDService(
+    const std::string& eventUrl, 
+    const std::string& rpcUrl, 
+    const std::string& accountID, 
+    const std::string& password,
+    const std::string& frontAddr,
+    const std::string& loggerName,
+    const std::string& logMode
+)   :   
+    eventUrl(eventUrl),
+    rpcUrl(rpcUrl),
+    accountID(accountID),
+    password(password),
+    frontAddr(frontAddr),
+    logger(loggerName, logMode)
 {
-    std::ifstream f(configPath);
-    nlohmann::json config = nlohmann::json::parse(f);
-    eventUrl = config.at("MDService").at("eventUrl").get<std::string>();
-    rpcUrl = config.at("MDService").at("rpcUrl").get<std::string>();
-    mdName = config.at("MDService").at("mdName").get<std::string>();
-    accountID = config.at("MDService").at("accountID").get<std::string>();
-    password = config.at("MDService").at("password").get<std::string>();
-    frontAddr = config.at("MDService").at("frontAddr").get<std::string>();
-    logger = Logger(config.at("MDService").at("logger").at("name").get<std::string>(), 
-        config.at("MDService").at("logger").at("logMode").get<std::string>());
-
     eventSock = NNG_SOCKET_INITIALIZER;
     rpcSock = NNG_SOCKET_INITIALIZER;
     nngRes = nng_pub0_open(&eventSock);
@@ -95,7 +98,7 @@ void MDService::HandleReq()
         }
     }
     nng_free(buf, sz);
-    logger.info("MDService::HandleReq,HandleReq exit");
+    logger.info("MDService::HandleReq,HandleReq finish");
 } 
 
 void MDService::WaitReq()

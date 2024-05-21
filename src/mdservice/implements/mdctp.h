@@ -10,7 +10,15 @@ namespace rookietrader
 class MDCTP : public CThostFtdcMdSpi, public MDService
 {
 public:
-    MDCTP(const std::string& configPath);
+    MDCTP(
+        const std::string& eventUrl, 
+        const std::string& rpcUrl, 
+        const std::string& accountID, 
+        const std::string& password,
+        const std::string& frontAddr,
+        const std::string& loggerName,
+        const std::string& logMode
+    ); 
     ~MDCTP() override;
     bool OnPrepareMDReq(const PrepareMDReq* req) override;
     bool OnSubTickReq(const SubTickReq* subTickReq) override;
