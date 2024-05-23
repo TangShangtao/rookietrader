@@ -1,0 +1,6 @@
+/** Helper similar to Python's @c str.join().
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "internal/header-pre.hxx"
+#include "separated_list.hxx"
+#include "internal/header-post.hxx"

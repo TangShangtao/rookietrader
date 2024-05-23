@@ -1,0 +1,8 @@
+/** pqxx::errorhandler class.
+ *
+ * Callbacks for handling errors and warnings.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "internal/header-pre.hxx"
+#include "errorhandler.hxx"
+#include "internal/header-post.hxx"

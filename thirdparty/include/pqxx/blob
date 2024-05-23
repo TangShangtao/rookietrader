@@ -1,0 +1,6 @@
+/** Binary Large Objects interface.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "internal/header-pre.hxx"
+#include "blob.hxx"
+#include "internal/header-post.hxx"

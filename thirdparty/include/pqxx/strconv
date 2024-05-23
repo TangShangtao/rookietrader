@@ -1,0 +1,6 @@
+/** String conversion definitions.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "internal/header-pre.hxx"
+#include "strconv.hxx"
+#include "internal/header-post.hxx"

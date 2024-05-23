@@ -1,0 +1,6 @@
+/** Zero-terminated string view class.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "internal/header-pre.hxx"
+#include "zview.hxx"
+#include "internal/header-post.hxx"

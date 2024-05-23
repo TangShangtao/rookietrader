@@ -7,20 +7,23 @@
         "accountID" : "00583085",
         "password" : "35022262",
         "frontAddr" : "tcp://180.168.146.187:10131",
-        "logger" :
-        {
-            "name" : "MDCTPLogger",
-            "logMode" : "debug"
-        }
+        "loggerName" : "MDCTPLogger",
+        "logMode" : "debug"
     },
     "MDApi" : 
     {
         "eventUrl" : "tcp://localhost:5000",
         "rpcUrl" : "tcp://localhost:5001",
-        "logger" :
-        {
-            "name" : "MDApiLogger",
-            "logMode" : "debug"
-        }
+        "loggerName" : "MDApiLogger",
+        "logMode" : "debug"
+    },
+    "Database" :
+    {
+        "dbType" : "postgresql",
+        "user" : "tangshangtao",
+        "password" : "Tt1234567890",
+        "ip" : "localhost",
+        "port" : "5432",
+        "dbName" : "future_trade_basic_info"
     }
 }
