@@ -23,7 +23,7 @@ public:
         :   MDApi(eventUrl, rpcUrl, loggerName, logMode)
     {
         Subscribe(EventType::EventMDReady);
-        Subscribe(EventType::EventTick);
+        // Subscribe(EventType::EventTick);
         Init();
     }
     ~MDReceiver() override
@@ -39,7 +39,6 @@ public:
     void OnMDReady(const MDReady* event) override
     {
         std::cout << "MDReceiver OnMDReady: " << std::endl;
-        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        
         std::vector<std::string> subInstruments;
         subInstruments.push_back("IH2406");
         subInstruments.push_back("IH2405");

@@ -49,7 +49,7 @@ MDApi::~MDApi()
 
 void MDApi::Subscribe(EventType event)
 {
-    subcribeEvents.insert(event);
+    subcribeEvents.emplace(event);
     logger.debug(fmt::format("MDApi::Subscribe,subscribe event {}", magic_enum::enum_name(event)));
 
 }
@@ -71,8 +71,7 @@ void MDApi::Init()
     {
         for (const auto event : subcribeEvents)
         {
-            logger.debug(fmt::format("MDApi::Init,MDApi subscribe all events"));
-            nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, reinterpret_cast<const void*>(event), 0);
+            nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, &event, sizeof(EventType));
             if (nngRes != 0)
             {
                 logger.debug(fmt::format("MDApi::Init,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));

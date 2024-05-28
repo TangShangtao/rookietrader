@@ -39,6 +39,7 @@ void BindMDApi(const py::module& m)
         .def("OnMDReady", &MDApi::OnMDReady)
         .def("OnTick", &MDApi::OnTick)
 
+        .def("Subscribe", &MDApi::Subscribe)
         .def("Init", &MDApi::Init)
         .def("SendPrepareMDReq", &MDApi::SendPrepareMDReq)
         .def("SendSubTickReq", &MDApi::SendSubTickReq);
