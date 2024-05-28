@@ -6,4 +6,4 @@ set(src
 )
 
 target_sources(rookietrader PRIVATE ${src})
-target_link_libraries(rookietrader nng)
+target_link_libraries(rookietrader nng pthread)
