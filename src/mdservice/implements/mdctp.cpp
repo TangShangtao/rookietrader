@@ -30,7 +30,7 @@ MDCTP::~MDCTP()
 bool MDCTP::OnPrepareMDReq(const PrepareMDReq* req) 
 {   
     ctpMdApi->Init();
-    logger.info("MDCTP::OnPrepareMDReq,ctpMdApi->Init() called");
+    logger.debug("MDCTP::OnPrepareMDReq,ctpMdApi->Init() called");
     return true;
 
 }   
@@ -51,7 +51,7 @@ bool MDCTP::OnSubTickReq(const SubTickReq* subTickReq)
         SendSubTickRsp(false, "ctpMdApi->SubscribeMarketData() return res != 0");
         return false;
     }
-    logger.info("MDCTP::OnSubTickReq,ctpMdApi->SubscribeMarketData() called");
+    logger.debug("MDCTP::OnSubTickReq,ctpMdApi->SubscribeMarketData() called");
     return true;
 }
 
@@ -63,7 +63,7 @@ void MDCTP::OnFrontConnected()
     std::memcpy(login.Password, password.c_str(), sizeof(login.Password)-1);
     std::memcpy(login.BrokerID, "9999", sizeof(login.BrokerID)-1);
     ctpMdApi->ReqUserLogin(&login, prepareMDRpcID);
-    logger.info("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", prepareMDRpcID);
+    logger.debug("MDCTP::OnFrontConnected,call ReqUserLogin; reqID {}", prepareMDRpcID);
 }
 
 void MDCTP::OnFrontDisconnected(int nReason) 
@@ -81,7 +81,7 @@ void MDCTP::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
     }
     SendPrepareMDRsp(true, "");
     PublishMDReady();
-    logger.info("MDCTP::OnRspUserLogin, MDCTP prepared!");
+    logger.debug("MDCTP::OnRspUserLogin, MDCTP prepared!");
 }
 
 void MDCTP::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
@@ -100,7 +100,7 @@ void MDCTP::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstr
     if (bIsLast)
     {
         SendSubTickRsp(true, "");
-        logger.info("MDCTP::OnRspSubMarketData, called");
+        logger.debug("MDCTP::OnRspSubMarketData, called");
     }
     
 }

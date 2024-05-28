@@ -9,6 +9,10 @@ class PyMDApi : public MDApi
 {
 public:
     using MDApi::MDApi;
+    void OnMDApiStart() override
+    {
+        PYBIND11_OVERLOAD_PURE(void, MDApi, OnMDApiStart);
+    }
     void OnMDReady(const MDReady* event) override
     {
         PYBIND11_OVERLOAD_PURE(void, MDApi, OnMDReady, event);
@@ -16,14 +20,6 @@ public:
     void OnTick(const Tick* event) override
     {
         PYBIND11_OVERLOAD_PURE(void, MDApi, OnTick, event);
-    }
-    void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
-    {
-        PYBIND11_OVERLOAD_PURE(void, MDApi, OnPrepareMDRsp, rsp);
-    }
-    void OnSubTickRsp(const SubTickRsp* rsp) override
-    {
-        PYBIND11_OVERLOAD_PURE(void, MDApi, OnSubTickRsp, rsp);
     }
 };
 
@@ -39,18 +35,14 @@ void BindMDApi(const py::module& m)
                        const std::string&,
                        const std::string&,
                        const std::string&>())
+        .def("OnMDApiStart", &MDApi::OnMDApiStart)
         .def("OnMDReady", &MDApi::OnMDReady)
         .def("OnTick", &MDApi::OnTick)
 
-        .def("OnPrepareMDRsp", &MDApi::OnPrepareMDRsp)
-        .def("OnSubTickRsp", &MDApi::OnSubTickRsp)
-
         .def("Init", &MDApi::Init)
         .def("SendPrepareMDReq", &MDApi::SendPrepareMDReq)
-        .def("SendSubTickReq", &MDApi::SendSubTickReq)
+        .def("SendSubTickReq", &MDApi::SendSubTickReq);
         
-        .def_readonly("logger", &MDApi::logger);
-
 }
 void BindTDApi(const py::module& m)
 {

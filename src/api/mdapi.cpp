@@ -1,4 +1,5 @@
 #include "api/mdapi.h"
+#include "magic_enum/magic_enum.hpp"
 #include "nng/protocol/reqrep0/req.h"
 #include "nng/protocol/pubsub0/sub.h"
 #include <functional>
@@ -24,28 +25,16 @@ MDApi::MDApi(
         logger.debug(fmt::format("MDApi::MDApi,nng_sub0_open res {}; msg {}", nngRes, nng_strerror(nngRes)));
         exit(-1);
     }
-    nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, "", 0);
-    if (nngRes != 0)
-    {
-        logger.debug(fmt::format("MDApi::MDApi,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));
-        exit(-1);
-    }
+    // nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, "", 0);
+    // if (nngRes != 0)
+    // {
+    //     logger.debug(fmt::format("MDApi::MDApi,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));
+    //     exit(-1);
+    // }
     nngRes = nng_req0_open(&rpcSock);
     if (nngRes != 0)
     {
         logger.debug(fmt::format("MDApi::MDApi,nng_req0_open res {}; msg {}", nngRes, nng_strerror(nngRes)));
-        exit(-1);
-    }
-    nngRes = nng_dial(eventSock, eventUrl.c_str(), nullptr, 0);
-    if (nngRes != 0)
-    {
-        logger.debug(fmt::format("MDApi::MDApi,nng_dial {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
-        exit(-1);
-    }
-    nngRes = nng_dial(rpcSock, rpcUrl.c_str(), nullptr, 0);
-    if (nngRes != 0)
-    {
-        logger.debug(fmt::format("MDApi::MDApi,nng_dial {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
         exit(-1);
     }
     logger.debug("MDApi::MDApi,called");
@@ -58,8 +47,52 @@ MDApi::~MDApi()
 
 }
 
+void MDApi::Subscribe(EventType event)
+{
+    subcribeEvents.insert(event);
+    logger.debug(fmt::format("MDApi::Subscribe,subscribe event {}", magic_enum::enum_name(event)));
+
+}
+
 void MDApi::Init()
 {
+    int nngRes;
+    if (subcribeEvents.size() == 0)
+    {
+        logger.debug(fmt::format("MDApi::Init,MDApi subscribe all events"));
+        nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, "", 0);
+        if (nngRes != 0)
+        {
+            logger.debug(fmt::format("MDApi::Init,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));
+            exit(-1);
+        }
+    }
+    else 
+    {
+        for (const auto event : subcribeEvents)
+        {
+            logger.debug(fmt::format("MDApi::Init,MDApi subscribe all events"));
+            nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, reinterpret_cast<const void*>(event), 0);
+            if (nngRes != 0)
+            {
+                logger.debug(fmt::format("MDApi::Init,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));
+                exit(-1);
+            }
+        }
+    }
+
+    nngRes = nng_dial(eventSock, eventUrl.c_str(), nullptr, 0);
+    if (nngRes != 0)
+    {
+        logger.debug(fmt::format("MDApi::Init,nng_dial {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
+        exit(-1);
+    }
+    nngRes = nng_dial(rpcSock, rpcUrl.c_str(), nullptr, 0);
+    if (nngRes != 0)
+    {
+        logger.debug(fmt::format("MDApi::Init,nng_dial {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
+        exit(-1);
+    }
     handleEventThread = std::make_shared<std::thread>(std::bind(&MDApi::HandleEvent, this));
 }
 
@@ -72,7 +105,7 @@ void MDApi::Join()
     }    
 }
 
-int MDApi::SendPrepareMDReq()
+PrepareMDRsp MDApi::SendPrepareMDReq()
 {
     PrepareMDReq req(++rpcID);
     int nngRes;
@@ -98,16 +131,13 @@ int MDApi::SendPrepareMDReq()
         exit(-1);
     }
     PrepareMDRsp* rsp = reinterpret_cast<PrepareMDRsp*>(buf);
-    logger.info("MDApi::SendPrepareMDReq,PrepareMDRsp {}", rsp->DebugInfo());
-    OnPrepareMDRsp(rsp);
+    logger.debug("MDApi::SendPrepareMDReq,PrepareMDRsp {}", rsp->DebugInfo());
+    PrepareMDRsp ret(rsp);
     nng_free(buf, sz);
-    logger.info("MDApi::SendPrepareMDReq,OnPrepareMDRsp called;");
-
-       
-    return rpcID;
+    return ret;
 }
 
-int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments)
+SubTickRsp MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments)
 {
     SubTickReq req(++rpcID, exchange, instruments.size());
     char* reqBuf = (char*)nng_alloc(req.byteSize);
@@ -143,17 +173,17 @@ int MDApi::SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instrum
         logger.error("MDApi::SendSubTickReq,nng_recv received req {}; but not SubTickReq", buf->DebugInfo());
     }
     SubTickRsp* rsp = reinterpret_cast<SubTickRsp*>(buf);
-    logger.info("MDApi::SendSubTickReq,SubTickRsp received; {}", rsp->DebugInfo());
-    OnSubTickRsp(rsp);
+    logger.debug("MDApi::SendSubTickReq,SubTickRsp received; {}", rsp->DebugInfo());
+    SubTickRsp ret(rsp);
     nng_free(buf, sz);   
-    logger.info("MDApi::SendSubTickReq,OnSubTickRsp called;");
-
      
-    return rpcID;
+    return ret;
 }
 
 void MDApi::HandleEvent()
 {
+    OnMDApiStart();
+    logger.debug("MDApi::HandleEvent,OnMDApiStart called");
     while (true)
     {
         EventHeader* buf = nullptr;

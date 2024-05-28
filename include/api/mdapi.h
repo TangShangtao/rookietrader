@@ -7,6 +7,7 @@
 #include "nlohmann/json.hpp"
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 namespace rookietrader
 {
@@ -22,21 +23,22 @@ public:
     );
     explicit MDApi(const std::string& configPath);
     virtual ~MDApi();
+    // call Subscribe to subscribe push events
+    void Subscribe(EventType event);
     // call Init to start receiving events, call it at end of main thread
     void Init();
     // cannot bind Join and use Join in Python, use time.sleep! why?
     void Join();
     // send prepareMD req(sync)
-    int SendPrepareMDReq();
+    PrepareMDRsp SendPrepareMDReq();
     // send subTick req(sync)
-    int SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments);
+    SubTickRsp SendSubTickReq(ExchangeID exchange, std::vector<std::string>& instruments);
     
+    // MDApi Event thread start, call reqs in Callbacks
+    virtual void OnMDApiStart() = 0;
     // Event Callback
     virtual void OnMDReady(const MDReady* event) = 0;
-    virtual void OnTick(const Tick* event) = 0;
-    // Rpc Callback
-    virtual void OnPrepareMDRsp(const PrepareMDRsp* rsp) = 0;
-    virtual void OnSubTickRsp(const SubTickRsp* rsp) = 0;    
+    virtual void OnTick(const Tick* event) = 0;  
 
 private:
     
@@ -50,6 +52,8 @@ private:
     const std::string eventUrl;
     const std::string rpcUrl;
 
+    // EventType subscribes
+    std::unordered_set<EventType> subcribeEvents;
     // rpcID return by MDApi
     int rpcID = 0;
 

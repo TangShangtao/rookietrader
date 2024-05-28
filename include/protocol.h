@@ -15,6 +15,7 @@ namespace rookietrader
 // Events in trading, managed by pub-sub pattern
 enum class EventType
 {
+    // EventType error case
     EventNone,
     // MDService ready to communicate
     EventMDReady,
@@ -84,9 +85,8 @@ enum class OrderStatus
 };
 struct EventHeader
 {
-    uint32_t rpcID;
-    // Tick
     EventType event;
+    uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
     // 10:10:10.100
@@ -218,8 +218,8 @@ struct Order : public EventHeader
 
 struct RPCReqHeader
 {
-    uint32_t rpcID;
     RPCType rpc;
+    uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
     // 10:10:10.100
@@ -248,8 +248,8 @@ struct RPCReqHeader
 
 struct RPCRspHeader
 {
-    uint32_t rpcID;
     RPCType rpc;
+    uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
     // 10:10:10.100
@@ -259,7 +259,7 @@ struct RPCRspHeader
     const std::string GetTradingDay() const {return tradingDay.data();}
     const std::string GetGenerateTime() const {return generateTime.data();}
     const std::string GetErrorMsg() const {return errorMsg.data();}
-
+    RPCRspHeader() = default;
     RPCRspHeader(uint32_t rpcID, RPCType rpcType, bool isSucc, const std::string& msg)
         :   rpcID(rpcID), rpc(rpcType), isSucc(isSucc)
     {
@@ -296,6 +296,10 @@ struct PrepareMDReq : public RPCReqHeader
 
 struct PrepareMDRsp : public RPCRspHeader
 {
+    PrepareMDRsp(PrepareMDRsp* nng_rsp)
+    {
+        std::memcpy(this, nng_rsp, sizeof(PrepareMDRsp));
+    }
     PrepareMDRsp(uint32_t rpcID, bool isSucc, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareMD, isSucc, msg) {}
     std::string DebugInfo() const
     {
@@ -322,6 +326,10 @@ struct PrepareTDReq : public RPCReqHeader
 
 struct PrepareTDRsp : public RPCRspHeader
 {
+    PrepareTDRsp(PrepareTDRsp* nng_rsp)
+    {
+        std::memcpy(this, nng_rsp, sizeof(PrepareTDRsp));
+    }
     PrepareTDRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::PrepareTD, isError, msg) {}
     std::string DebugInfo() const
     {
@@ -438,6 +446,10 @@ struct SubTickReq : public RPCReqHeader
 
 struct SubTickRsp : public RPCRspHeader
 {
+    SubTickRsp(SubTickRsp* nng_rsp)
+    {
+        std::memcpy(this, nng_rsp, sizeof(SubTickRsp));
+    }
     SubTickRsp(uint32_t rpcID, bool isError, const std::string& msg):RPCRspHeader(rpcID, RPCType::SubTick, isError, msg) {}
 
     std::string DebugInfo() const

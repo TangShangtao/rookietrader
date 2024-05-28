@@ -54,7 +54,7 @@ MDService::~MDService()
 }
 void MDService::HandleReq()
 {
-    logger.info("MDService::HandleReq,waiting PrepareMDReq");
+    logger.debug("MDService::HandleReq,waiting PrepareMDReq");
     RPCReqHeader* buf = nullptr;
     size_t sz;
     while (prepareMDRpcID == 0)
@@ -67,9 +67,9 @@ void MDService::HandleReq()
         }
         PrepareMDReq* req = reinterpret_cast<PrepareMDReq*>(buf);
         prepareMDRpcID = req->rpcID;
-        logger.info("MDService::HandleReq,PrepareMDReq received; {}", req->DebugInfo());
+        logger.debug("MDService::HandleReq,PrepareMDReq received; {}", req->DebugInfo());
         bool res = OnPrepareMDReq(req);
-        logger.info("MDService::HandleReq,OnPrepareMDReq called;");
+        logger.debug("MDService::HandleReq,OnPrepareMDReq called;");
         if (res == false)
         {
             logger.error("MDService::HandleReq,OnPrepareMDReq return false;");
@@ -77,7 +77,7 @@ void MDService::HandleReq()
         }
     }
 
-    logger.info("MDService::HandleReq,waiting SubTickReq;");
+    logger.debug("MDService::HandleReq,waiting SubTickReq;");
     while (subTickRpcID == 0)
     {
         nngRes = nng_recv(rpcSock, reinterpret_cast<void*>(&buf), &sz, NNG_FLAG_ALLOC);
@@ -88,9 +88,9 @@ void MDService::HandleReq()
         }
         SubTickReq* req = reinterpret_cast<SubTickReq*>(buf);
         subTickRpcID = req->rpcID;
-        logger.info("MDService::HandleReq,SubTickReq received; {}", req->DebugInfo());
+        logger.debug("MDService::HandleReq,SubTickReq received; {}", req->DebugInfo());
         bool res = OnSubTickReq(req);
-        logger.info("MDService::HandleReq,OnSubTickReq called;");
+        logger.debug("MDService::HandleReq,OnSubTickReq called;");
         if (res == false)
         {
             logger.error("MDService::HandleReq,OnSubTickReq return false;");
@@ -98,7 +98,7 @@ void MDService::HandleReq()
         }
     }
     nng_free(buf, sz);
-    logger.info("MDService::HandleReq,HandleReq finish");
+    logger.debug("MDService::HandleReq,HandleReq finish");
 } 
 
 void MDService::WaitReq()

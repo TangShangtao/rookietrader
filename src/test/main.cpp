@@ -22,35 +22,36 @@ public:
     )
         :   MDApi(eventUrl, rpcUrl, loggerName, logMode)
     {
+        Subscribe(EventType::EventMDReady);
+        Subscribe(EventType::EventTick);
         Init();
-        SendPrepareMDReq();
     }
     ~MDReceiver() override
     {
         std::cout << "MDReceiver ~MDReceiver" << std::endl;
         Join();
     }
+    void OnMDApiStart() override
+    {
+        auto rsp = SendPrepareMDReq();
+        // logger.debug(rsp.DebugInfo());
+    }
     void OnMDReady(const MDReady* event) override
     {
         std::cout << "MDReceiver OnMDReady: " << std::endl;
+        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        
+        std::vector<std::string> subInstruments;
+        subInstruments.push_back("IH2406");
+        subInstruments.push_back("IH2405");
+        auto rsp = SendSubTickReq(ExchangeID::SHFE, subInstruments);
+        // logger.debug(rsp.DebugInfo());
+
     }
     void OnTick(const Tick* event) override
     {
         std::cout << "MDReceiver OnTick: " << event->instrumentID.data() << "lastprice: " << event->lastPrice << std::endl;
     }
-    // Rpc Callback
-    void OnPrepareMDRsp(const PrepareMDRsp* rsp) override
-    {
-        std::cout << "MDReceiver OnPrepareMDRsp" << std::endl;        
-        std::vector<std::string> subInstruments;
-        subInstruments.push_back("IH2406");
-        subInstruments.push_back("IH2405");
-        SendSubTickReq(ExchangeID::SHFE, subInstruments);
-    }
-    void OnSubTickRsp(const SubTickRsp* rsp) override
-    {
-        std::cout << "MDReceiver OnSubTickRsp" << std::endl;
-    }    
+
 };
 
 int main()
