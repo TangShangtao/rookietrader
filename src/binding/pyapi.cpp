@@ -47,7 +47,9 @@ void BindMDApi(const py::module& m)
 
         .def("Init", &MDApi::Init)
         .def("SendPrepareMDReq", &MDApi::SendPrepareMDReq)
-        .def("SendSubTickReq", &MDApi::SendSubTickReq);
+        .def("SendSubTickReq", &MDApi::SendSubTickReq)
+        
+        .def_readonly("logger", &MDApi::logger);
 
 }
 void BindTDApi(const py::module& m)

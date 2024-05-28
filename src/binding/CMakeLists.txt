@@ -4,7 +4,7 @@ include_directories(pybind11/include)
 set(src 
     ${CMAKE_CURRENT_SOURCE_DIR}/pyapi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pyprotocol.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/pyutils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pytools.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pyrookietrader.cpp
 )
 

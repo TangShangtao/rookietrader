@@ -12,7 +12,7 @@ namespace rookietrader
 class Logger
 {
 public:
-    Logger() = default;
+    Logger() = delete;
     Logger(std::string loggerName, std::string logMode)
     {
         std::string logPath = "logs/log_" + loggerName + ".csv";

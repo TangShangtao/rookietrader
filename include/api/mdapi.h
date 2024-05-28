@@ -41,12 +41,15 @@ public:
 private:
     
     void HandleEvent();
+public:
+    // log api
+    const Logger logger;
+    
 private:
     // communication url
     const std::string eventUrl;
     const std::string rpcUrl;
-    // log api
-    const Logger logger;
+
     // rpcID return by MDApi
     int rpcID = 0;
 
