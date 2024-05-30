@@ -8,25 +8,25 @@ class MDReceiver(TradeApi.MDApi):
         self.Subscribe(Protocol.EventType.EventMDReady)
         # self.Subscribe(Protocol.EventType.EventTick)
         self.Init()
-        print("hello")
+        self.logger.Debug("hello")
 
     def OnMDApiStart(self):
-        print("python OnMDReady")
+        self.logger.Debug("python OnMDReady")
         self.SendPrepareMDReq()
 
     def OnMDReady(self, event):
-        print("python OnMDReady")
+        self.logger.Debug("python OnMDReady")
         subInstruments = ["IH2406", "IH2407"]
         self.SendSubTickReq(Protocol.ExchangeID.SHFE, subInstruments)
 
     def OnTick(self, event):
-        print(f"python OnTick {event.instrumentID} {event.lastPrice}")
+        self.logger.Debug(f"python OnTick {event.instrumentID} {event.lastPrice}")
     
     def OnPrepareMDRsp(self, rsp):
-        print("python OnPrepareMDRsp")
+        self.logger.Debug("python OnPrepareMDRsp")
 
     def OnSubTickRsp(self, rsp):
-        print("python OnSubTickRsp")
+        self.logger.Debug("python OnSubTickRsp")
 
 
 if __name__ == "__main__":

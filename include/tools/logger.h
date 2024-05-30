@@ -37,6 +37,26 @@ public:
     {
         spdlog::drop_all();
     }
+    void Debug(const std::string& msg) const 
+    {
+        fileLogger->debug(msg);
+        consoleLogger->debug(msg);
+    }
+    void Info(const std::string& msg) const 
+    {
+        fileLogger->info(msg);
+        consoleLogger->info(msg);
+    }
+    void Warn(const std::string& msg) const 
+    {
+        fileLogger->warn(msg);
+        consoleLogger->warn(msg);
+    }
+    void Error(const std::string& msg) const 
+    {
+        fileLogger->error(msg);
+        consoleLogger->error(msg);
+    }
     template<typename T>
     void debug(T&& msg) const
     {
