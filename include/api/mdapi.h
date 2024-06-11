@@ -1,4 +1,4 @@
-// rpc api to mdserice.
+// rpc api to mdservice.
 // use mdapi to subscribe marketdata from mdservice.
 #pragma once
 #include "protocol.h"
@@ -14,21 +14,17 @@ namespace rookietrader
 class MDApi
 {
 public:
-    // establish connection with service
     MDApi(
         const std::string& eventUrl,
         const std::string& rpcUrl,
         const std::string& loggerName,
         const std::string& logMode
     );
-    explicit MDApi(const std::string& configPath);
     virtual ~MDApi();
     // call Subscribe to subscribe push events
     void Subscribe(EventType event);
     // call Init to start receiving events, call it at end of main thread
     void Init();
-    // cannot bind Join and use Join in Python, use time.sleep! why?
-    void Join();
     // send prepareMD req(sync)
     PrepareMDRsp SendPrepareMDReq();
     // send subTick req(sync)
@@ -38,7 +34,11 @@ public:
     virtual void OnMDApiStart() = 0;
     // Event Callback
     virtual void OnMDReady(const MDReady* event) = 0;
-    virtual void OnTick(const Tick* event) = 0;  
+    virtual void OnTick(const Tick* event) = 0; 
+
+protected:
+    // cannot bind Join and use Join in Python, use time.sleep! why?
+    void Join();
 
 private:
     

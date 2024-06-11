@@ -35,6 +35,8 @@ void BindMDApi(const py::module& m)
                        const std::string&,
                        const std::string&,
                        const std::string&>())
+        .def_readonly("logger", &MDApi::logger)
+
         .def("OnMDApiStart", &MDApi::OnMDApiStart)
         .def("OnMDReady", &MDApi::OnMDReady)
         .def("OnTick", &MDApi::OnTick)

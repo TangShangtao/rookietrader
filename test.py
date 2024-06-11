@@ -16,17 +16,12 @@ class MDReceiver(TradeApi.MDApi):
 
     def OnMDReady(self, event):
         self.logger.Debug("python OnMDReady")
-        subInstruments = ["IH2406", "IH2407"]
+        subInstruments = ["rb2407C3150", "rb2407C3200"]
         self.SendSubTickReq(Protocol.ExchangeID.SHFE, subInstruments)
 
     def OnTick(self, event):
         self.logger.Debug(f"python OnTick {event.instrumentID} {event.lastPrice}")
     
-    def OnPrepareMDRsp(self, rsp):
-        self.logger.Debug("python OnPrepareMDRsp")
-
-    def OnSubTickRsp(self, rsp):
-        self.logger.Debug("python OnSubTickRsp")
 
 
 if __name__ == "__main__":
@@ -38,5 +33,6 @@ if __name__ == "__main__":
                           config["rpcUrl"],
                           config["loggerName"],
                           config["logMode"])
+    # receiver.Join()
     while True:
         time.sleep(10)

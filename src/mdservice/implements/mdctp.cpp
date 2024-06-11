@@ -112,13 +112,13 @@ void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
         logger.error("MDCTP::OnRtnDepthMarketData pDepthMarketData is nullptr !");
         exit(-1);
     }
-    logger.debug("{}, {}, {}", pDepthMarketData->InstrumentID, pDepthMarketData->UpdateTime, pDepthMarketData->UpdateMillisec);
+    logger.debug("MDCTP::OnRtnDepthMarketData {}, {}, {}", pDepthMarketData->InstrumentID, pDepthMarketData->UpdateTime, pDepthMarketData->UpdateMillisec);
     Tick tick(subTickRpcID);
     std::string updateTime = pDepthMarketData->UpdateTime;
     updateTime += ".";
     updateTime += std::to_string(pDepthMarketData->UpdateMillisec);
     std::memcpy(tick.updateTime.data(), updateTime.c_str(), sizeof(tick.updateTime));
-    std::memcpy(tick.instrumentID.data(), pDepthMarketData->InstrumentID, sizeof(tick.instrumentID));
+    std::memcpy(tick.instrumentID.data(), pDepthMarketData->InstrumentID, sizeof(tick.instrumentID)-1);
     if (std::strcmp(pDepthMarketData->ExchangeID, magic_enum::enum_name(ExchangeID::SHFE).data()) == 0)
     {
         tick.exchangeID = ExchangeID::SHFE;
@@ -135,7 +135,7 @@ void MDCTP::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
     {
         tick.exchangeID = ExchangeID::CFFEX;
     }
-    else {tick.exchangeID == ExchangeID::None;}
+    else {tick.exchangeID == ExchangeID::ExchangeIDNone;}
     tick.lastPrice = pDepthMarketData->LastPrice;
     tick.bidPrices[0] = pDepthMarketData->BidPrice1;
     tick.bidPrices[1] = pDepthMarketData->BidPrice2;

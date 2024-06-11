@@ -3,3 +3,4 @@
 // apt install python3-pip
 // pip install pybind11
 // apt install libpq-dev postgresql-server-dev-all 
+// pip install pybind11-stubgen

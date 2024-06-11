@@ -25,12 +25,6 @@ MDApi::MDApi(
         logger.debug(fmt::format("MDApi::MDApi,nng_sub0_open res {}; msg {}", nngRes, nng_strerror(nngRes)));
         exit(-1);
     }
-    // nngRes = nng_socket_set(eventSock, NNG_OPT_SUB_SUBSCRIBE, "", 0);
-    // if (nngRes != 0)
-    // {
-    //     logger.debug(fmt::format("MDApi::MDApi,nng_socket_set res {}; msg {}", nngRes, nng_strerror(nngRes)));
-    //     exit(-1);
-    // }
     nngRes = nng_req0_open(&rpcSock);
     if (nngRes != 0)
     {
@@ -97,7 +91,7 @@ void MDApi::Init()
 
 void MDApi::Join()
 {
-    logger.debug("MDApi::Join,Joining handleEventThread");
+    logger.debug("MDApi::Join,Join handleEventThread");
     if (handleEventThread != nullptr)
     {
         handleEventThread->join();

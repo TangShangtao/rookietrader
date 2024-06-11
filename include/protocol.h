@@ -16,7 +16,7 @@ namespace rookietrader
 enum class EventType
 {
     // EventType error case
-    EventNone,
+    EventTypeNone,
     // MDService ready to communicate
     EventMDReady,
     // TDService ready to communicate
@@ -34,7 +34,7 @@ enum class EventType
 // remote procedure call in trading, managed by req-rsp pattern
 enum class RPCType
 {
-    None,
+    RPCTypeNone,
     PrepareMD,
     PrepareTD,
     QryInstruments,
@@ -49,7 +49,7 @@ enum class RPCType
 
 enum class ExchangeID
 {
-    None,
+    ExchangeIDNone,
     SHFE,
     DCE,
     CZCE,
@@ -59,14 +59,14 @@ enum class ExchangeID
 
 enum class OrderDirection
 {
-    None,
+    OrderDirectionNone,
     Long, 
     Short
 };
 
 enum class Offset
 {
-    None,
+    OffsetNone,
     Open,
     CloseTd,
     CloseYd,
@@ -74,7 +74,7 @@ enum class Offset
 
 enum class OrderStatus
 {
-    None,
+    OrderStatusNone,
     // RiskControlled,
     Rejected,
     NoTradedQueueing,
@@ -89,8 +89,8 @@ struct EventHeader
     uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
-    // 10:10:10.100
-    std::array<char, 15> generateTime;
+    // 101010100
+    std::array<char, 10> generateTime;
     const std::string GetTradingDay() const {return tradingDay.data();}
     const std::string GetGenerateTime() const {return generateTime.data();}
     EventHeader(uint32_t rpcID, EventType eType)
@@ -149,14 +149,14 @@ struct Tick : public EventHeader
     std::array<double, 5> askPrices;
     std::array<double, 5> askVolumes;
     const std::string GetUpdateTime() const {return updateTime.data();}
-    const std::string GetInstrumentID() const {return updateTime.data();}
+    const std::string GetInstrumentID() const {return instrumentID.data();}
     Tick(uint32_t rpcID):EventHeader(rpcID, EventType::EventTick) {}
     std::string DebugInfo() const
     {
         return fmt::format
         (
-            "{};{};{}",
-            EventHeader::DebugInfo(),instrumentID.data(),magic_enum::enum_name(exchangeID),lastPrice
+            "{};{};{};{};{}",
+            EventHeader::DebugInfo(),updateTime.data(),instrumentID.data(),magic_enum::enum_name(exchangeID),lastPrice
         );
     }
 };
@@ -172,8 +172,8 @@ struct Bar : public EventHeader
 
 struct Trade : public EventHeader
 {
+    
     std::array<char, 32> tradeID;
-    uint64_t orderReqID;
     std::array<char, 32> orderSysID;
     std::array<char, 32> accountID;   
 
@@ -181,9 +181,7 @@ struct Trade : public EventHeader
     ExchangeID exchangeID;
     double tradePrice;
     double orderPrice;
-    // traded volume in on trade
     int tradeVolume;
-    // origin total volume
     int orderVolume;
     double commission;
     Trade(uint32_t rpcID):EventHeader(rpcID, EventType::EventTrade) {}
@@ -222,8 +220,8 @@ struct RPCReqHeader
     uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
-    // 10:10:10.100
-    std::array<char, 15> generateTime;
+    // 101010100
+    std::array<char, 10> generateTime;
     const std::string GetTradingDay() const {return tradingDay.data();}
     const std::string GetGenerateTime() const {return generateTime.data();}
 
@@ -252,8 +250,8 @@ struct RPCRspHeader
     uint32_t rpcID;
     // 20200101
     std::array<char, 9> tradingDay;
-    // 10:10:10.100
-    std::array<char, 15> generateTime;
+    // 101010100
+    std::array<char, 10> generateTime;
     bool isSucc;
     std::array<char, 32> errorMsg;
     const std::string GetTradingDay() const {return tradingDay.data();}
