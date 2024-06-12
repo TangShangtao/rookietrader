@@ -6,7 +6,7 @@ class MDReceiver(TradeApi.MDApi):
     def __init__(self, eventUrl, rpcUrl, loggerName, logMode):
         super().__init__(eventUrl, rpcUrl, loggerName, logMode)
         self.Subscribe(Protocol.EventType.EventMDReady)
-        # self.Subscribe(Protocol.EventType.EventTick)
+        self.Subscribe(Protocol.EventType.EventTick)
         self.Init()
         self.logger.Debug("hello")
 
@@ -19,7 +19,7 @@ class MDReceiver(TradeApi.MDApi):
         subInstruments = ["rb2407C3150", "rb2407C3200"]
         self.SendSubTickReq(Protocol.ExchangeID.SHFE, subInstruments)
 
-    def OnTick(self, event):
+    def OnTick(self, event: Protocol.Tick):
         self.logger.Debug(f"python OnTick {event.instrumentID} {event.lastPrice}")
     
 
