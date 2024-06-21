@@ -1,9 +1,18 @@
 #pragma once
 #include <string>
 #include <cstdint>
+#include <functional>
 namespace rookietrader
 {
-
+class SignalHandler
+{
+public:
+    typedef std::function<void(const std::string&)> SignalLogCallback;
+    typedef std::function<void(int)> ExitCallback;
+    static void PrintStackTrace(SignalLogCallback logCb);
+    static void OnSystemSignal(int signum);
+    static void RegisterSignalCallbacks(SignalLogCallback logCb, ExitCallback exitCb);
+};
 class TimeUtils
 {
 public:

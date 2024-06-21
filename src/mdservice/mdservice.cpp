@@ -17,7 +17,8 @@ MDService::MDService(
     accountID(accountID),
     password(password),
     frontAddr(frontAddr),
-    logger(loggerName, logMode)
+    logger(loggerName, logMode),
+    running(false)
 {
     eventSock = NNG_SOCKET_INITIALIZER;
     rpcSock = NNG_SOCKET_INITIALIZER;
@@ -45,57 +46,115 @@ MDService::MDService(
         logger.debug(fmt::format("MDService::MDService,nng_listen {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
         exit(-1);
     }
-    handleReqThread = std::make_shared<std::thread>(std::bind(&MDService::HandleReq, this));
     logger.debug("MDService::MDService,called");
+    SignalHandler::SignalLogCallback logCallback = [&](const std::string& msg)
+    {
+        logger.info(msg);
+    };
+    SignalHandler::ExitCallback exitCallback = [&](int signal)
+    {
+        logger.info(fmt::format("MDService::ExitCallback,signal {}; exit", signal));
+        Stop();
+        // exit(signal);
+    };
+    SignalHandler::RegisterSignalCallbacks(logCallback, exitCallback);
 }
 MDService::~MDService()
 {
     logger.debug("MDService::~MDService,called");
+}
+void MDService::Run()
+{
+    running = true;
+    handleReqThread = std::make_shared<std::thread>(std::bind(&MDService::HandleReq, this));
+}
+void MDService::Stop()
+{
+    running = false;
+    OnDisconnect();
+    nngRes = nng_close(eventSock);
+    if (nngRes != 0)
+    {
+        logger.debug(fmt::format("MDService::Stop;nng_close eventSock {}; res {}; msg {}", eventUrl, nngRes, nng_strerror(nngRes)));
+    }
+    logger.debug("MDService::nng_close(eventSock);called");
+    nngRes = nng_close(rpcSock);
+    if (nngRes != 0)
+    {
+        logger.debug(fmt::format("MDService::Stop;nng_close rpcSock {}; res {}; msg {}", rpcUrl, nngRes, nng_strerror(nngRes)));
+    }
+    logger.debug("MDService::nng_close(rpcSock);called");
+    if (handleReqThread->joinable())
+    {
+        handleReqThread->join();
+    }
+    logger.debug("MDService::Stop;called");
 }
 void MDService::HandleReq()
 {
     logger.debug("MDService::HandleReq,waiting PrepareMDReq");
     RPCReqHeader* buf = nullptr;
     size_t sz;
-    while (prepareMDRpcID == 0)
+    while (running)
     {
         nngRes = nng_recv(rpcSock, reinterpret_cast<void*>(&buf), &sz, NNG_FLAG_ALLOC);
-        if (buf->rpc != RPCType::PrepareMD)
+        if (nngRes != 0)
         {
-            logger.error("MDService::HandleReq,nng_recv received req; but not PrepareMDReq; {}", buf->DebugInfo());
-            continue;
+            logger.error(fmt::format("MDService::HandleReq,nng_recv res {}; msg {}", nngRes, nng_strerror(nngRes)));
+            break;
         }
-        PrepareMDReq* req = reinterpret_cast<PrepareMDReq*>(buf);
-        prepareMDRpcID = req->rpcID;
-        logger.debug("MDService::HandleReq,PrepareMDReq received; {}", req->DebugInfo());
-        bool res = OnPrepareMDReq(req);
-        logger.debug("MDService::HandleReq,OnPrepareMDReq called;");
-        if (res == false)
+        switch (buf->rpc)
         {
-            logger.error("MDService::HandleReq,OnPrepareMDReq return false;");
-            exit(-1);
+            case RPCType::PrepareMD:
+            {
+                if (prepareMDRpcID != 0)
+                {
+                    logger.error("MDService::HandleReq,prepareMDReq received more than once; {}", buf->DebugInfo());
+                }
+                else
+                {
+                    PrepareMDReq* req = reinterpret_cast<PrepareMDReq*>(buf);
+                    prepareMDRpcID = req->rpcID;
+                    logger.debug("MDService::HandleReq,PrepareMDReq received; {}", req->DebugInfo());
+                    bool res = OnPrepareMDReq(req);
+                    logger.debug("MDService::HandleReq,OnPrepareMDReq called;");
+                    if (res == false)
+                    {
+                        logger.error("MDService::HandleReq,OnPrepareMDReq return false;");
+                        exit(-1);
+                    }
+                }
+                break;
+            }
+            case RPCType::SubTick:
+            {
+                if (prepareMDRpcID == 0)
+                {
+                    logger.error("MDService::HandleReq,nng_recv received req; but not PrepareMDReq; {}", buf->DebugInfo());
+                    continue;
+                }
+                else
+                {
+                    SubTickReq* req = reinterpret_cast<SubTickReq*>(buf);
+                    subTickRpcID = req->rpcID;
+                    logger.debug("MDService::HandleReq,SubTickReq received; {}", req->DebugInfo());
+                    bool res = OnSubTickReq(req);
+                    logger.debug("MDService::HandleReq,OnSubTickReq called;");
+                    if (res == false)
+                    {
+                        logger.error("MDService::HandleReq,OnSubTickReq return false;");
+                        exit(-1);
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                logger.error("MDService::HandleReq,unsupported req received; {}", buf->DebugInfo());
+                break;
+            }
         }
-    }
 
-    logger.debug("MDService::HandleReq,waiting SubTickReq;");
-    while (subTickRpcID == 0)
-    {
-        nngRes = nng_recv(rpcSock, reinterpret_cast<void*>(&buf), &sz, NNG_FLAG_ALLOC);
-        if (buf->rpc != RPCType::SubTick)
-        {
-            logger.error("MDService::HandleReq,nng_recv received req {}; but not SubTickReq", buf->DebugInfo());
-            continue;
-        }
-        SubTickReq* req = reinterpret_cast<SubTickReq*>(buf);
-        subTickRpcID = req->rpcID;
-        logger.debug("MDService::HandleReq,SubTickReq received; {}", req->DebugInfo());
-        bool res = OnSubTickReq(req);
-        logger.debug("MDService::HandleReq,OnSubTickReq called;");
-        if (res == false)
-        {
-            logger.error("MDService::HandleReq,OnSubTickReq return false;");
-            exit(-1);
-        }
     }
     nng_free(buf, sz);
     logger.debug("MDService::HandleReq,HandleReq finish");

@@ -9,7 +9,7 @@
 
 #include <thread>
 #include <memory>
-
+#include <atomic>
 namespace rookietrader
 {
 
@@ -28,12 +28,15 @@ public:
         const std::string& logMode
     );
     virtual ~MDService();
+    void Run();
+    void Stop();
 private:
     // connect and login to broker's marketdata front
     virtual bool OnPrepareMDReq(const PrepareMDReq* req) = 0;
-   // subscribe market data of many instruments calling api only once
+    // subscribe market data of many instruments calling api only once
     virtual bool OnSubTickReq(const SubTickReq* subTickReq) = 0;
-
+    // dissconnect(proactive) from broker's marketdata front
+    virtual bool OnDisconnect() = 0;
 protected:
     // void WaitPrepareMDReq();
     // void WaitSubTickReq();
@@ -65,12 +68,13 @@ protected:
     // rpc req id
     uint32_t prepareMDRpcID = 0;
     uint32_t subTickRpcID = 0;
-
+    bool frontConnected = false;
 private:
     nng_socket eventSock;
     nng_socket rpcSock;
     int nngRes;
     std::shared_ptr<std::thread> handleReqThread;
+    std::atomic_bool running;
 
     
 };

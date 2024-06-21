@@ -34,6 +34,10 @@ bool MDCTP::OnPrepareMDReq(const PrepareMDReq* req)
     return true;
 
 }   
+bool MDCTP::OnDisconnect()
+{
+    return false;
+}
 bool MDCTP::OnSubTickReq(const SubTickReq* subTickReq) 
 {
     char* pInstruments = (char*)subTickReq;

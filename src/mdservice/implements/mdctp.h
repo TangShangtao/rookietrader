@@ -22,6 +22,7 @@ public:
     ~MDCTP() override;
     bool OnPrepareMDReq(const PrepareMDReq* req) override;
     bool OnSubTickReq(const SubTickReq* subTickReq) override;
+    bool OnDisconnect() override;
 
     void OnFrontConnected() override;
     void OnFrontDisconnected(int nReason) override;

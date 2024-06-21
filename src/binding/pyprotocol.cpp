@@ -11,6 +11,8 @@ void BindEnum(const py::module& m)
 {
     py::enum_<EventType>(m, "EventType", py::arithmetic())
         .value("EventTypeNone", EventType::EventTypeNone)
+        .value("EventMDFrontConnected", EventType::EventMDFrontConnected)
+        .value("EventMDFrontDisconnected", EventType::EventMDFrontDisconnected)
         .value("EventMDReady", EventType::EventMDReady)
         .value("EventTDReady", EventType::EventTDReady)
         .value("EventTick", EventType::EventTick)
@@ -66,6 +68,12 @@ void BindStruct(const py::module& m)
         .def_readonly("event", &EventHeader::event)
         .def_property_readonly("tradingDay", &EventHeader::GetTradingDay)
         .def_property_readonly("generateTime", &EventHeader::GetGenerateTime);
+
+    py::class_<MDFrontConnected, EventHeader>(m, "MDFrontConnected")
+        .def(py::init());    
+
+    py::class_<MDFrontDisconnected, EventHeader>(m, "MDFrontDisconnected")
+        .def(py::init());            
 
     py::class_<MDReady, EventHeader>(m, "MDReady")
         .def(py::init<uint32_t>());     

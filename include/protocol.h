@@ -17,6 +17,10 @@ enum class EventType
 {
     // EventType error case
     EventTypeNone,
+    // MDService front connected
+    EventMDFrontConnected,
+    // MDService front disconnected
+    EventMDFrontDisconnected,
     // MDService ready to communicate
     EventMDReady,
     // TDService ready to communicate
@@ -112,6 +116,32 @@ struct EventHeader
     }
 };
 // Event Data
+struct MDFrontConnected : public EventHeader
+{
+    MDFrontConnected():EventHeader(UINT32_MAX, EventType::EventMDFrontConnected) {}
+    std::string DebugInfo() const
+    {
+        return fmt::format
+        (
+            "{};",
+            EventHeader::DebugInfo()
+        );
+    }       
+};
+
+struct MDFrontDisconnected : public EventHeader
+{
+    MDFrontDisconnected():EventHeader(UINT32_MAX, EventType::EventMDFrontDisconnected) {}
+    std::string DebugInfo() const
+    {
+        return fmt::format
+        (
+            "{};",
+            EventHeader::DebugInfo()
+        );
+    }       
+};
+
 struct MDReady : public EventHeader
 {
     MDReady(uint32_t rpcID):EventHeader(rpcID, EventType::EventMDReady) {}

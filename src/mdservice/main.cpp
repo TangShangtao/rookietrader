@@ -1,9 +1,14 @@
 #include <fstream>
 #include <iostream>
+#include <csignal>
+#include <chrono>
 #include "nlohmann/json.hpp"
 #include "implements/mdctp.h"
-
+#include "tools/utils.h"
+#include "spdlog/fmt/fmt.h"
 using namespace rookietrader;
+
+
 int main() 
 {
     std::ifstream ifs("config.json");
@@ -11,6 +16,7 @@ int main()
     {
         auto config = nlohmann::json::parse(ifs).at("MDService");
         auto mdName = config.at("mdName").get<const std::string>();
+        
         if (mdName == "MDCTP")
         {
             MDCTP mdctp(
@@ -22,6 +28,7 @@ int main()
                 config.at("loggerName").get<const std::string>(),
                 config.at("logMode").get<const std::string>()
             );
+            mdctp.Run();
         }
         else 
         {

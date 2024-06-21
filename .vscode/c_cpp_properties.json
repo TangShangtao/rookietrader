@@ -5,7 +5,8 @@
             "includePath": [],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cppStandard": "c++17"
+            "cppStandard": "c++17",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
