@@ -55,7 +55,7 @@ MDService::MDService(
     {
         logger.info(fmt::format("MDService::ExitCallback,signal {}; exit", signal));
         Stop();
-        // exit(signal);
+        exit(signal);
     };
     SignalHandler::RegisterSignalCallbacks(logCallback, exitCallback);
 }
@@ -67,6 +67,7 @@ void MDService::Run()
 {
     running = true;
     handleReqThread = std::make_shared<std::thread>(std::bind(&MDService::HandleReq, this));
+    WaitReq();
 }
 void MDService::Stop()
 {
@@ -162,7 +163,13 @@ void MDService::HandleReq()
 
 void MDService::WaitReq()
 {
-    handleReqThread->join();
+    if (handleReqThread->joinable())
+    {
+        logger.debug("MDService::WaitReq,joining in handleReqThread");
+        handleReqThread->join();
+        logger.debug("MDService::WaitReq,finish joining handleReqThread");
+    }
+
 }
 
 void MDService::SendPrepareMDRsp(bool isSucc, const std::string& msg)

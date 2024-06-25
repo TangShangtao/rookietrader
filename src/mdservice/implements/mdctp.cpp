@@ -21,6 +21,7 @@ MDCTP::MDCTP(
 
 MDCTP::~MDCTP()
 {
+    logger.debug("MDCTP::~MDCTP,calling");
     WaitReq();
     ctpMdApi->Join();
     ctpMdApi->Release();
