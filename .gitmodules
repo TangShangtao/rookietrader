@@ -1,0 +1,39 @@
+[submodule "3rdparty/asio"]
+	path = 3rdparty/asio
+	url = https://github.com/chriskohlhoff/asio.git
+[submodule "3rdparty/concurrentqueue"]
+	path = 3rdparty/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git
+[submodule "3rdparty/cppzmq"]
+	path = 3rdparty/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "3rdparty/Crow"]
+	path = 3rdparty/Crow
+	url = https://github.com/CrowCpp/Crow.git
+[submodule "3rdparty/libpqxx"]
+	path = 3rdparty/libpqxx
+	url = https://github.com/jtv/libpqxx.git
+[submodule "3rdparty/libzmq"]
+	path = 3rdparty/libzmq
+	url = https://github.com/zeromq/libzmq.git
+[submodule "3rdparty/magic_enum"]
+	path = 3rdparty/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
+[submodule "3rdparty/NanoLog"]
+	path = 3rdparty/NanoLog
+	url = https://github.com/PlatformLab/NanoLog.git
+[submodule "3rdparty/nlohmann"]
+	path = 3rdparty/nlohmann
+	url = https://github.com/nlohmann/json.git
+[submodule "3rdparty/readerwriterqueue"]
+	path = 3rdparty/readerwriterqueue
+	url = https://github.com/cameron314/readerwriterqueue.git
+[submodule "3rdparty/replxx"]
+	path = 3rdparty/replxx
+	url = https://github.com/AmokHuginnsson/replxx.git
+[submodule "3rdparty/tomlplusplus"]
+	path = 3rdparty/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git
+[submodule "3rdparty/variadic_table"]
+	path = 3rdparty/variadic_table
+	url = https://github.com/friedmud/variadic_table.git
