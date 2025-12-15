@@ -1,0 +1,18 @@
+[log_config]
+log_file_parent_path = "./logs"
+log_level = "DEBUG"
+[gateway_config]
+gateway_name = "CTP"
+product_class = ["FUTURE"]
+sock_type = "tcp"
+trade_front_ip = "111.207.170.195"
+trade_front_port = "9999"
+market_front_ip = "111.207.170.195"
+market_front_port = "7200"
+broker_id = "9999"
+user_id = "10000073"
+password = "Tt1234567890"
+app_id = "huishi"
+auth_code = "234GS2Z9GII9NGX3"
+[trace_recorder_config]
+account_name = "test_account"

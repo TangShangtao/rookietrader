@@ -1,0 +1,8 @@
+set(CPPZMQ_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(CPPZMQ_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ZMQ_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#set(3rdparty_include ${3rdparty_include} ${3rdparty_path}/cppzmq ${3rdparty_path}/libzmq/include)
+#set(3rdparty_lib ${3rdparty_lib} ${3rdparty_path}/libzmq/build/lib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/3rdparty/libzmq libzmq)
+add_subdirectory(${PROJECT_SOURCE_DIR}/3rdparty/cppzmq cppzmq)
+set(3rdparty_so ${3rdparty_so} libzmq)

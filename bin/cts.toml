@@ -1,0 +1,32 @@
+[account_config]
+account_name = "test_account_future"
+[log_config]
+log_file_parent_path = "./logs"
+log_level = "DEBUG"
+[gateway_config]
+gateway_name = "CTP"
+product_class = ["FUTURE"]
+sock_type = "tcp"
+
+# 模拟
+trade_front_ip = "ctp-trade-fz.hxqh168.cn"
+trade_front_port = "65305"
+market_front_ip = "ctp-trade-fz.hxqh168.cn"
+market_front_port = "65313"
+
+# 7*24
+broker_id = "16363"
+user_id = "900291"
+password = "duo123mm"
+app_id = "client_hstrader_1.0.0"
+auth_code = "QGCYJJ2WZI5LEXM4"
+[risk_control_config]
+daily_order_num = 7
+daily_cancel_num = 4
+daily_repeat_order_num = 2
+[db_config]
+user = "postgres"
+password = "Tt1234567890"
+ip = "localhost"
+port = 5432
+database = "rookietrader"

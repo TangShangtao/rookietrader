@@ -1,0 +1,4 @@
+bin/*
+!bin/*.toml
+build/
+cmake-build*
