@@ -4,10 +4,14 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/Crow" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/NanoLog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/NanoLog/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/asio" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/concurrentqueue" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/cppzmq" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/libpqxx" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/magic_enum" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/nlohmann" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/readerwriterqueue" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/replxx" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/tomlplusplus" vcs="Git" />

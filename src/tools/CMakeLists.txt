@@ -6,4 +6,3 @@ target_include_directories(test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../engine/en
 target_link_libraries(test PRIVATE rk_engine pqxx)
 target_link_options(test PRIVATE "-Wl,--as-needed")
 file(COPY templates DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-file(COPY static DESTINATION ${EXECUTABLE_OUTPUT_PATH})

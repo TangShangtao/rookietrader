@@ -79,6 +79,8 @@ namespace rk::util
             auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
             _sub_second = std::chrono::duration_cast<std::chrono::nanoseconds>(duration - seconds);
         }
+        explicit DateTime(int64_t nanoseconds) : DateTime(std::chrono::system_clock::time_point(std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(nanoseconds))))
+        {}
         struct keyword_args
         {
             int year = 0;
