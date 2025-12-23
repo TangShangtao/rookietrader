@@ -63,7 +63,7 @@ namespace rk::data_type
         return j;
     }
     inline void to_json(nlohmann::ordered_json& j, const Symbol& s) {
-        j = nlohmann::ordered_json{{"symbol", s.symbol}, {"trade_symbol", s.trade_symbol}, {"exchange", s.exchange}};
+        j = nlohmann::ordered_json{{"symbol", s.symbol.to_string()}, {"trade_symbol", s.trade_symbol.to_string()}, {"exchange", s.exchange}};
     }
     inline void to_json(nlohmann::ordered_json& j, const TickData& t) {
         j = nlohmann::ordered_json{
@@ -82,7 +82,7 @@ namespace rk::data_type
         j = nlohmann::ordered_json{
             {"symbol", s.symbol},
             {"product_class", s.product_class},
-            {"underlying_asset", s.underlying_asset},
+            {"underlying_asset", s.underlying_asset.to_string()},
             {"price_tick", s.price_tick},
             {"multiplier", s.multiplier},
             {"min_buy_volume", s.min_buy_volume},
@@ -154,7 +154,7 @@ namespace rk::data_type
     inline void to_json(nlohmann::ordered_json& j, const TradeData& t) {
         j = nlohmann::ordered_json{
             {"order_ref", t.order_ref},
-            {"trade_id", t.trade_id},
+            {"trade_id", t.trade_id.to_string()},
             {"trade_price", t.trade_price},
             {"trade_volume", t.trade_volume},
             {"trading_day", t.trading_day},
@@ -190,15 +190,15 @@ namespace rk::data_type
             {"trading_day", e.trading_day},
             {"order_ref", e.order_ref},
             {"error_type", e.error_type},
-            {"error_msg", e.error_msg}
+            {"error_msg", e.error_msg.to_string()}
         };
     }
     inline void to_json(nlohmann::ordered_json& j, const AlgoReq& e) {
         j = nlohmann::ordered_json{
             {"symbol", e.symbol},
             {"net_position", e.net_position},
-            {"algo_name", e.algo_name},
-            {"algo_param_json", e.algo_param_json},
+            {"algo_name", e.algo_name.to_string()},
+            {"algo_param_json", e.algo_param_json.to_string()},
             {"start_time", e.start_time.strftime()},
             {"end_time", e.end_time.strftime()},
         };

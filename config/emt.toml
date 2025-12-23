@@ -1,0 +1,30 @@
+[account_config]
+account_name = "test_account_stock"
+[log_config]
+log_file_parent_path = "./logs"
+log_level = "DEBUG"
+[gateway_config]
+gateway_name = "EMT"
+product_class = ["STOCK"]
+sock_type = "tcp"
+# 模拟
+trade_front_ip = "61.152.230.41"
+trade_front_port = "19088"
+market_front_ip = "61.152.230.216"
+market_front_port = "8093"
+
+broker_id = "9999"
+user_id = "510100039579"
+password = "lH8402"
+app_id = ""
+auth_code = ""
+[risk_control_config]
+daily_order_num = 10
+daily_cancel_num = 10
+daily_repeat_order_num = 0
+[db_config]
+user = "postgres"
+password = "Tt1234567890"
+ip = "localhost"
+port = 5432
+database = "rookietrader"

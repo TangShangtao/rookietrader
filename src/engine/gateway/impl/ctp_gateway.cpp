@@ -599,20 +599,20 @@ namespace rk::gateway
                 static_cast<uint32_t>(pDepthMarketData->Volume),
                 pDepthMarketData->OpenInterest,
                 pDepthMarketData->AveragePrice,
-                {
-                    {pDepthMarketData->BidPrice1, pDepthMarketData->BidVolume1},
-                    {pDepthMarketData->BidPrice2, pDepthMarketData->BidVolume2},
-                    {pDepthMarketData->BidPrice3, pDepthMarketData->BidVolume3},
-                    {pDepthMarketData->BidPrice4, pDepthMarketData->BidVolume4},
-                    {pDepthMarketData->BidPrice5, pDepthMarketData->BidVolume5},
-                },
-                {
-                    {pDepthMarketData->AskPrice1, pDepthMarketData->AskVolume1},
-                    {pDepthMarketData->AskPrice2, pDepthMarketData->AskVolume2},
-                    {pDepthMarketData->AskPrice3, pDepthMarketData->AskVolume3},
-                    {pDepthMarketData->AskPrice4, pDepthMarketData->AskVolume4},
-                    {pDepthMarketData->AskPrice5, pDepthMarketData->AskVolume5},
-                }
+                {{
+                     {pDepthMarketData->BidPrice1, pDepthMarketData->BidVolume1},
+                     {pDepthMarketData->BidPrice2, pDepthMarketData->BidVolume2},
+                     {pDepthMarketData->BidPrice3, pDepthMarketData->BidVolume3},
+                     {pDepthMarketData->BidPrice4, pDepthMarketData->BidVolume4},
+                     {pDepthMarketData->BidPrice5, pDepthMarketData->BidVolume5},
+                 }},
+                {{
+                     {pDepthMarketData->AskPrice1, pDepthMarketData->AskVolume1},
+                     {pDepthMarketData->AskPrice2, pDepthMarketData->AskVolume2},
+                     {pDepthMarketData->AskPrice3, pDepthMarketData->AskVolume3},
+                     {pDepthMarketData->AskPrice4, pDepthMarketData->AskVolume4},
+                     {pDepthMarketData->AskPrice5, pDepthMarketData->AskVolume5},
+                 }}
             }
         );
     }

@@ -10,6 +10,7 @@
 #include <functional>
 #include <iomanip>
 #include "util/datetime.h"
+#include "util/fixed_container.h"
 
 
 namespace rk::data_type
@@ -70,11 +71,11 @@ namespace rk::data_type
     // structs
     struct Symbol
     {
-        std::string                                 symbol;
-        std::string                                 trade_symbol;
+        util::FixedString<16>                       symbol;
+        util::FixedString<16>                       trade_symbol;
         Exchange                                    exchange = Exchange::UNKNOWN;
         ProductClass                                product_class = ProductClass::UNKNOWN;
-        bool operator==(const Symbol& other) const = default;
+        bool operator==(const Symbol& other) const {return symbol == other.symbol;}
         bool operator<(const Symbol& other) const {return symbol < other.symbol;}
     };
     struct TickData
@@ -86,14 +87,14 @@ namespace rk::data_type
         uint32_t                                    volume = 0;
         double                                      open_interest = 0.;
         double                                      average_price = 0.;
-        std::vector<std::pair<double, uint32_t>>    bid_order;
-        std::vector<std::pair<double, uint32_t>>    ask_order;
+        std::array<std::pair<double, uint32_t>, 10> bid_order;
+        std::array<std::pair<double, uint32_t>, 10> ask_order;
     };
     struct SymbolDetail
     {
         Symbol                                      symbol;
         ProductClass                                product_class = ProductClass::UNKNOWN;
-        std::string                                 underlying_asset;
+        util::FixedString<16>                       underlying_asset;
         double                                      price_tick = 0.;
         int                                         multiplier = 0;
         uint32_t                                    min_buy_volume = 0;
@@ -180,14 +181,14 @@ namespace rk::data_type
         uint32_t                                    traded_volume = 0;
         uint32_t                                    remain_volume = 0;
         uint32_t                                    canceled_volume = 0;
-        bool is_rejected() const
+        [[nodiscard]] bool is_rejected() const
         {
             return (
                 order_req.volume != 0 &&
                 order_req.volume != (traded_volume + remain_volume + canceled_volume)
             );
         }
-        bool is_finished() const
+        [[nodiscard]] bool is_finished() const
         {
             return (
                 is_rejected() ||
@@ -198,7 +199,7 @@ namespace rk::data_type
     struct TradeData
     {
         OrderRef                                    order_ref = 0;
-        std::string                                 trade_id;
+        util::FixedString<64>                       trade_id;
         double                                      trade_price = 0.;
         uint32_t                                    trade_volume = 0;
         uint32_t                                    trading_day = 0;
@@ -232,14 +233,14 @@ namespace rk::data_type
         uint32_t                                    trading_day = 0;
         OrderRef                                    order_ref = 0;
         ErrorType                                   error_type = ErrorType::UNKNOWN;
-        std::string                                 error_msg;
+        util::FixedString<128>                      error_msg;
     };
     struct AlgoReq
     {
         data_type::Symbol                           symbol;
         int32_t                                     net_position;
-        std::string                                 algo_name;
-        std::string                                 algo_param_json;
+        util::FixedString<16>                       algo_name;
+        util::FixedString<16>                       algo_param_json;
         util::DateTime                              start_time;
         util::DateTime                              end_time;
 
@@ -253,7 +254,7 @@ namespace std
     {
         size_t operator()(const rk::data_type::Symbol& s) const noexcept
         {
-            return hash<string>()(s.symbol);
+            return std::hash<std::string_view>{}(s.symbol.view());
         };
     };
     template<>

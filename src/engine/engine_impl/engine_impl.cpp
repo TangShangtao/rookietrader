@@ -260,7 +260,7 @@ namespace rk
         for (const auto& [symbol, position] : _trade_info->_position_data)
         {
             if (position == nullptr || position->empty()) continue;
-            trade_info["position_data"][symbol.symbol] = data_type::to_json(*position);
+            trade_info["position_data"][symbol.symbol.to_string()] = data_type::to_json(*position);
         }
         trade_info["order_data"] = nlohmann::json::array();
         for (const auto& order : _trade_info->_order_data)
@@ -281,12 +281,12 @@ namespace rk
         market_info["symbol_details"] = {};
         for (const auto& [symbol, data] : _market_info->_symbol_details)
         {
-            market_info["symbol_details"][symbol.symbol].emplace_back(data_type::to_json(*data));
+            market_info["symbol_details"][symbol.symbol.to_string()].emplace_back(data_type::to_json(*data));
         }
         market_info["last_tick_data"] = {};
         for (const auto& [symbol, data] : _market_info->_last_tick_data)
         {
-            market_info["last_tick_data"][symbol.symbol].emplace_back(data_type::to_json(*data));
+            market_info["last_tick_data"][symbol.symbol.to_string()].emplace_back(data_type::to_json(*data));
         }
         detail["trade_info"] = trade_info;
         detail["market_info"] = market_info;
@@ -390,7 +390,7 @@ namespace rk
             std::get<std::string>(_algos[req.symbol]) != req.algo_name
         )
         {
-            auto algo = algo::create_algo(*this, req.symbol, req.algo_name, req.algo_param_json);
+            auto algo = algo::create_algo(*this, req.symbol, req.algo_name.to_string(), req.algo_param_json.to_string());
             if (algo == nullptr)
             {
                 NANO_LOG(WARNING, "%s", std::format("create algo return nullptr, {}", data_type::to_json(req).dump(4)).c_str());
@@ -398,7 +398,7 @@ namespace rk
             }
             auto strategy_id = register_strategy(algo);
             algo->set_strategy_id(strategy_id);
-            _algos[req.symbol] = {req.algo_name, algo};
+            _algos[req.symbol] = {req.algo_name.to_string(), algo};
         }
         _event_loop->push_event(event::EventType::EVENT_ALGO_REQ, req);
     }

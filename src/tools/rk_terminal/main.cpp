@@ -48,7 +48,7 @@ public:
         };
         vt.addRow(
             __FUNCTION__,
-            data.order_ref, data.trade_id, data.trade_price, data.trade_volume,
+            data.order_ref, data.trade_id.to_string(), data.trade_price, data.trade_volume,
             data.trade_time.strftime(),
             data.fee
         );
@@ -71,7 +71,7 @@ public:
         VariadicTable<std::string, data_type::OrderRef, std::string, std::string> vt{
             {"callback", "order_ref", "error_type", "error_msg"}
         };
-        vt.addRow(__FUNCTION__, data.order_ref, magic_enum::enum_name(data.error_type).data(), data.error_msg);
+        vt.addRow(__FUNCTION__, data.order_ref, magic_enum::enum_name(data.error_type).data(), data.error_msg.to_string());
         std::ostringstream oss;
         vt.print(oss);
         _rx.print("%s\n%s\n", util::DateTime::now().strftime().c_str(), oss.str().c_str());
