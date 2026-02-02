@@ -16,12 +16,6 @@ namespace rk::algo
         ~Algo() override = default;
         std::unordered_set<data_type::Symbol> on_init(uint32_t trading_day) final
         {
-            // TODO 共享数据
-            _trading_day = trading_day;
-            _last_tick = _engine.query_last_tick(_symbol);
-            _symbol_detail = _engine.query_symbol_detail(_symbol);
-            _position_data = _engine.query_position_data(_symbol);
-
             std::unordered_set<data_type::Symbol> symbols_to_sub{};
             on_algo_init(symbols_to_sub);
             symbols_to_sub.emplace(_symbol);
@@ -36,7 +30,6 @@ namespace rk::algo
         void on_error(const data_type::OrderError& data) override {};
         void on_algo_req(const data_type::AlgoReq& data) override {};
     protected:
-        uint32_t _trading_day = 0;
         uint32_t _strategy_id = 0;
         EngineImpl& _engine;
         data_type::Symbol _symbol;

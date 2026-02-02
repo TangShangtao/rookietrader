@@ -1,0 +1,10 @@
+endpoint="tcp://localhost:1234"
+[md_adapter_config]
+adapter_name = "EMT"
+product_class = ["STOCK"]
+sock_type = "tcp"
+market_front_ip = "61.152.230.216"
+market_front_port = "8093"
+broker_id = "9999"
+user_id = "510100039579"
+password = "lH8402"

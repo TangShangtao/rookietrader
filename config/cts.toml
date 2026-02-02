@@ -1,0 +1,41 @@
+[account_config]
+account_name = "test_account_future"
+[log_config]
+log_file_parent_path = "./logs"
+log_level = "DEBUG"
+[md_adapter_config]
+adapter_name = "CTP"
+product_class = ["FUTURE" ]
+sock_type = "tcp"
+trade_front_ip = "59.46.194.38"
+trade_front_port = "41207"
+market_front_ip = "211.140.193.38"
+market_front_port = "41213"
+broker_id = "1022"
+user_id = "600102006"
+password = "testdce1"
+app_id = "client_hstrader_1.0.0"
+auth_code = "219X1EK81W2NMFZN"
+[td_adapter_config]
+adapter_name = "CTP"
+product_class = ["FUTURE" ]
+sock_type = "tcp"
+trade_front_ip = "59.46.194.38"
+trade_front_port = "41207"
+market_front_ip = "211.140.193.38"
+market_front_port = "41213"
+broker_id = "1022"
+user_id = "600102006"
+password = "testdce1"
+app_id = "client_hstrader_1.0.0"
+auth_code = "219X1EK81W2NMFZN"
+[risk_control_config]
+daily_order_num = 5000
+daily_cancel_num = 2000
+daily_repeat_order_num = 1
+[db_config]
+user = "postgres"
+password = "Tt1234567890"
+ip = "localhost"
+port = 5432
+database = "rookietrader"

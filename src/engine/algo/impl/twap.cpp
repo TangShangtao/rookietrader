@@ -4,9 +4,7 @@
 #include "twap.h"
 #include <cmath>
 #include <nlohmann/json.hpp>
-#include <NanoLogCpp17.h>
-#include "serialization.h"
-
+#include "util/logger.h"
 namespace rk::algo
 {
     TwapAlgoParam::TwapAlgoParam(const std::string& algo_param_json)
@@ -40,13 +38,13 @@ namespace rk::algo
         )
             return;
         _algo_req = data;
-        NANO_LOG(NOTICE, "%s", data_type::to_json(data).dump(4).c_str());
+        RK_LOG_INFO("{}", data_type::to_json(data).dump(4).c_str());
     }
     void Twap::on_tick(const data_type::TickData& data)
     {
         if (data.update_time < _algo_req.start_time)
         {
-            NANO_LOG(NOTICE, "update_time %s, start_time %s", data.update_time.strftime().c_str(), _algo_req.start_time.strftime().c_str());
+            RK_LOG_INFO("update_time {}, start_time {}", data.update_time.strftime().c_str(), _algo_req.start_time.strftime().c_str());
             return;
         }
         else if (data.update_time < _algo_req.end_time)
@@ -60,67 +58,18 @@ namespace rk::algo
     }
     void Twap::on_trade(const data_type::TradeData& data)
     {
-        auto& order = _engine.query_order_data(data.order_ref);
 
-        if (
-            // 全成
-            (order.traded_volume == order.order_req.volume) ||
-            // 部成部撤
-            ((order.traded_volume + order.canceled_volume) == order.order_req.volume)
-        )
-        {
-            _executing_order_ref = std::nullopt;
-            if (_algo_status == AlgoStatus::STOPPED) return;
-            _algo_status = AlgoStatus::IDLE;
-            retry_order(data.trade_time);
-        }
     }
     void Twap::on_cancel(const data_type::CancelData& data)
     {
-        // (order.traded_volume + order.canceled_volume) == order.order_req.volume
-        _executing_order_ref = std::nullopt;
-        if (_algo_status == AlgoStatus::STOPPED) return;
-        _algo_status = AlgoStatus::IDLE;
-        retry_order(data.cancel_time);
+
     }
     void Twap::on_error(const data_type::OrderError& data)
     {
-        _algo_status = AlgoStatus::ERROR;
     }
     void Twap::retry_order(const util::DateTime& datetime)
     {
-        if (_algo_req.net_position == _position_data->net_position()) return;
-        switch (_algo_status)
-        {
-            case AlgoStatus::ERROR:
-            case AlgoStatus::STOPPED:
-            case AlgoStatus::SENDING:
-            case AlgoStatus::CANCELING:
-                return;
-            // 报单执行中, 撤单重挂
-            case AlgoStatus::EXECUTING:
-            {
-                if (_executing_order_ref == std::nullopt)
-                {
-                    _algo_status = AlgoStatus::ERROR;
-                    return;
-                }
-                _engine.order_cancel(_strategy_id, _executing_order_ref.value());
-                return;
-            }
-            // 没有报单执行, 报单
-            case AlgoStatus::IDLE:
-            {
-                auto order_req = algin_position(datetime);
-                _last_retry_dt = datetime;
-                if (order_req.volume <= 0) return;
-                _last_retry_dt = datetime;
-                _executing_order_ref = _engine.order_insert(_strategy_id, order_req);
-                return;
-            }
-            default:
-                return;
-        }
+
     }
     // TODO只处理股票ETF等T+1
     data_type::OrderReq Twap::algin_position(const util::DateTime& datetime) {

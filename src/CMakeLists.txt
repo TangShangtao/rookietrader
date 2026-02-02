@@ -1,3 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+file(GLOB pub_src ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 add_subdirectory(engine)
+add_subdirectory(adapter)
 add_subdirectory(tools)
+add_subdirectory(md_gateway)

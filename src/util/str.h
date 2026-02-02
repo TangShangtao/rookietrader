@@ -45,4 +45,13 @@ namespace rk::util
         auto e = s.find_last_not_of(ws);
         return s.substr(b, e - b + 1);
     }
+    inline std::string to_hex_string(const std::string& input)
+    {
+        std::stringstream ss;
+        ss << std::hex << std::setfill('0');
+        for (unsigned char c : input) {
+            ss << std::setw(2) << static_cast<int>(c);
+        }
+        return ss.str();
+    }
 };

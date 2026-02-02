@@ -70,7 +70,8 @@ namespace rk::util
         // =========================================================
         // 赋值操作符
         // =========================================================
-
+        constexpr FixedString(const FixedString& other) = default;
+        constexpr FixedString& operator=(const FixedString& other) = default;
         constexpr FixedString& operator=(const char* str) {
             assign(str);
             return *this;

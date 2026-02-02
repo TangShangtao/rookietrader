@@ -7,9 +7,6 @@
 [submodule "3rdparty/cppzmq"]
 	path = 3rdparty/cppzmq
 	url = https://github.com/zeromq/cppzmq.git
-[submodule "3rdparty/Crow"]
-	path = 3rdparty/Crow
-	url = https://github.com/CrowCpp/Crow.git
 [submodule "3rdparty/libpqxx"]
 	path = 3rdparty/libpqxx
 	url = https://github.com/jtv/libpqxx.git
@@ -40,3 +37,9 @@
 [submodule "3rdparty/iceoryx2"]
 	path = 3rdparty/iceoryx2
 	url = https://github.com/eclipse-iceoryx/iceoryx2.git
+[submodule "3rdparty/quill"]
+	path = 3rdparty/quill
+	url = https://github.com/odygrd/quill.git
+[submodule "3rdparty/FTXUI"]
+	path = 3rdparty/FTXUI
+	url = https://github.com/ArthurSonzogni/FTXUI.git

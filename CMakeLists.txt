@@ -33,7 +33,7 @@ endforeach ()
 set(compile_options ${compile_options} ${3rdparty_compile_options})
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${compile_options}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${3rdparty_include}

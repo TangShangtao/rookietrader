@@ -11,20 +11,28 @@ namespace rk::config_type
     {
         std::string account_name;
     };
-    struct LogConfig
+    struct MDAdapterConfig
     {
-        std::string log_file_parent_path;
-        std::string log_level;
-    };
-    struct GatewayConfig
-    {
-        std::string gateway_name;
+        std::string adapter_name;
         std::vector<std::string> product_class;
         std::string sock_type;
         std::string trade_front_ip;
         std::string trade_front_port;
         std::string market_front_ip;
         std::string market_front_port;
+        std::string broker_id;
+        std::string user_id;
+        std::string password;
+        std::string app_id;
+        std::string auth_code;
+    };
+    struct TDAdapterConfig
+    {
+        std::string adapter_name;
+        std::vector<std::string> product_class;
+        std::string sock_type;
+        std::string trade_front_ip;
+        std::string trade_front_port;
         std::string broker_id;
         std::string user_id;
         std::string password;
@@ -49,12 +57,18 @@ namespace rk::config_type
     struct EngineConfig
     {
         AccountConfig account_config;
-        LogConfig log_config;
-        GatewayConfig gateway_config;
+        MDAdapterConfig md_adapter_config;
+        TDAdapterConfig td_adapter_config;
         RiskControlConfig risk_control_config;
         DBConfig db_config;
     };
     EngineConfig load_engine_config(std::string_view config_file_path);
+    struct MDGatewayConfig
+    {
+        std::string endpoint;
+        MDAdapterConfig md_adapter_config;
+        static MDGatewayConfig load_config_file(std::string_view config_file_path);
+    };
     struct AlgoExecutorConfig
     {
         EngineConfig engine_config;
