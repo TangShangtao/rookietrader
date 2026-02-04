@@ -20,6 +20,16 @@ namespace rk::config_type
         {
             td_adapter_product_class.emplace_back(p.value_or(""));
         }
+        std::vector<std::string> md_adapter_exchange;
+        for (const auto& p : *config["md_adapter_config"]["exchange"].as_array())
+        {
+            md_adapter_exchange.emplace_back(p.value_or(""));
+        }
+        std::vector<std::string> td_adapter_exchange;
+        for (const auto& p : *config["td_adapter_config"]["exchange"].as_array())
+        {
+            td_adapter_exchange.emplace_back(p.value_or(""));
+        }
         return {
             {
                 config["account_config"]["account_name"].value_or(""),
@@ -27,6 +37,7 @@ namespace rk::config_type
             {
                 config["md_adapter_config"]["adapter_name"].value_or(""),
                 md_adapter_product_class,
+                md_adapter_exchange,
                 config["md_adapter_config"]["sock_type"].value_or(""),
                 config["md_adapter_config"]["trade_front_ip"].value_or(""),
                 config["md_adapter_config"]["trade_front_port"].value_or(""),
@@ -41,6 +52,7 @@ namespace rk::config_type
             {
                 config["td_adapter_config"]["adapter_name"].value_or(""),
                 td_adapter_product_class,
+                td_adapter_exchange,
                 config["td_adapter_config"]["sock_type"].value_or(""),
                 config["td_adapter_config"]["trade_front_ip"].value_or(""),
                 config["td_adapter_config"]["trade_front_port"].value_or(""),
@@ -78,11 +90,17 @@ namespace rk::config_type
         {
             md_adapter_product_class.emplace_back(p.value_or(""));
         }
+        std::vector<std::string> md_adapter_exchange;
+        for (const auto& p : *config["md_adapter_config"]["exchange"].as_array())
+        {
+            md_adapter_exchange.emplace_back(p.value_or(""));
+        }
         return {
             config["endpoint"].value_or(""),
             {
                 config["md_adapter_config"]["adapter_name"].value_or(""),
                 md_adapter_product_class,
+                md_adapter_exchange,
                 config["md_adapter_config"]["sock_type"].value_or(""),
                 config["md_adapter_config"]["trade_front_ip"].value_or(""),
                 config["md_adapter_config"]["trade_front_port"].value_or(""),

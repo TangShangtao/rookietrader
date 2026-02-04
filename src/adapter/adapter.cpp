@@ -1,6 +1,7 @@
 #include "adapter.h"
 #include "impl/ctp_adapter.h"
 #include "impl/emt_adapter.h"
+#include "impl/atp_adapter.h"
 #include "impl/gateway_adapter.h"
 namespace rk::adapter
 {
@@ -16,6 +17,10 @@ namespace rk::adapter
         if (config.adapter_name == "EMT")
         {
             return std::make_unique<EMTMDAdapter>(std::move(push_data_callbacks), std::move(config));
+        }
+        if (config.adapter_name == "ATP")
+        {
+            return nullptr;
         }
         if (config.adapter_name == "Gateway")
         {

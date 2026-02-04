@@ -51,7 +51,7 @@ namespace rk::adapter
         std::vector<uint64_t> _order_ref_to_emt_order_id;
         std::unordered_map<uint64_t, data_type::OrderRef> _emt_order_id_to_order_ref;
     };
-    class EMTMDAdapter final : public MDAdapter, public EMQ::API::QuoteSpi
+    class EMTMDAdapter final : public MDAdapter, public EMQ::API::QuoteSpi, public EMT::API::TraderSpi
     {
     public:
         EMTMDAdapter(MDAdapter::PushDataCallbacks push_data_callbacks, config_type::MDAdapterConfig config);
@@ -61,11 +61,14 @@ namespace rk::adapter
         bool subscribe(std::unordered_set<data_type::Symbol> symbols) override;
         bool unsubscribe(std::unordered_set<data_type::Symbol>) override;
         std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::SymbolDetail>>> query_symbol_detail() override;
+        std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::ETFDetail>>> query_etf_detail() override;
         void notify_rpc_result(RPCResult result);
     private:
         bool do_subscribe(const std::unordered_set<data_type::Symbol>& symbols);
         bool do_unsubscribe(const std::unordered_set<data_type::Symbol>& symbols);
         void OnQueryAllTickers(EMTQuoteStaticInfo* qsi, EMTRspInfoStruct* error_info, bool is_last) override;
+        void OnQueryETF(EMTQueryETFBaseRsp *etf_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) override;
+        void OnQueryETFBasket(EMTQueryETFComponentRsp *etf_component_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) override;
         void OnSubMarketData(EMTSpecificTickerStruct* ticker, EMTRspInfoStruct* error_info, bool is_last) override;
         void OnUnSubMarketData(EMTSpecificTickerStruct* ticker, EMTRspInfoStruct* error_info, bool is_last) override;
         void OnDepthMarketData(EMTMarketDataStruct* market_data, int64_t bid1_qty[], int32_t bid1_count, int32_t max_bid1_count, int64_t ask1_qty[], int32_t ask1_count, int32_t max_ask1_count) override;
@@ -74,17 +77,18 @@ namespace rk::adapter
         std::mutex _rpc_mutex;
         std::condition_variable _rpc_condition_variable;
         std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::SymbolDetail>> _symbol_detail;
-        int _symbol_detail_query_count = 0;
+        std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::ETFDetail>> _etf_detail;
         std::unordered_set<data_type::Symbol> _subscribed_symbols;
 
     };
-    class EMTGateway
+    class EMTAdapter
     {
     public:
         static data_type::ProductClass convert_product_class(EMQ_TICKER_TYPE counter_field);
         static data_type::Exchange convert_exchange(EMQ_EXCHANGE_TYPE counter_field);
         static data_type::Exchange convert_exchange(EMT_MARKET_TYPE counter_field);
         static EMT_MARKET_TYPE convert_exchange(data_type::Exchange field);
+        static EMQ_EXCHANGE_TYPE convert_exchange1(data_type::Exchange field);
         static EMT_SIDE_TYPE convert_direction(data_type::Direction field);
         static data_type::Direction convert_direction(EMT_SIDE_TYPE field);
         static EMT_POSITION_EFFECT_TYPE convert_offset(data_type::Offset field);

@@ -15,6 +15,7 @@ namespace rk::config_type
     {
         std::string adapter_name;
         std::vector<std::string> product_class;
+        std::vector<std::string> exchange;
         std::string sock_type;
         std::string trade_front_ip;
         std::string trade_front_port;
@@ -30,6 +31,7 @@ namespace rk::config_type
     {
         std::string adapter_name;
         std::vector<std::string> product_class;
+        std::vector<std::string> exchange;
         std::string sock_type;
         std::string trade_front_ip;
         std::string trade_front_port;

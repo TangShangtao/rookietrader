@@ -30,6 +30,7 @@ namespace rk::adapter
         virtual bool subscribe(std::unordered_set<data_type::Symbol>) = 0;
         virtual bool unsubscribe(std::unordered_set<data_type::Symbol>) = 0;
         virtual std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::SymbolDetail>>> query_symbol_detail() = 0;
+        virtual std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::ETFDetail>>> query_etf_detail() {return {};};
 
     protected:
         PushDataCallbacks                       _push_data_callbacks;

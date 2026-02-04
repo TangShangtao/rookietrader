@@ -8,6 +8,7 @@ log_level = "DEBUG"
 [md_adapter_config]
 adapter_name = "CTP"
 product_class = ["FUTURE"]
+exchange = ["SHFE","CFFEX"]
 sock_type = "tcp"
 # 模拟
 trade_front_ip = "182.254.243.31"
@@ -28,6 +29,7 @@ auth_code = "0000000000000000"
 [td_adapter_config]
 adapter_name = "CTP"
 product_class = ["FUTURE"]
+exchange = ["SHFE","CFFEX"]
 sock_type = "tcp"
 # 模拟
 trade_front_ip = "182.254.243.31"

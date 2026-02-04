@@ -2,6 +2,7 @@
 #include "util/ipc.h"
 #include "util/logger.h"
 #include "util/str.h"
+#include <ranges>
 namespace rk::adapter
 {
     MDGatewayAdapter::MDGatewayAdapter(MDAdapter::PushDataCallbacks push_data_callbacks, config_type::MDAdapterConfig config)
@@ -210,6 +211,10 @@ namespace rk::adapter
             std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::SymbolDetail>> symbol_detail;
             for (const auto& each : rsp_payload.symbol_detail_list)
             {
+                if (std::ranges::find(_config.exchange, magic_enum::enum_name(each.symbol.exchange)) == _config.exchange.end())
+                {
+                    continue;
+                }
                 symbol_detail.emplace(each.symbol, std::make_shared<data_type::SymbolDetail>(each));
             }
             return symbol_detail;

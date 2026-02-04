@@ -5,7 +5,8 @@ log_file_parent_path = "./logs"
 log_level = "DEBUG"
 [md_adapter_config]
 adapter_name = "CTP"
-product_class = ["FUTURE" ]
+product_class = ["FUTURE"]
+exchange = ["SHFE","CFFEX"]
 sock_type = "tcp"
 trade_front_ip = "59.46.194.38"
 trade_front_port = "41207"
@@ -18,7 +19,8 @@ app_id = "client_hstrader_1.0.0"
 auth_code = "219X1EK81W2NMFZN"
 [td_adapter_config]
 adapter_name = "CTP"
-product_class = ["FUTURE" ]
+product_class = ["FUTURE"]
+exchange = ["SHFE","CFFEX"]
 sock_type = "tcp"
 trade_front_ip = "59.46.194.38"
 trade_front_port = "41207"

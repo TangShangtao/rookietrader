@@ -29,16 +29,17 @@ using Replxx = replxx::Replxx;
 
 int main(int argc, char *argv[])
 {
-    EngineImpl engine{"emt.toml"};
-    engine.start_trading();
-    engine.algo_insert({
-        {"000001.SZ", "000001", data_type::Exchange::SZSE, data_type::ProductClass::STOCK},
-        0,
-        "TWAP",
-        "",
-        util::DateTime::now() + util::TimeDelta{{.minutes=2}},
-        util::DateTime::now() + util::TimeDelta{{.minutes=3}}
-    });
+    auto inst = adapter::create_md_adapter(
+        {
+            [&] (data_type::TickData&& data){},
+            [](){}
+        },
+        config_type::load_engine_config("emt.toml").md_adapter_config
+    );
+    auto res = inst->login();
+    auto symbol_detail = inst->query_symbol_detail();
+    auto etf_detail = inst->query_etf_detail();
+    RK_LOG_DEBUG("");
 
 };
 

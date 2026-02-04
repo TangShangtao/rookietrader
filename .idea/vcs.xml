@@ -2,10 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/FTXUI" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/asio" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/concurrentqueue" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/cppzmq" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/3rdparty/iceoryx2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/libpqxx" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/magic_enum" vcs="Git" />

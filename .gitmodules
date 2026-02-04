@@ -34,9 +34,6 @@
 [submodule "3rdparty/variadic_table"]
 	path = 3rdparty/variadic_table
 	url = https://github.com/friedmud/variadic_table.git
-[submodule "3rdparty/iceoryx2"]
-	path = 3rdparty/iceoryx2
-	url = https://github.com/eclipse-iceoryx/iceoryx2.git
 [submodule "3rdparty/quill"]
 	path = 3rdparty/quill
 	url = https://github.com/odygrd/quill.git

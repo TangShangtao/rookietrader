@@ -2,6 +2,8 @@
 #include "util/logger.h"
 #include "util/str.h"
 #include <magic_enum/magic_enum.hpp>
+#include <ranges>
+
 namespace rk::adapter
 {
     void CTPTradeHandler::OnFrontConnected() noexcept
@@ -970,18 +972,22 @@ namespace rk::adapter
         else
         {
             auto product_class = CTPAdapter::convert_product_class(pInstrument->ProductClass);
+            auto exchange = CTPAdapter::convert_exchange(pInstrument->ExchangeID);
             if (
-                std::find(
-                    _config.product_class.begin(),
-                    _config.product_class.end(),
+                (std::ranges::find(
+                    _config.product_class,
                     magic_enum::enum_name(product_class)
-                ) != _config.product_class.end()
-                )
+                ) != _config.product_class.end()) &&
+                (std::ranges::find(
+                    _config.exchange,
+                    magic_enum::enum_name(exchange)
+                ) != _config.exchange.end())
+            )
             {
                 auto symbol = data_type::Symbol{
                     pInstrument->InstrumentID,
                     pInstrument->InstrumentID,
-                    CTPAdapter::convert_exchange(pInstrument->ExchangeID),
+                    exchange,
                     product_class
                 };
                 auto symbol_detail = std::make_shared<data_type::SymbolDetail>(
@@ -1042,7 +1048,7 @@ namespace rk::adapter
             if (
                 _underlying_to_symbol_details.find(pInstrumentCommissionRate->InstrumentID) !=
                 _underlying_to_symbol_details.end()
-                )
+            )
             {
                 auto range = _underlying_to_symbol_details.equal_range(pInstrumentCommissionRate->InstrumentID);
                 for (auto it = range.first; it != range.second; ++it)

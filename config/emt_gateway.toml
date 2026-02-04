@@ -2,6 +2,7 @@ endpoint="tcp://localhost:1234"
 [md_adapter_config]
 adapter_name = "EMT"
 product_class = ["STOCK"]
+exchange = ["SZSE","SSE"]
 sock_type = "tcp"
 market_front_ip = "61.152.230.216"
 market_front_port = "8093"

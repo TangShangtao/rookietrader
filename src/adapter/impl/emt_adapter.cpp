@@ -193,13 +193,13 @@ namespace rk::adapter
         EMTOrderInsertInfo req{};
         req.order_client_id = order_ref;
         std::strncpy(req.ticker, order_req.symbol.trade_symbol.c_str(), sizeof(req.ticker));
-        req.market = EMTGateway::convert_exchange(order_req.symbol.exchange);
+        req.market = EMTAdapter::convert_exchange(order_req.symbol.exchange);
         req.price = order_req.limit_price;
         req.quantity = order_req.volume;
         req.price_type = EMT_PRICE_TYPE::EMT_PRICE_LIMIT;
-        req.side = EMTGateway::convert_direction(order_req.direction);
-        req.position_effect = EMTGateway::convert_offset(order_req.offset);
-        req.business_type = EMTGateway::convert_business_type(order_req.direction);
+        req.side = EMTAdapter::convert_direction(order_req.direction);
+        req.position_effect = EMTAdapter::convert_offset(order_req.offset);
+        req.business_type = EMTAdapter::convert_business_type(order_req.direction);
         auto emt_order_ref = _td_api->InsertOrder(&req, _session_id);
         if (emt_order_ref == 0)
         {
@@ -268,7 +268,7 @@ namespace rk::adapter
             order_info->order_status == EMT_ORDER_STATUS_TYPE::EMT_ORDER_STATUS_CANCELED
             )
         {
-            auto cancel_time = EMTGateway::convert_datetime(order_info->cancel_time);
+            auto cancel_time = EMTAdapter::convert_datetime(order_info->cancel_time);
             _push_data_callbacks.push_cancel({
                 order_info->order_client_id,
                 static_cast<uint32_t>(order_info->qty_left),
@@ -282,7 +282,7 @@ namespace rk::adapter
     void EMTTDAdapter::OnTradeEvent(EMTTradeReport *trade_info, uint64_t session_id)
     {
         if (!trade_info) return;
-        auto trade_time = EMTGateway::convert_datetime(trade_info->trade_time);
+        auto trade_time = EMTAdapter::convert_datetime(trade_info->trade_time);
         _push_data_callbacks.push_trade({
             trade_info->order_client_id,
             trade_info->exec_id,
@@ -316,9 +316,9 @@ namespace rk::adapter
         }
         else
         {
-            auto exchange = EMTGateway::convert_exchange(trade_info->market);
+            auto exchange = EMTAdapter::convert_exchange(trade_info->market);
             if (exchange == data_type::Exchange::UNKNOWN) return;
-            auto symbol = data_type::Symbol{EMTGateway::convert_trade_symbol_to_symbol(exchange, trade_info->ticker)};
+            auto symbol = data_type::Symbol{EMTAdapter::convert_trade_symbol_to_symbol(exchange, trade_info->ticker)};
             if (_position_data.find(symbol) == _position_data.end())
             {
                 _position_data.emplace(
@@ -357,24 +357,24 @@ namespace rk::adapter
         else
         {
             auto order_ref = order_info->order_client_id;
-            auto exchange = EMTGateway::convert_exchange(order_info->market);
+            auto exchange = EMTAdapter::convert_exchange(order_info->market);
             if (exchange == data_type::Exchange::UNKNOWN) return;
             if (order_ref >= _order_data.size())
             {
                 _order_data.resize(order_ref + 1);
             }
-            auto symbol = data_type::Symbol{EMTGateway::convert_trade_symbol_to_symbol(exchange, order_info->ticker)};
+            auto symbol = data_type::Symbol{EMTAdapter::convert_trade_symbol_to_symbol(exchange, order_info->ticker)};
             _order_data[order_ref] = data_type::OrderData{
                 order_ref,
                 {
                     symbol,
                     order_info->price,
                     static_cast<uint32_t>(order_info->quantity),
-                    EMTGateway::convert_direction(order_info->side),
+                    EMTAdapter::convert_direction(order_info->side),
                     data_type::Offset::UNKNOWN,
                 },
                 _trading_day,
-                EMTGateway::convert_datetime(order_info->insert_time),
+                EMTAdapter::convert_datetime(order_info->insert_time),
                 static_cast<uint32_t>(order_info->qty_traded),
                 order_info->cancel_time == 0 ? static_cast<uint32_t>(order_info->qty_left) : 0,
                 order_info->cancel_time != 0 ? static_cast<uint32_t>(order_info->qty_left) : 0
@@ -418,7 +418,7 @@ namespace rk::adapter
                 trade_info->price,
                 static_cast<uint32_t>(trade_info->quantity),
                 _trading_day,
-                EMTGateway::convert_datetime(trade_info->trade_time),
+                EMTAdapter::convert_datetime(trade_info->trade_time),
                 0
             });
         }
@@ -582,39 +582,138 @@ namespace rk::adapter
     }
     std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::SymbolDetail>>> EMTMDAdapter::query_symbol_detail()
     {
-        _symbol_detail_query_count = 0;
         RK_LOG_INFO("start query symbol detail...");
         _symbol_detail.clear();
         auto rpc_lock = std::unique_lock(_rpc_mutex);
-        auto res = _md_api->QueryAllTickers(EMQ_EXCHANGE_TYPE::EMQ_EXCHANGE_SH);
-        if (res != 0)
+        for (const auto& exchange : _config.exchange)
         {
-            RK_LOG_ERROR("query symbol req return {}", res);
-            return std::nullopt;
-        }
-        if (
-            !_rpc_condition_variable.wait_for(
-                rpc_lock,
-                std::chrono::seconds(10),
-                [&]()
-                {
-                    return _rpc_result != RPCResult::UNKNOWN;
-                }
+            auto res = _md_api->QueryAllTickers(EMTAdapter::convert_exchange1(magic_enum::enum_cast<data_type::Exchange>(exchange).value()));
+            if (res != 0)
+            {
+                RK_LOG_ERROR("query {} symbol req return {}", exchange, res);
+                return std::nullopt;
+            }
+            if (
+                !_rpc_condition_variable.wait_for(
+                    rpc_lock,
+                    std::chrono::seconds(10),
+                    [&]()
+                    {
+                        return _rpc_result != RPCResult::UNKNOWN;
+                    }
+                )
             )
-        )
-        {
-            RK_LOG_ERROR("query symbol detail time out");
-            return std::nullopt;
+            {
+                RK_LOG_ERROR("query {} symbol detail time out", exchange);
+                return std::nullopt;
+            }
+            if (_rpc_result == RPCResult::FAILED)
+            {
+                RK_LOG_ERROR("query {} symbol error", exchange);
+                return std::nullopt;
+            }
+            _rpc_result = RPCResult::UNKNOWN;
         }
-        if (_rpc_result == RPCResult::FAILED)
-        {
-            RK_LOG_ERROR("query account data error");
-            return std::nullopt;
-        }
-        _rpc_result = RPCResult::UNKNOWN;
         return _symbol_detail;
     }
-
+    std::optional<std::unordered_map<data_type::Symbol, std::shared_ptr<data_type::ETFDetail>>> EMTMDAdapter::query_etf_detail()
+    {
+        const auto trade_flow_path = std::format("emt_trade_flow/{}/", _config.user_id);
+        if (!std::filesystem::exists(trade_flow_path))
+        {
+            std::filesystem::create_directories(trade_flow_path);
+        }
+        auto td_api = std::unique_ptr<EMT::API::TraderApi, EMTTDDeleter>(
+            EMT::API::TraderApi::CreateTraderApi(
+                2,
+                trade_flow_path.c_str(),
+                EMT_LOG_LEVEL::EMT_LOG_LEVEL_INFO
+            ),
+            EMTTDDeleter()
+        );
+        td_api->RegisterSpi(this);
+        td_api->SubscribePublicTopic(EMT_TE_RESUME_TYPE::EMT_TERT_QUICK);
+        RK_LOG_INFO("start login trade front...");
+        auto session_id = td_api->Login(
+            _config.trade_front_ip.c_str(),
+            std::stoi(_config.trade_front_port),
+            _config.user_id.c_str(),
+            _config.password.c_str(),
+            _config.sock_type == "tcp" ? EMT_PROTOCOL_TYPE::EMT_PROTOCOL_TCP : EMT_PROTOCOL_TYPE::EMT_PROTOCOL_UDP
+        );
+        if (session_id == 0)
+        {
+            auto error = td_api->GetApiLastError();
+            RK_LOG_ERROR("login trade front error, error_id: {}, error_msg: {}", error->error_id, error->error_msg);
+            return std::nullopt;
+        }
+        RK_LOG_INFO("start query etf detail...");
+        _etf_detail.clear();
+        auto rpc_lock = std::unique_lock(_rpc_mutex);
+        for (const auto& exchange : _config.exchange)
+        {
+            EMTQueryETFBaseReq req{EMTAdapter::convert_exchange(magic_enum::enum_cast<data_type::Exchange>(exchange).value())};
+            auto res = td_api->QueryETF(&req, session_id, 0);
+            if (res != 0)
+            {
+                RK_LOG_ERROR("query {} etf detail req return {}", exchange, res);
+                return std::nullopt;
+            }
+            if (
+                !_rpc_condition_variable.wait_for(
+                    rpc_lock,
+                    std::chrono::seconds(10),
+                    [&]()
+                    {
+                        return _rpc_result != RPCResult::UNKNOWN;
+                    }
+                )
+            )
+            {
+                RK_LOG_ERROR("query {} etf detail time out", exchange);
+                return std::nullopt;
+            }
+            if (_rpc_result == RPCResult::FAILED)
+            {
+                RK_LOG_ERROR("query {} etf detail error", exchange);
+                return std::nullopt;
+            }
+            _rpc_result = RPCResult::UNKNOWN;
+        }
+        for (const auto& [etf, detail] : _etf_detail)
+        {
+            EMTQueryETFComponentReq req{EMTAdapter::convert_exchange(etf.exchange)};
+            std::strncpy(req.ticker, etf.trade_symbol.c_str(), sizeof(req.ticker) - 1);
+            auto res = td_api->QueryETFTickerBasket(&req, session_id, 1);
+            if (res != 0)
+            {
+                RK_LOG_ERROR("query etf basket req return {}", res);
+                return std::nullopt;
+            }
+            if (
+                !_rpc_condition_variable.wait_for(
+                    rpc_lock,
+                    std::chrono::seconds(10),
+                    [&]()
+                    {
+                        return _rpc_result != RPCResult::UNKNOWN;
+                    }
+                )
+            )
+            {
+                RK_LOG_ERROR("query etf basket time out");
+                return std::nullopt;
+            }
+            if (_rpc_result == RPCResult::FAILED)
+            {
+                RK_LOG_ERROR("query etf basket error");
+                return std::nullopt;
+            }
+            _rpc_result = RPCResult::UNKNOWN;
+        }
+        td_api->Logout(session_id);
+        return _etf_detail;
+    }
     void EMTMDAdapter::notify_rpc_result(RPCResult result)
     {
         {
@@ -708,7 +807,7 @@ namespace rk::adapter
         if (error_info && error_info->error_id != 0)
         {
             RK_LOG_ERROR("{} failed. error_id: {}, error_msg: {}", __FUNCTION__, error_info->error_id, error_info->error_msg);
-            
+            notify_rpc_result(RPCResult::FAILED);
             return;
         }
         if (!qsi)
@@ -717,19 +816,17 @@ namespace rk::adapter
         }
         else
         {
-            auto product_class = EMTGateway::convert_product_class(qsi->ticker_type);
-            auto exchange = EMTGateway::convert_exchange(qsi->exchange_id);
+            auto product_class = EMTAdapter::convert_product_class(qsi->ticker_type);
+            auto exchange = EMTAdapter::convert_exchange(qsi->exchange_id);
             if (
-                std::find(
-                    _config.product_class.begin(),
-                    _config.product_class.end(),
-                    magic_enum::enum_name(product_class)
-                ) != _config.product_class.end() &&
-                exchange != data_type::Exchange::UNKNOWN
+                (std::ranges::find(_config.product_class, magic_enum::enum_name(product_class))
+                != _config.product_class.end()) &&
+                (std::ranges::find(_config.exchange, magic_enum::enum_name(exchange))
+                != _config.exchange.end())
             )
             {
                 auto symbol = data_type::Symbol{
-                    EMTGateway::convert_trade_symbol_to_symbol(exchange, qsi->ticker),
+                    EMTAdapter::convert_trade_symbol_to_symbol(exchange, qsi->ticker),
                     qsi->ticker,
                     exchange,
                     product_class
@@ -761,19 +858,94 @@ namespace rk::adapter
 
         if (is_last)
         {
-            ++_symbol_detail_query_count;
-            if (_symbol_detail_query_count == 2)
+            notify_rpc_result(RPCResult::SUCCESS);
+        }
+    }
+    void EMTMDAdapter::OnQueryETF(EMTQueryETFBaseRsp *etf_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id)
+    {
+        if (error_info && error_info->error_id != 0)
+        {
+            RK_LOG_ERROR("{} failed. error_id: {}, error_msg: {}", __FUNCTION__, error_info->error_id, error_info->error_msg);
+            notify_rpc_result(RPCResult::FAILED);
+            return;
+        }
+        if (!etf_info)
+        {
+            RK_LOG_WARN("{} data ptr is nullptr", __FUNCTION__);
+        }
+        else
+        {
+            auto exchange = EMTAdapter::convert_exchange(etf_info->market);
+            if (
+                (std::ranges::find(_config.product_class, magic_enum::enum_name(data_type::ProductClass::ETF))
+                != _config.product_class.end()) &&
+                (std::ranges::find(_config.exchange, magic_enum::enum_name(exchange))
+                != _config.exchange.end())
+            )
             {
-                notify_rpc_result(RPCResult::SUCCESS);
+                auto etf = data_type::Symbol{
+                    EMTAdapter::convert_trade_symbol_to_symbol(exchange, etf_info->etf),
+                    etf_info->etf,
+                    exchange,
+                    data_type::ProductClass::ETF
+                };
+                auto etf_detail = std::make_shared<data_type::ETFDetail>(etf);
+                _etf_detail.emplace(etf, std::move(etf_detail));
             }
-            else
+        }
+        if (is_last)
+        {
+            notify_rpc_result(RPCResult::SUCCESS);
+        }
+    }
+    void EMTMDAdapter::OnQueryETFBasket(EMTQueryETFComponentRsp *etf_component_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id)
+    {
+        if (error_info && error_info->error_id != 0)
+        {
+            RK_LOG_ERROR("{} failed. error_id: {}, error_msg: {}", __FUNCTION__, error_info->error_id, error_info->error_msg);
+            notify_rpc_result(RPCResult::FAILED);
+            return;
+        }
+        if (!etf_component_info)
+        {
+            RK_LOG_WARN("{} data ptr is nullptr", __FUNCTION__);
+        }
+        else
+        {
+            auto exchange = EMTAdapter::convert_exchange(etf_component_info->market);
+            if (
+                (std::ranges::find(_config.product_class, magic_enum::enum_name(data_type::ProductClass::ETF))
+                != _config.product_class.end()) &&
+                (std::ranges::find(_config.exchange, magic_enum::enum_name(exchange))
+                != _config.exchange.end())
+            )
             {
-                auto res = _md_api->QueryAllTickers(EMQ_EXCHANGE_TYPE::EMQ_EXCHANGE_SZ);
-                if (res != 0)
+                auto etf = data_type::Symbol{
+                    EMTAdapter::convert_trade_symbol_to_symbol(exchange, etf_component_info->ticker),
+                    etf_component_info->ticker,
+                    exchange,
+                    data_type::ProductClass::ETF
+                };
+                auto component_exchange = EMTAdapter::convert_exchange(etf_component_info->component_market);
+                auto component = data_type::Symbol{
+                    EMTAdapter::convert_trade_symbol_to_symbol(component_exchange, etf_component_info->component_ticker),
+                    etf_component_info->component_ticker,
+                    component_exchange,
+                    data_type::ProductClass::UNKNOWN
+                };
+                if (_etf_detail.contains(etf))
+                {
+                    _etf_detail[etf]->component.emplace_back(component);
+                }
+                else
                 {
                     notify_rpc_result(RPCResult::FAILED);
                 }
             }
+        }
+        if (is_last)
+        {
+            notify_rpc_result(RPCResult::SUCCESS);
         }
     }
     void EMTMDAdapter::OnSubMarketData(EMTSpecificTickerStruct* ticker, EMTRspInfoStruct* error_info, bool is_last)
@@ -805,16 +977,16 @@ namespace rk::adapter
     void EMTMDAdapter::OnDepthMarketData(EMTMarketDataStruct* market_data, int64_t bid1_qty[], int32_t bid1_count, int32_t max_bid1_count, int64_t ask1_qty[], int32_t ask1_count, int32_t max_ask1_count)
     {
         if (!market_data) return;
-        auto exchange = EMTGateway::convert_exchange(market_data->exchange_id);
+        auto exchange = EMTAdapter::convert_exchange(market_data->exchange_id);
         if (exchange == data_type::Exchange::UNKNOWN) return;
-        auto symbol_name = EMTGateway::convert_trade_symbol_to_symbol(exchange, market_data->ticker);
+        auto symbol_name = EMTAdapter::convert_trade_symbol_to_symbol(exchange, market_data->ticker);
         if (!_symbol_detail.contains({symbol_name})) return;
         auto symbol = _symbol_detail.find({symbol_name})->first;
         if (_subscribed_symbols.find(symbol) == _subscribed_symbols.end()) return;
         _push_data_callbacks.push_tick({
             symbol,
             static_cast<uint32_t>(market_data->data_time / 1000000000),
-            EMTGateway::convert_datetime(market_data->data_time),
+            EMTAdapter::convert_datetime(market_data->data_time),
             market_data->last_price,
             market_data->open_price,
             market_data->high_price,
@@ -877,7 +1049,7 @@ namespace rk::adapter
     }
 
 
-    data_type::ProductClass EMTGateway::convert_product_class(EMQ_TICKER_TYPE counter_field)
+    data_type::ProductClass EMTAdapter::convert_product_class(EMQ_TICKER_TYPE counter_field)
     {
         switch (counter_field)
         {
@@ -889,7 +1061,7 @@ namespace rk::adapter
             default:return data_type::ProductClass::UNKNOWN;
         }
     }
-    data_type::Exchange EMTGateway::convert_exchange(EMQ_EXCHANGE_TYPE counter_field)
+    data_type::Exchange EMTAdapter::convert_exchange(EMQ_EXCHANGE_TYPE counter_field)
     {
         switch (counter_field)
         {
@@ -899,7 +1071,7 @@ namespace rk::adapter
             default:return data_type::Exchange::UNKNOWN;
         }
     }
-    data_type::Exchange EMTGateway::convert_exchange(EMT_MARKET_TYPE counter_field)
+    data_type::Exchange EMTAdapter::convert_exchange(EMT_MARKET_TYPE counter_field)
     {
         switch (counter_field)
         {
@@ -909,7 +1081,7 @@ namespace rk::adapter
             default:return data_type::Exchange::UNKNOWN;
         }
     }
-    EMT_MARKET_TYPE EMTGateway::convert_exchange(data_type::Exchange field)
+    EMT_MARKET_TYPE EMTAdapter::convert_exchange(data_type::Exchange field)
     {
         switch (field)
         {
@@ -918,7 +1090,16 @@ namespace rk::adapter
             default:return EMT_MARKET_TYPE::EMT_MKT_UNKNOWN;
         }
     }
-    EMT_SIDE_TYPE EMTGateway::convert_direction(data_type::Direction field)
+    EMQ_EXCHANGE_TYPE EMTAdapter::convert_exchange1(data_type::Exchange field)
+    {
+        switch (field)
+        {
+        case data_type::Exchange::SSE: return EMQ_EXCHANGE_TYPE::EMQ_EXCHANGE_SH;
+        case data_type::Exchange::SZSE: return EMQ_EXCHANGE_TYPE::EMQ_EXCHANGE_SZ;
+        default: return EMQ_EXCHANGE_TYPE::EMQ_EXCHANGE_UNKNOWN;
+        }
+    }
+    EMT_SIDE_TYPE EMTAdapter::convert_direction(data_type::Direction field)
     {
         switch (field)
         {
@@ -927,7 +1108,7 @@ namespace rk::adapter
             default: return EMT_SIDE_UNKNOWN;
         }
     }
-    data_type::Direction EMTGateway::convert_direction(EMT_SIDE_TYPE field)
+    data_type::Direction EMTAdapter::convert_direction(EMT_SIDE_TYPE field)
     {
         switch (field)
         {
@@ -936,7 +1117,7 @@ namespace rk::adapter
             default: return data_type::Direction::UNKNOWN;
         }
     }
-    EMT_POSITION_EFFECT_TYPE EMTGateway::convert_offset(data_type::Offset field)
+    EMT_POSITION_EFFECT_TYPE EMTAdapter::convert_offset(data_type::Offset field)
     {
         switch (field)
         {
@@ -945,7 +1126,7 @@ namespace rk::adapter
             default: return EMT_POSITION_EFFECT_UNKNOWN;
         }
     }
-    data_type::Offset EMTGateway::convert_offset(EMT_POSITION_EFFECT_TYPE field)
+    data_type::Offset EMTAdapter::convert_offset(EMT_POSITION_EFFECT_TYPE field)
     {
         switch (field)
         {
@@ -956,7 +1137,7 @@ namespace rk::adapter
             default: return data_type::Offset::UNKNOWN;
         }
     }
-    EMT_BUSINESS_TYPE_EXT EMTGateway::convert_business_type(data_type::Direction field)
+    EMT_BUSINESS_TYPE_EXT EMTAdapter::convert_business_type(data_type::Direction field)
     {
         switch (field)
         {
@@ -965,7 +1146,7 @@ namespace rk::adapter
             default: return EMT_BUSINESS_TYPE_UNKNOWN;
         }
     }
-    std::string EMTGateway::convert_trade_symbol_to_symbol(data_type::Exchange exchange, std::string trade_symbol)
+    std::string EMTAdapter::convert_trade_symbol_to_symbol(data_type::Exchange exchange, std::string trade_symbol)
     {
         switch (exchange)
         {
@@ -975,7 +1156,7 @@ namespace rk::adapter
             default: return trade_symbol;
         }
     }
-    util::DateTime EMTGateway::convert_datetime(int64_t time)
+    util::DateTime EMTAdapter::convert_datetime(int64_t time)
     {
         auto millisecond = static_cast<int>(time % 1000);
         time /= 1000;

@@ -111,7 +111,6 @@ namespace rk::data_type
         std::array<int64_t, 10>                     ask_volume{};
         double                                      iopv = 0.;
     };
-
     struct SymbolDetail
     {
         Symbol                                      symbol;
@@ -136,6 +135,11 @@ namespace rk::data_type
         double                                      close_fee_rate_by_volume = 0.;
         double                                      close_today_fee_rate_by_money = 0.;
         double                                      close_today_fee_rate_by_volume = 0.;
+    };
+    struct ETFDetail
+    {
+        Symbol                                      symbol;
+        std::vector<Symbol>                         component;
     };
     struct BarData
     {
